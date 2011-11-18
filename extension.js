@@ -1,5 +1,11 @@
 const St = imports.gi.St;
 const Mainloop = imports.mainloop;
+const Meta = imports.gi.Meta;
+const Clutter = imports.gi.Clutter;
+
+const PanelMenu = imports.ui.panelMenu;
+const PopupMenu = imports.ui.popupMenu;
+const Panel = imports.ui.panel;
 
 const Main = imports.ui.main;
 
@@ -22,6 +28,7 @@ const KimpanelIFace = {
 
 let kimpanel = null;
 let inputpanel = null;
+let kimicon = null;
 
 Kimpanel.prototype = {
     _init: function() {
@@ -44,6 +51,31 @@ Kimpanel.prototype = {
 
 function Kimpanel() {
     this._init.apply(this, arguments);
+}
+
+function KimIcon() {
+	this._init.apply(this, arguments);
+}
+
+KimIcon.prototype = {
+	__proto__: PanelMenu.SystemStatusButton.prototype,
+
+	_init: function(){
+		PanelMenu.SystemStatusButton.prototype._init.call(this, 'fcitx');
+		
+		this._menuSection = new PopupMenu.PopupMenuSection();
+		this.menu.addMenuItem(this._menuSection);
+		
+		this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
+		this.menu.addAction("Open file manager", function(event) {
+			;
+		});
+	},
+	
+	_activate : function () {
+		;
+	},
 }
 
 DBus.proxifyPrototype(Kimpanel.prototype, KimpanelIFace);
@@ -85,6 +117,10 @@ function init() {
 
 function enable()
 {
+    if(!kimicon){
+    	kimicon=new KimIcon();
+		Main.panel.addToStatusArea('kimpanel', kimicon);
+    }
     if (!kimpanel) {
         kimpanel = new Kimpanel();
         kimpanel.connect('UpdatePreeditText', function(sender, text)
@@ -142,5 +178,6 @@ function enable()
 function disable()
 {
     kimpanel = null;
+    kimicon.destroy();
     inputpanel = null;
 }
