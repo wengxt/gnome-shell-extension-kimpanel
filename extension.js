@@ -8,6 +8,7 @@ const PopupMenu = imports.ui.popupMenu;
 const Panel = imports.ui.panel;
 
 const Main = imports.ui.main;
+const ModalDialog = imports.ui.modalDialog;
 
 const DBus = imports.dbus;
 const Lang = imports.lang;
@@ -53,29 +54,32 @@ function Kimpanel() {
     this._init.apply(this, arguments);
 }
 
-function KimIcon() {
-	this._init.apply(this, arguments);
+function show_about() {
+	global.log("In show_about");
+	kim_about = new St.Label({ style_class: 'kimpanel-label', text: 'About Kimpanel' , visible: true});
+	global.log(kim_about.text);
+	kim_about.visible = true;
 }
 
 KimIcon.prototype = {
 	__proto__: PanelMenu.SystemStatusButton.prototype,
 
 	_init: function(){
-		PanelMenu.SystemStatusButton.prototype._init.call(this, 'fcitx');
+		PanelMenu.SystemStatusButton.prototype._init.call(this, 'input-keyboard');
 		
 		this._menuSection = new PopupMenu.PopupMenuSection();
 		this.menu.addMenuItem(this._menuSection);
 		
 		this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+		
+		this.menu_item_show_about = new PopupMenu.PopupMenuItem("About Kimpanel");
+		this.menu_item_show_about.connect('activate', Lang.bind(this, show_about));
+		this.menu.addMenuItem(this.menu_item_show_about);
+	},
+}
 
-		this.menu.addAction("Open file manager", function(event) {
-			;
-		});
-	},
-	
-	_activate : function () {
-		;
-	},
+function KimIcon() {
+	this._init.apply(this, arguments);
 }
 
 DBus.proxifyPrototype(Kimpanel.prototype, KimpanelIFace);
