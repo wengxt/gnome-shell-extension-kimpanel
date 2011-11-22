@@ -1,7 +1,14 @@
 const St = imports.gi.St;
 const Mainloop = imports.mainloop;
+const Meta = imports.gi.Meta;
+const Clutter = imports.gi.Clutter;
+
+const PanelMenu = imports.ui.panelMenu;
+const PopupMenu = imports.ui.popupMenu;
+const Panel = imports.ui.panel;
 
 const Main = imports.ui.main;
+const ModalDialog = imports.ui.modalDialog;
 
 const DBus = imports.dbus;
 const Lang = imports.lang;
@@ -22,6 +29,7 @@ const KimpanelIFace = {
 
 let kimpanel = null;
 let inputpanel = null;
+let kimicon = null;
 
 Kimpanel.prototype = {
     _init: function() {
@@ -44,6 +52,38 @@ Kimpanel.prototype = {
 
 function Kimpanel() {
     this._init.apply(this, arguments);
+}
+
+function show_about() {
+	kim_about = new St.Label({ style_class: 'kimpanel-label'});
+	let monitor = Main.layoutManager.primaryMonitor;
+	text = 'About Kimpanel \n Kimpanel is blablabla.'
+	Main.uiGroup.add_actor(kim_about);
+	kim_about.set_position(300, //Math.floor (monitor.width / 2 - text.width / 2),
+			               500); //Math.floor(monitor.height / 2 - text.height / 2));
+	kim_about.text = text
+	kim_about.visible = true;
+}
+
+KimIcon.prototype = {
+	__proto__: PanelMenu.SystemStatusButton.prototype,
+
+	_init: function(){
+		PanelMenu.SystemStatusButton.prototype._init.call(this, 'input-keyboard');
+		
+		this._menuSection = new PopupMenu.PopupMenuSection();
+		this.menu.addMenuItem(this._menuSection);
+		
+		this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+		
+		this.menu_item_show_about = new PopupMenu.PopupMenuItem("About Kimpanel");
+		this.menu_item_show_about.connect('activate', Lang.bind(this, show_about));
+		this.menu.addMenuItem(this.menu_item_show_about);
+	},
+}
+
+function KimIcon() {
+	this._init.apply(this, arguments);
 }
 
 DBus.proxifyPrototype(Kimpanel.prototype, KimpanelIFace);
@@ -85,6 +125,10 @@ function init() {
 
 function enable()
 {
+    if(!kimicon){
+    	kimicon=new KimIcon();
+		Main.panel.addToStatusArea('kimpanel', kimicon);
+    }
     if (!kimpanel) {
         kimpanel = new Kimpanel();
         kimpanel.connect('UpdatePreeditText', function(sender, text)
@@ -142,5 +186,6 @@ function enable()
 function disable()
 {
     kimpanel = null;
+    kimicon.destroy();
     inputpanel = null;
 }
