@@ -55,9 +55,12 @@ function Kimpanel() {
 }
 
 function show_about() {
-	global.log("In show_about");
-	kim_about = new St.Label({ style_class: 'kimpanel-label', text: 'About Kimpanel' , visible: true});
-	global.log(kim_about.text);
+	kim_about = new St.Label({ style_class: 'kimpanel-label'});
+	let monitor = Main.layoutManager.primaryMonitor;
+	Main.uiGroup.add_actor(kim_about);
+	kim_about.set_position(Math.floor (monitor.width / 2 - text.width / 2),
+			               Math.floor(monitor.height / 2 - text.height / 2));
+	
 	kim_about.visible = true;
 }
 
