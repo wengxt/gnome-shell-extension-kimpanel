@@ -57,10 +57,11 @@ function Kimpanel() {
 function show_about() {
 	kim_about = new St.Label({ style_class: 'kimpanel-label'});
 	let monitor = Main.layoutManager.primaryMonitor;
+	text = 'About Kimpanel \n Kimpanel is blablabla.'
 	Main.uiGroup.add_actor(kim_about);
-	kim_about.set_position(Math.floor (monitor.width / 2 - text.width / 2),
-			               Math.floor(monitor.height / 2 - text.height / 2));
-	
+	kim_about.set_position(300, //Math.floor (monitor.width / 2 - text.width / 2),
+			               500); //Math.floor(monitor.height / 2 - text.height / 2));
+	kim_about.text = text
 	kim_about.visible = true;
 }
 
