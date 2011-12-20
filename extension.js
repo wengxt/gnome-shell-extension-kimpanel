@@ -3,7 +3,10 @@ const Mainloop = imports.mainloop;
 
 const Main = imports.ui.main;
 
-const DBus = imports.dbus;
+const DBus = imports.gi.Gio.DBusConnection;
+const Gio = imports.gi.Gio;
+const GLib = imports.gi.GLib;
+
 const Lang = imports.lang;
 
 const KimpanelIFace = {
@@ -24,11 +27,9 @@ let kimpanel = null;
 let inputpanel = null;
 
 Kimpanel.prototype = {
-    _init: function() {
-        DBus.session.proxifyObject(this,
-                'org.fcitx.Fcitx-0',
-                '/kimpanel');
-                
+    _init: function() 
+	{
+		this.conn = Gio.bus_get_sync( Gio.BusType.SESSION, null );
         this.preedit = '';
         this.aux = '';
         this.x = 0;
@@ -40,13 +41,47 @@ Kimpanel.prototype = {
         this.showLookupTable = false;
         this.showAux = false;
     }
+	
 }
 
 function Kimpanel() {
     this._init.apply(this, arguments);
 }
 
-DBus.proxifyPrototype(Kimpanel.prototype, KimpanelIFace);
+function _parseSignal(conn, sender, object, iface, signal, param, user_data)
+{
+	value = param.deep_unpack();
+    switch(signal)
+	{
+	case 'UpdatePreeditText':
+		kimpanel.preedit = value[0];
+		break;
+	case 'UpdateAux':
+		kimpanel.aux = value[0];
+		break;
+	case 'UpdateSpotLocation':
+		kimpanel.x = value[0];
+		kimpanel.y = value[1];
+		break;
+	case 'UpdateLookupTable':
+		kimpanel.label = value[0];	
+		kimpanel.table = value[1];	
+		break;
+	case 'UpdatePreeditCaret':
+		kimpanel.pos = value[0];
+		break;
+	case 'ShowPreedit':
+		kimpanel.showPreedit = value[0];
+		break;
+	case 'ShowLookupTable':
+		kimpanel.showLookupTable = value[0];
+		break;
+	case 'ShowAux':
+		kimpanel.showAux = value[0];
+		break;
+	}
+	_updateInputPanel();
+}
 
 function _updateInputPanel() {
     text = '';
@@ -87,48 +122,17 @@ function enable()
 {
     if (!kimpanel) {
         kimpanel = new Kimpanel();
-        kimpanel.connect('UpdatePreeditText', function(sender, text)
-                {
-                    kimpanel.preedit = text;
-                    _updateInputPanel();
-                });
-        kimpanel.connect('UpdateAux', function(sender, text)
-                {
-                    kimpanel.aux = text;
-                    _updateInputPanel();
-                });
-        kimpanel.connect('UpdateSpotLocation', function(sender, x, y)
-                {
-                    kimpanel.x = x;
-                    kimpanel.y = y;
-                    _updateInputPanel();
-                });
-        kimpanel.connect('UpdateLookupTable', function(sender, label, table)
-                {
-                    kimpanel.table = table;
-                    kimpanel.label = label;
-                    _updateInputPanel();
-                });
-        kimpanel.connect('UpdatePreeditCaret', function(sender, pos)
-                {
-                    kimpanel.pos = pos;
-                    _updateInputPanel();
-                });
-        kimpanel.connect('ShowPreedit', function(sender, show)
-                {
-                    kimpanel.showPreedit = show;
-                    _updateInputPanel();
-                });
-        kimpanel.connect('ShowLookupTable', function(sender, show)
-                {
-                    kimpanel.showLookupTable = show;
-                    _updateInputPanel();
-                });
-        kimpanel.connect('ShowAux', function(sender, show)
-                {
-                    kimpanel.showAux = show;
-                    _updateInputPanel();
-                });
+		signal = kimpanel.conn.signal_subscribe(
+			null,
+			"org.kde.kimpanel.inputmethod",
+			null,
+			null,
+			null,
+			Gio.DBusSignalFlags.NONE,
+			_parseSignal,
+			null,
+			null
+		);
     }
 
     if (!inputpanel)
