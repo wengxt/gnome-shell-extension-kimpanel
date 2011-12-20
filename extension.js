@@ -100,7 +100,7 @@ function _updateInputPanel() {
         }
     }
     inputpanel.text = text;
-    let monitor = Main.layoutManager.primaryMonitor;
+    let monitor = Main.layoutManager.focusMonitor;
     let x = kimpanel.x;
     let y = kimpanel.y;
     if (x + inputpanel.width > monitor.width)
