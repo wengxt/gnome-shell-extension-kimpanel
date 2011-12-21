@@ -9,27 +9,13 @@ const GLib = imports.gi.GLib;
 
 const Lang = imports.lang;
 
-const KimpanelIFace = {
-    name: 'org.kde.kimpanel.inputmethod',
-    signals: [
-        {name: 'UpdatePreeditText', inSignature: 's'},
-        {name: 'UpdateAux', inSignature: 's'},
-        {name: 'UpdateSpotLocation', inSignature: 'ii'},
-        {name: 'UpdateLookupTable', inSignature: 'aa'},
-        {name: 'UpdatePreeditCaret', inSignature: 'i'},
-        {name: 'ShowPreedit', inSignature: 'b'},
-        {name: 'ShowLookupTable', inSignature: 'b'},
-        {name: 'ShowAux', inSignature: 'b'},
-    ]
-};
-
 let kimpanel = null;
 let inputpanel = null;
 
 Kimpanel.prototype = {
     _init: function() 
-	{
-		this.conn = Gio.bus_get_sync( Gio.BusType.SESSION, null );
+    {
+        this.conn = Gio.bus_get_sync( Gio.BusType.SESSION, null );
         this.preedit = '';
         this.aux = '';
         this.x = 0;
@@ -41,7 +27,7 @@ Kimpanel.prototype = {
         this.showLookupTable = false;
         this.showAux = false;
     }
-	
+    
 }
 
 function Kimpanel() {
@@ -50,37 +36,37 @@ function Kimpanel() {
 
 function _parseSignal(conn, sender, object, iface, signal, param, user_data)
 {
-	value = param.deep_unpack();
+    value = param.deep_unpack();
     switch(signal)
-	{
-	case 'UpdatePreeditText':
-		kimpanel.preedit = value[0];
-		break;
-	case 'UpdateAux':
-		kimpanel.aux = value[0];
-		break;
-	case 'UpdateSpotLocation':
-		kimpanel.x = value[0];
-		kimpanel.y = value[1];
-		break;
-	case 'UpdateLookupTable':
-		kimpanel.label = value[0];	
-		kimpanel.table = value[1];	
-		break;
-	case 'UpdatePreeditCaret':
-		kimpanel.pos = value[0];
-		break;
-	case 'ShowPreedit':
-		kimpanel.showPreedit = value[0];
-		break;
-	case 'ShowLookupTable':
-		kimpanel.showLookupTable = value[0];
-		break;
-	case 'ShowAux':
-		kimpanel.showAux = value[0];
-		break;
-	}
-	_updateInputPanel();
+    {
+    case 'UpdatePreeditText':
+        kimpanel.preedit = value[0];
+        break;
+    case 'UpdateAux':
+        kimpanel.aux = value[0];
+        break;
+    case 'UpdateSpotLocation':
+        kimpanel.x = value[0];
+        kimpanel.y = value[1];
+        break;
+    case 'UpdateLookupTable':
+        kimpanel.label = value[0];    
+        kimpanel.table = value[1];    
+        break;
+    case 'UpdatePreeditCaret':
+        kimpanel.pos = value[0];
+        break;
+    case 'ShowPreedit':
+        kimpanel.showPreedit = value[0];
+        break;
+    case 'ShowLookupTable':
+        kimpanel.showLookupTable = value[0];
+        break;
+    case 'ShowAux':
+        kimpanel.showAux = value[0];
+        break;
+    }
+    _updateInputPanel();
 }
 
 function _updateInputPanel() {
@@ -122,24 +108,24 @@ function enable()
 {
     if (!kimpanel) {
         kimpanel = new Kimpanel();
-		signal = kimpanel.conn.signal_subscribe(
-			null,
-			"org.kde.kimpanel.inputmethod",
-			null,
-			null,
-			null,
-			Gio.DBusSignalFlags.NONE,
-			_parseSignal,
-			null,
-			null
-		);
+        signal = kimpanel.conn.signal_subscribe(
+            null,
+            "org.kde.kimpanel.inputmethod",
+            null,
+            null,
+            null,
+            Gio.DBusSignalFlags.NONE,
+            _parseSignal,
+            null,
+            null
+        );
     }
 
     if (!inputpanel)
     {
         inputpanel = new St.Label({ style_class: 'kimpanel-label', text: '' , visible: false});
         let monitor = Main.layoutManager.primaryMonitor;
-	    Main.uiGroup.add_actor(inputpanel);
+        Main.uiGroup.add_actor(inputpanel);
     }
 }
 
