@@ -1,7 +1,14 @@
 const St = imports.gi.St;
 const Mainloop = imports.mainloop;
+const Meta = imports.gi.Meta;
+const Clutter = imports.gi.Clutter;
+
+const PanelMenu = imports.ui.panelMenu;
+const PopupMenu = imports.ui.popupMenu;
+const Panel = imports.ui.panel;
 
 const Main = imports.ui.main;
+const ModalDialog = imports.ui.modalDialog;
 
 const DBus = imports.gi.Gio.DBusConnection;
 const Gio = imports.gi.Gio;
@@ -11,6 +18,7 @@ const Lang = imports.lang;
 
 let kimpanel = null;
 let inputpanel = null;
+let kimicon = null;
 
 Kimpanel.prototype = {
     _init: function() 
@@ -18,6 +26,7 @@ Kimpanel.prototype = {
         this.conn = Gio.bus_get_sync( Gio.BusType.SESSION, null );
         this.preedit = '';
         this.aux = '';
+        this.im = '';
         this.x = 0;
         this.y = 0;
         this.table = [];
@@ -26,8 +35,8 @@ Kimpanel.prototype = {
         this.showPreedit = false;
         this.showLookupTable = false;
         this.showAux = false;
+        this.enabled = false;
     }
-    
 }
 
 function Kimpanel() {
@@ -39,16 +48,24 @@ function _parseSignal(conn, sender, object, iface, signal, param, user_data)
     value = param.deep_unpack();
     switch(signal)
     {
+    case 'UpdateSpotLocation':
+        kimpanel.x = value[0];
+        kimpanel.y = value[1];
+        break;
     case 'UpdatePreeditText':
         kimpanel.preedit = value[0];
         break;
     case 'UpdateAux':
         kimpanel.aux = value[0];
         break;
-    case 'UpdateSpotLocation':
-        kimpanel.x = value[0];
-        kimpanel.y = value[1];
-        break;
+    case 'UpdateProperty':
+        if (value[0].match(/\/im/) )
+        {
+            kimpanel.im = value[0].split(":")[1];
+            break;
+        }
+        else
+            break;
     case 'UpdateLookupTable':
         kimpanel.label = value[0];    
         kimpanel.table = value[1];    
@@ -65,14 +82,68 @@ function _parseSignal(conn, sender, object, iface, signal, param, user_data)
     case 'ShowAux':
         kimpanel.showAux = value[0];
         break;
+    case 'Enable':
+        kimpanel.enabled = value[0];
+        break;
     }
     _updateInputPanel();
+}
+
+KimIcon.prototype = {
+    __proto__: PanelMenu.SystemStatusButton.prototype,
+
+    _init: function(){
+        PanelMenu.SystemStatusButton.prototype._init.call(this, 'input-keyboard');
+        
+        this._menuSection = new PopupMenu.PopupMenuSection();
+        this.menu.addMenuItem(this._menuSection);
+        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        this.menu.addSettingsAction("Settings", 'fcitx-configtool.desktop');
+    },
+    _clearActor: function() {
+        if (this._iconActor != null) {
+            this.actor.remove_actor(this._iconActor);
+            this._iconActor.destroy();
+            this._iconActor = null;
+            this._iconName = null;
+        }
+        if (this._labelActor) {
+            this.actor.remove_actor(this._labelActor);
+            this._labelActor.destroy();
+            this._labelActor = null;
+            this._label = null;
+        }
+    },
+    _setIcon: function(iconName,className) {
+        this._clearActor();
+        this._iconName = iconName;
+        this._iconActor = new St.Icon({ icon_name: iconName,
+                                        icon_type: St.IconType.SYMBOLIC,
+                                        style_class: 'system-status-icon' });
+        if(className!=null)
+            this._iconActor.style_class+=' '+className;
+        this.actor.add_actor(this._iconActor);
+        this.actor.queue_redraw();
+    },
+    _active: function(){
+        this._setIcon('input-keyboard',null);
+    },
+
+    _deactive: function(){
+        this._setIcon('input-keyboard','icon-disable');
+    }
+}
+
+function KimIcon() {
+    this._init.apply(this, arguments);
 }
 
 function _updateInputPanel() {
     text = '';
     if (kimpanel.showAux)
         text = text + kimpanel.aux;
+        if (text!="")
+            text = text +'\t' + kimpanel.im;
     if (kimpanel.showPreedit)
         text = text + kimpanel.preedit;
     if (kimpanel.showLookupTable)
@@ -99,6 +170,12 @@ function _updateInputPanel() {
         y = 0;
     inputpanel.set_position(x, y);
     inputpanel.visible = kimpanel.showAux || kimpanel.showPreedit || kimpanel.showLookupTable;
+    if(kimpanel.enabled)
+    {
+        kimicon._active();    
+    }else{
+        kimicon._deactive();
+    }
 }
 
 function init() {
@@ -106,6 +183,11 @@ function init() {
 
 function enable()
 {
+    if(!kimicon){
+        kimicon=new KimIcon();
+        Main.panel.addToStatusArea('kimpanel', kimicon);
+    }
+
     if (!kimpanel) {
         kimpanel = new Kimpanel();
         signal = kimpanel.conn.signal_subscribe(
@@ -124,7 +206,7 @@ function enable()
     if (!inputpanel)
     {
         inputpanel = new St.Label({ style_class: 'kimpanel-label', text: '' , visible: false});
-        let monitor = Main.layoutManager.primaryMonitor;
+        let monitor = Main.layoutManager.focusMonitor;
         Main.uiGroup.add_actor(inputpanel);
     }
 }
@@ -132,5 +214,7 @@ function enable()
 function disable()
 {
     kimpanel = null;
+    kimicon.destroy();
     inputpanel = null;
 }
+

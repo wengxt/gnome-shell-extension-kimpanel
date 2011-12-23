@@ -5,3 +5,6 @@
     border-radius: 6px;
     padding: .3em;
 }
+.icon-disable {
+  color:rgba(150,150,150,0.5);
+}
