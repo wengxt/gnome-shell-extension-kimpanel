@@ -49,6 +49,7 @@ Kimpanel.prototype = {
         this.showPreedit = false;
         this.showLookupTable = false;
         this.showAux = false;
+		this.enabled = false;
     }
 	
 }
@@ -96,6 +97,9 @@ function _parseSignal(conn, sender, object, iface, signal, param, user_data)
 	case 'ShowAux':
 		kimpanel.showAux = value[0];
 		break;
+	case 'Enable':
+		kimpanel.enabled = value[0];
+		break;
 	}
 	_updateInputPanel();
 }
@@ -111,12 +115,37 @@ KimIcon.prototype = {
 		this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 		this.menu.addSettingsAction("Settings", 'fcitx-configtool.desktop');
 	},
+    _clearActor: function() {
+        if (this._iconActor != null) {
+            this.actor.remove_actor(this._iconActor);
+            this._iconActor.destroy();
+            this._iconActor = null;
+            this._iconName = null;
+        }
+        if (this._labelActor) {
+            this.actor.remove_actor(this._labelActor);
+            this._labelActor.destroy();
+            this._labelActor = null;
+            this._label = null;
+        }
+    },
+    _setIcon: function(iconName,className) {
+        this._clearActor();
+        this._iconName = iconName;
+        this._iconActor = new St.Icon({ icon_name: iconName,
+                                        icon_type: St.IconType.SYMBOLIC,
+                                        style_class: 'system-status-icon' });
+		if(className!=null)
+			this._iconActor.style_class+=' '+className;
+        this.actor.add_actor(this._iconActor);
+        this.actor.queue_redraw();
+    },
 	_active: function(){
-		;
+		this._setIcon('input-keyboard',null);
 	},
 
 	_deactive: function(){
-		;
+		this._setIcon('input-keyboard','icon-disable');
 	}
 }
 
@@ -156,11 +185,11 @@ function _updateInputPanel() {
         y = 0;
     inputpanel.set_position(x, y);
     inputpanel.visible = kimpanel.showAux || kimpanel.showPreedit || kimpanel.showLookupTable;
-	if(!kimpanel.showAux)
+	if(kimpanel.enabled)
 	{
-		kimicon._deactive();	
+		kimicon._active();	
 	}else{
-		kimicon._active();
+		kimicon._deactive();
 	}
 }
 
@@ -192,7 +221,7 @@ function enable()
     if (!inputpanel)
     {
         inputpanel = new St.Label({ style_class: 'kimpanel-label', text: '' , visible: false});
-        let monitor = Main.layoutManager.primaryMonitor;
+        let monitor = Main.layoutManager.focusMonitor;
 	    Main.uiGroup.add_actor(inputpanel);
     }
 }
