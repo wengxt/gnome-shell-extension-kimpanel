@@ -10,7 +10,7 @@ const Panel = imports.ui.panel;
 const Main = imports.ui.main;
 const ModalDialog = imports.ui.modalDialog;
 
-const DBus = imports.gi.Gio.DBusConnection;
+const DBus = imports.dbus;
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 
@@ -20,13 +20,37 @@ let kimpanel = null;
 let inputpanel = null;
 let kimicon = null;
 
+const KimpanelIFace = {
+    name: 'org.kde.impanel',
+    methods:[],
+    signals:[
+        { name: "SelectCandidate", inSignature:'i' },
+        { name: "MovePreeditCaret", inSignature:'i' },
+        { name: "LookupTablePageUp" },
+        { name: "LookupTablePageDown" },
+        { name: "TriggerProperty", inSignature:'s' },
+        { name: "PanelCreated"},
+        { name: "Exit" },
+        { name: "ReloadConfig" },
+        { name: "Configure" }
+    ],
+    properties:[]
+};
+
+function Kimpanel() {
+    this._init.apply(this, arguments);
+}
+
 Kimpanel.prototype = {
     _init: function() 
     {
+        DBus.session.proxifyObject(this, 'org.kde.impanel', '/org/kde/impanel');
+        DBus.session.exportObject('/org/kde/impanel',this);
+        DBus.session.acquire_name('org.kde.impanel',DBus.SINGLE_INSTANCE,null,null);
+        this.emit();
         this.conn = Gio.bus_get_sync( Gio.BusType.SESSION, null );
         this.preedit = '';
         this.aux = '';
-        this.im = '';
         this.x = 0;
         this.y = 0;
         this.table = [];
@@ -36,12 +60,19 @@ Kimpanel.prototype = {
         this.showLookupTable = false;
         this.showAux = false;
         this.enabled = false;
+    },
+    emit: function()
+    {
+        DBus.session.emit_signal('/org/kde/impanel',
+                                 'org.kde.impanel',
+                                 'PanelCreated', 
+                                  '',[]
+                                );
+    
     }
 }
 
-function Kimpanel() {
-    this._init.apply(this, arguments);
-}
+
 
 function _parseSignal(conn, sender, object, iface, signal, param, user_data)
 {
@@ -58,14 +89,6 @@ function _parseSignal(conn, sender, object, iface, signal, param, user_data)
     case 'UpdateAux':
         kimpanel.aux = value[0];
         break;
-    case 'UpdateProperty':
-        if (value[0].match(/\/im/) )
-        {
-            kimpanel.im = value[0].split(":")[1];
-            break;
-        }
-        else
-            break;
     case 'UpdateLookupTable':
         kimpanel.label = value[0];    
         kimpanel.table = value[1];    
@@ -142,8 +165,6 @@ function _updateInputPanel() {
     text = '';
     if (kimpanel.showAux)
         text = text + kimpanel.aux;
-        if (text!="")
-            text = text +'\t' + kimpanel.im;
     if (kimpanel.showPreedit)
         text = text + kimpanel.preedit;
     if (kimpanel.showLookupTable)
@@ -179,6 +200,8 @@ function _updateInputPanel() {
 }
 
 function init() {
+    DBus.proxifyPrototype( Kimpanel.prototype, KimpanelIFace );
+    DBus.conformExport(Kimpanel.prototype, KimpanelIFace );
 }
 
 function enable()
