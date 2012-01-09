@@ -7,6 +7,7 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Panel = imports.ui.panel;
 
+const Pango = imports.gi.Pango;
 const Main = imports.ui.main;
 const ModalDialog = imports.ui.modalDialog;
 
@@ -76,6 +77,7 @@ Kimpanel.prototype = {
 function _parseSignal(conn, sender, object, iface, signal, param, user_data)
 {
     value = param.deep_unpack();
+    //global.log(signal);
     switch(signal)
     {
     case 'UpdateSpotLocation':
@@ -107,6 +109,10 @@ function _parseSignal(conn, sender, object, iface, signal, param, user_data)
     case 'Enable':
         kimpanel.enabled = value[0];
         break;
+    case 'RegisterProperties':
+        global.log('Register');
+        global.log(value[0]);
+        break;
     }
     _updateInputPanel();
 }
@@ -115,6 +121,16 @@ KimIcon.prototype = {
     __proto__: PanelMenu.SystemStatusButton.prototype,
 
     _init: function(){
+        this._properties = {
+            "/Fcitx/im":{}, 
+            "/Fcitx/chttrans":{},
+            "/Fcitx/vk":{},
+            "/Fcitx/punc":{},
+            "/Fcitx/fullwidth":{},
+            "/Fcitx/remind":{}
+        };
+        this._propertySwitch = {};
+
         PanelMenu.SystemStatusButton.prototype._init.call(this, 'input-keyboard');
         
         this._setting = new PopupMenu.PopupMenuItem("Settings");
@@ -126,11 +142,69 @@ KimIcon.prototype = {
             kimpanel.emit('ReloadConfig');
         }));
         this._menuSection = new PopupMenu.PopupMenuSection();
+        this._initProperties(); 
+        
         this.menu.addMenuItem(this._menuSection);
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this.menu.addMenuItem(this._reload);
         this.menu.addMenuItem(this._setting);
     },
+    
+    _parseProperty: function(property) {
+        let p = property.split(":");
+        key = p[0];
+
+        if( key in this._properties ){
+            this._properties[key] = { 
+                'label': p[1],
+                'icon': p[2],
+                'text': p[3]
+            }
+        }
+    },
+    
+    
+    _initProperties: function() {
+        for ( key in this._properties )
+        {
+            this._propertySwitch[key] = this._createPropertyItem();
+            this.menu.addMenuItem(this._propertySwitch[key]);
+        }
+    },
+
+    _createPropertyItem: function() {
+        let item = new PopupMenu.PopupAlternatingMenuItem("");
+        item.actor.set_style_class_name('popup-menu-item');
+        let label = item.label;
+        label.clutter_text.max_length = 20;
+        label.clutter_text.ellipsize = Pango.EllipsizeMode.END;
+        //item.connect('activate', Lang.bind(this, function(actor, event) {
+        //    if (item.state == PopupMenu.PopupAlternatingMenuItemState.DEFAULT) {
+        //        this._select(index);
+        //        return false;
+        //    } else {
+        //        this._delete(index);
+        //        return true;
+        //    }
+        //}));
+        return item;
+    },
+
+    _updateProperties: function( value ) {
+        if( value != null )
+        {
+            ;
+        
+        }
+        for ( key in this._properties )
+        {
+            let item = this._properties[key];
+            let text = item.replace(/\n/g, ' ');
+            let altText = "delete: %s".format(text);
+            this._propertySwitch[key].updateText(text, altText);
+        }
+    },
+
     _clearActor: function() {
         if (this._iconActor != null) {
             this.actor.remove_actor(this._iconActor);
