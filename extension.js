@@ -47,7 +47,6 @@ Kimpanel.prototype = {
         DBus.session.proxifyObject(this, 'org.kde.impanel', '/org/kde/impanel');
         DBus.session.exportObject('/org/kde/impanel',this);
         DBus.session.acquire_name('org.kde.impanel',DBus.SINGLE_INSTANCE,null,null);
-        this.emit();
         this.conn = Gio.bus_get_sync( Gio.BusType.SESSION, null );
         this.preedit = '';
         this.aux = '';
@@ -61,11 +60,11 @@ Kimpanel.prototype = {
         this.showAux = false;
         this.enabled = false;
     },
-    emit: function()
+    emit: function(signal)
     {
         DBus.session.emit_signal('/org/kde/impanel',
                                  'org.kde.impanel',
-                                 'PanelCreated', 
+                                 signal, 
                                   '',[]
                                 );
     
@@ -118,10 +117,19 @@ KimIcon.prototype = {
     _init: function(){
         PanelMenu.SystemStatusButton.prototype._init.call(this, 'input-keyboard');
         
+        this._setting = new PopupMenu.PopupMenuItem("Settings");
+        this._setting.connect('activate', Lang.bind(this, function(){
+            kimpanel.emit('Configure');
+        }));
+        this._reload = new PopupMenu.PopupMenuItem("Reload Configuration");
+        this._reload.connect('activate', Lang.bind(this, function(){
+            kimpanel.emit('ReloadConfig');
+        }));
         this._menuSection = new PopupMenu.PopupMenuSection();
         this.menu.addMenuItem(this._menuSection);
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-        this.menu.addSettingsAction("Settings", 'fcitx-configtool.desktop');
+        this.menu.addMenuItem(this._reload);
+        this.menu.addMenuItem(this._setting);
     },
     _clearActor: function() {
         if (this._iconActor != null) {
@@ -137,6 +145,7 @@ KimIcon.prototype = {
             this._label = null;
         }
     },
+    
     _setIcon: function(iconName,className) {
         this._clearActor();
         this._iconName = iconName;
@@ -148,6 +157,7 @@ KimIcon.prototype = {
         this.actor.add_actor(this._iconActor);
         this.actor.queue_redraw();
     },
+
     _active: function(){
         this._setIcon('input-keyboard',null);
     },
@@ -224,6 +234,7 @@ function enable()
             null,
             null
         );
+        kimpanel.emit('PanelCreated');
     }
 
     if (!inputpanel)
