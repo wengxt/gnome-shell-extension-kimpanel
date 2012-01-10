@@ -77,9 +77,18 @@ Kimpanel.prototype = {
 function _parseSignal(conn, sender, object, iface, signal, param, user_data)
 {
     value = param.deep_unpack();
-    //global.log(signal);
+    global.log(signal);
     switch(signal)
     {
+    case 'RegisterProperties':
+        //kimpanel.emit('Configure');
+        let  properties = value[0];
+        for( p in properties){
+            global.log(properties[p]);
+            kimicon._parseProperty(properties[p]);
+        }
+        kimicon._updateProperties(null);
+        break;
     case 'UpdateSpotLocation':
         kimpanel.x = value[0];
         kimpanel.y = value[1];
@@ -108,10 +117,6 @@ function _parseSignal(conn, sender, object, iface, signal, param, user_data)
         break;
     case 'Enable':
         kimpanel.enabled = value[0];
-        break;
-    case 'RegisterProperties':
-        global.log('Register');
-        global.log(value[0]);
         break;
     }
     _updateInputPanel();
@@ -153,7 +158,7 @@ KimIcon.prototype = {
     _parseProperty: function(property) {
         let p = property.split(":");
         key = p[0];
-
+        global.log(key);
         if( key in this._properties ){
             this._properties[key] = { 
                 'label': p[1],
@@ -173,20 +178,9 @@ KimIcon.prototype = {
     },
 
     _createPropertyItem: function() {
-        let item = new PopupMenu.PopupAlternatingMenuItem("");
-        item.actor.set_style_class_name('popup-menu-item');
-        let label = item.label;
-        label.clutter_text.max_length = 20;
-        label.clutter_text.ellipsize = Pango.EllipsizeMode.END;
-        //item.connect('activate', Lang.bind(this, function(actor, event) {
-        //    if (item.state == PopupMenu.PopupAlternatingMenuItemState.DEFAULT) {
-        //        this._select(index);
-        //        return false;
-        //    } else {
-        //        this._delete(index);
-        //        return true;
-        //    }
-        //}));
+        let item = new PopupMenu.PopupMenuItem("");
+        let label = new St.Label();
+        item.addActor(label, { align: St.Align.END });
         return item;
     },
 
@@ -194,14 +188,11 @@ KimIcon.prototype = {
         if( value != null )
         {
             ;
-        
         }
         for ( key in this._properties )
         {
-            let item = this._properties[key];
-            let text = item.replace(/\n/g, ' ');
-            let altText = "delete: %s".format(text);
-            this._propertySwitch[key].updateText(text, altText);
+            let property = this._properties[key];
+            this._propertySwitch[key].label.text = property.label;
         }
     },
 
