@@ -1,19 +1,12 @@
 const St = imports.gi.St;
-const Mainloop = imports.mainloop;
-const Meta = imports.gi.Meta;
-const Clutter = imports.gi.Clutter;
-
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Panel = imports.ui.panel;
 
-const Pango = imports.gi.Pango;
 const Main = imports.ui.main;
-const ModalDialog = imports.ui.modalDialog;
 
 const DBus = imports.dbus;
 const Gio = imports.gi.Gio;
-const GLib = imports.gi.GLib;
 
 const Lang = imports.lang;
 
@@ -69,6 +62,14 @@ Kimpanel.prototype = {
                                   '',[]
                                 );
     
+    },
+    triggerProperty: function(arg)
+    {
+        DBus.session.emit_signal('/org/kde/impanel',
+            'org.kde.impanel',
+            'TriggerProperty', 
+            's',[arg]
+        );
     }
 }
 
@@ -77,17 +78,17 @@ Kimpanel.prototype = {
 function _parseSignal(conn, sender, object, iface, signal, param, user_data)
 {
     value = param.deep_unpack();
-    global.log(signal);
     switch(signal)
     {
     case 'RegisterProperties':
-        //kimpanel.emit('Configure');
         let  properties = value[0];
-        for( p in properties){
-            global.log(properties[p]);
+        for( p in properties)
             kimicon._parseProperty(properties[p]);
-        }
-        kimicon._updateProperties(null);
+        kimicon._updateProperties();
+        break;
+    case 'UpdateProperty':
+        kimicon._parseProperty(value[0]);
+        kimicon._updateProperties();
         break;
     case 'UpdateSpotLocation':
         kimpanel.x = value[0];
@@ -129,7 +130,6 @@ KimIcon.prototype = {
         this._properties = {
             "/Fcitx/im":{}, 
             "/Fcitx/chttrans":{},
-            "/Fcitx/vk":{},
             "/Fcitx/punc":{},
             "/Fcitx/fullwidth":{},
             "/Fcitx/remind":{}
@@ -158,9 +158,8 @@ KimIcon.prototype = {
     _parseProperty: function(property) {
         let p = property.split(":");
         key = p[0];
-        global.log(key);
         if( key in this._properties ){
-            this._properties[key] = { 
+            this._properties[key] = {
                 'label': p[1],
                 'icon': p[2],
                 'text': p[3]
@@ -172,27 +171,34 @@ KimIcon.prototype = {
     _initProperties: function() {
         for ( key in this._properties )
         {
-            this._propertySwitch[key] = this._createPropertyItem();
+            if( key == '/Fcitx/im')
+                continue;
+            let item = new PopupMenu.PopupImageMenuItem("","");
+            let _icon = new St.Icon({
+                        icon_name:'fcitx',
+                        icon_type: St.IconType.FULLCOLOR, 
+                        style_class: 'popup-menu-icon'
+                        });
+            item._icon = _icon;
+            item.addActor(item._icon);
+            item._key = key;
+            
+            item.connect('activate', Lang.bind(this, function(){
+                kimpanel.triggerProperty(item._key);
+            }));
+            
+            this._propertySwitch[key] = item;
             this.menu.addMenuItem(this._propertySwitch[key]);
         }
     },
 
-    _createPropertyItem: function() {
-        let item = new PopupMenu.PopupMenuItem("");
-        let label = new St.Label();
-        item.addActor(label, { align: St.Align.END });
-        return item;
-    },
-
-    _updateProperties: function( value ) {
-        if( value != null )
-        {
-            ;
-        }
-        for ( key in this._properties )
+    _updateProperties: function( ) {
+        for ( key in this._propertySwitch )
         {
             let property = this._properties[key];
-            this._propertySwitch[key].label.text = property.label;
+            let item = this._propertySwitch[key]; 
+            item.setIcon(property.icon);
+            item.label.text = property.label;
         }
     },
 
@@ -211,24 +217,22 @@ KimIcon.prototype = {
         }
     },
     
-    _setIcon: function(iconName,className) {
+    _setIcon: function(iconName,type) {
         this._clearActor();
         this._iconName = iconName;
         this._iconActor = new St.Icon({ icon_name: iconName,
-                                        icon_type: St.IconType.SYMBOLIC,
+                                        icon_type: type,
                                         style_class: 'system-status-icon' });
-        if(className!=null)
-            this._iconActor.style_class+=' '+className;
         this.actor.add_actor(this._iconActor);
         this.actor.queue_redraw();
     },
 
     _active: function(){
-        this._setIcon('input-keyboard',null);
+         this._setIcon(this._properties['/Fcitx/im'].icon,St.IconType.FULLCOLOR);   
     },
 
     _deactive: function(){
-        this._setIcon('input-keyboard','icon-disable');
+        this._setIcon('input-keyboard',St.IconType.SYMBOLIC);
     }
 }
 
@@ -299,7 +303,7 @@ function enable()
             null,
             null
         );
-        kimpanel.emit('PanelCreated');
+        kimpanel.emit('PanelCreated',[]);
     }
 
     if (!inputpanel)
