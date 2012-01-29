@@ -8,6 +8,6 @@ else
 	DEST=$HOME/.local/share/gnome-shell/extensions/$extension_name/
 fi
 mkdir -p $DEST || exit 1
-cp extension.js metadata.json stylesheet.css "$DEST" || exit 1
+cp extension.js indicator.js panel.js metadata.json stylesheet.css "$DEST" || exit 1
 echo "Install successfull!"
 echo "Enable it with gnome-tweak-tool"
