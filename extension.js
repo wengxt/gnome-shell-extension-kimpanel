@@ -11,7 +11,7 @@ const Lang = imports.lang;
 
 const Me = imports.ui.extensionSystem.extensions['kimpanel@kde.org'];
 const KimIcon = Me.indicator.kimIcon;
-//const InputPanel = Me.panel.inputPanel;
+const InputPanel = Me.panel.inputPanel;
 
 let kimpanel = null;
 
@@ -55,23 +55,25 @@ Kimpanel.prototype = {
         this.showAux = false;
         this.enabled = false;
         this.kimicon = new KimIcon(this);
-        this.inputpanel = new St.Label({ style_class: 'kimpanel-label', text: '' , visible: false});
+        this.inputpanel = new InputPanel(this);
     },
+
     destroy: function ()
     {
         this.kimicon.destroy();
         DBus.session.unexportObject(this);
         this.inputpanel = null;
     },
+
     addToShell: function ()
     {
-        Main.uiGroup.add_actor(this.inputpanel);
+        Main.uiGroup.add_actor(this.inputpanel.actor);
         Main.panel.addToStatusArea('kimpanel', this.kimicon);
     },
 
     updateInputPanel: function()
     {
-        text = '';
+        let text = '';
         if (this.showAux)
             text = text + this.aux;
         if (this.showPreedit)
@@ -86,20 +88,9 @@ Kimpanel.prototype = {
                 text = text + this.label[i] + this.table[i];
             }
         }
-        this.inputpanel.text = text;
-        let monitor = Main.layoutManager.focusMonitor;
-        let x = this.x;
-        let y = this.y;
-        if (x + this.inputpanel.width > monitor.width)
-            x = monitor.width - this.inputpanel.width;
-        if (y + this.inputpanel.height > monitor.height)
-            y = y - this.inputpanel.height - 20;
-        if (x < 0)
-            x = 0;
-        if (y < 0)
-            y = 0;
-        this.inputpanel.set_position(x, y);
-        this.inputpanel.visible = this.showAux || this.showPreedit || this.showLookupTable;
+
+        this.inputpanel.setText( text );
+        this.inputpanel.updatePosition();
         if(this.enabled)
         {
             this.kimicon._active();    
@@ -176,7 +167,6 @@ function _parseSignal(conn, sender, object, iface, signal, param, user_data)
     kimpanel.updateInputPanel();
 }
 
-
 function init() {
     DBus.proxifyPrototype( Kimpanel.prototype, KimpanelIFace );
     DBus.conformExport(Kimpanel.prototype, KimpanelIFace );
@@ -184,11 +174,6 @@ function init() {
 
 function enable()
 {
-    //if(!kimicon){
-    //    kimicon=new KimIcon();
-    //    Main.panel.addToStatusArea('kimpanel', kimicon);
-    //}
-
     if (!kimpanel) {
         kimpanel = new Kimpanel();
         kimpanel.addToShell();
@@ -205,7 +190,6 @@ function enable()
         );
         kimpanel.emit('PanelCreated',[]);
     }
-
 }
 
 function disable()
