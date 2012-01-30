@@ -31,11 +31,10 @@ kimIcon.prototype = {
         this._reload.connect('activate', Lang.bind(this, function(){
             this.kimpanel.emit('ReloadConfig');
         }));
-        this._menuSection = new PopupMenu.PopupMenuSection();
-        this._initProperties(); 
         
-        this.menu.addMenuItem(this._menuSection);
-        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        this._initProperties(); 
+       
+       this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this.menu.addMenuItem(this._reload);
         this.menu.addMenuItem(this._setting);
     },

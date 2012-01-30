@@ -1,9 +1,9 @@
 const St = imports.gi.St;
 
+const Cairo = imports.cairo;
 const Shell = imports.gi.Shell;
 const BoxPointer = imports.ui.boxpointer;
 const Main = imports.ui.main;
-
 const Lang = imports.lang;
 
 inputPanel.prototype = {
@@ -21,24 +21,64 @@ inputPanel.prototype = {
         
         this._cursor = new Shell.GenericContainer();
         
-        this.layout = new St.BoxLayout({vertical: true});
+        this.layout = new St.BoxLayout({vertical: true, style:"padding: .4em;"});
         this.panel.bin.set_child(this.layout);
+        
+        this.upperLayout = new St.BoxLayout();
+        this.separator = new Separator();
+        this.lowerLayout = new St.BoxLayout();
+        
+        
+        this.layout.add(this.upperLayout, {});
 
-        this.content = new St.Label({style_class: 'popup-menu-item',
-                                     style: 'color: #fff;',
-                                     text: ''}); 
+        this.layout.add(this.separator.actor, 
+                        {x_fill: true, y_fill:false, 
+                         x_align: St.Align.MIDDLE,
+                         y_align: St.Align.MIDDLE} ); 
 
-        this.layout.add(this.content, {x_fill: false,
-                                    y_fill: false,
+        this.layout.add(this.lowerLayout, {});
+
+        this.auxText = new St.Label({style_class:'popup-menu-item', style:"padding:0;", text:''}); 
+        this.preeditText = new St.Label({style_class:'popup-menu-item', style:"padding:0;", text:''}); 
+        this.lookupTable = new St.Label({style_class:'popup-menu-item', style:"padding:0;",text:''}); 
+      
+        this.upperLayout.add(this.auxText, {x_fill: false, y_fill: true,
                                     x_align: St.Align.START,
                                     y_align: St.Align.MIDDLE} ); 
+        this.upperLayout.add(this.preeditText, {x_fill: false, y_fill: true,
+                                    x_align: St.Align.START,
+                                    y_align: St.Align.MIDDLE} ); 
+        this.lowerLayout.add(this.lookupTable, {x_fill: true, y_fill: true,
+                                    x_align: St.Align.START,
+                                    y_align: St.Align.MIDDLE} ); 
+        
         this.kimpanel = kimpanel;
         this.hide();
     },
 
-    setText: function(text) {
-        this.content.text = text;
+    setAuxText: function(text) {
+        if(!this.auxText.visible)
+            this.auxText.show();
+        this.auxText.text = text;
     },
+    setPreeditText: function(text) {
+        if(!this.preeditText.visible)
+            this.preeditText.show();
+        this.preeditText.text = text;
+    },
+    setLookupTable: function(text) {
+        this.lookupTable.text = text;
+    },
+    
+    hideAux: function() {
+        if(this.auxText.visible )
+            this.auxText.hide();
+    },
+    hidePreedit: function() {
+        if(this.preeditText.visible) 
+            this.preeditText.hide();
+    },
+    
     updatePosition: function() {
         let kimpanel = this.kimpanel;
         let monitor = Main.layoutManager.focusMonitor;
@@ -83,3 +123,38 @@ inputPanel.prototype = {
 function inputPanel(kimpanel) {
     this._init.apply(this, arguments);
 }
+
+
+function Separator() {
+    this._init();
+}
+
+Separator.prototype = {
+
+    _init: function () {
+        this.actor = new St.DrawingArea({ style_class: ' popup-separator-menu-item', 
+                                          style:'height:2px;padding:.1em 0;' });
+        this.actor.connect('repaint', Lang.bind(this, this._onRepaint));
+    },
+
+    _onRepaint: function(area) {
+        let cr = area.get_context();
+        let themeNode = area.get_theme_node();
+        let [width, height] = area.get_surface_size();
+        let margin = themeNode.get_length('-margin-horizontal');
+        let gradientHeight = themeNode.get_length('-gradient-height');
+        let startColor = themeNode.get_color('-gradient-start');
+        let endColor = themeNode.get_color('-gradient-end');
+
+        let gradientWidth = (width - margin*2 );
+        let gradientOffset = (height - gradientHeight) / 2;
+        let pattern = new Cairo.LinearGradient(margin, gradientOffset, width - margin, gradientOffset + gradientHeight);
+        pattern.addColorStopRGBA(0, startColor.red / 255, startColor.green / 255, startColor.blue / 255, startColor.alpha / 255);
+        pattern.addColorStopRGBA(0.2, endColor.red / 255, endColor.green / 255, endColor.blue / 255, endColor.alpha / 255);
+        pattern.addColorStopRGBA(0.8, endColor.red / 255, endColor.green / 255, endColor.blue / 255, endColor.alpha / 255);
+        pattern.addColorStopRGBA(1, startColor.red / 255, startColor.green / 255, startColor.blue / 255, startColor.alpha / 255);
+        cr.setSource(pattern);
+        cr.rectangle(margin, gradientOffset, gradientWidth, gradientHeight);
+        cr.fill();
+    }
+};

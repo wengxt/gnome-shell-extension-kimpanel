@@ -74,24 +74,24 @@ Kimpanel.prototype = {
 
     updateInputPanel: function()
     {
+        let inputpanel = this.inputpanel;
+        
+        this.showAux ? inputpanel.setAuxText(this.aux) : inputpanel.hideAux();
+        this.showPreedit ? inputpanel.setPreeditText(this.preedit) : inputpanel.hidePreedit();
+
         let text = '';
-        if (this.showAux)
-            text = text + this.aux;
-        if (this.showPreedit)
-            text = text + this.preedit;
         if (this.showLookupTable)
         {
-            text = text + "\n";
             i = 0;
-            len = ( this.label.length > this.table.length ) ? this.table.length : this.label.length;
+            let len = ( this.label.length > this.table.length ) ? this.table.length : this.label.length;
             for(i = 0; i < len ; i ++)
             {
                 text = text + this.label[i] + this.table[i];
             }
         }
-
-        this.inputpanel.setText( text );
+        this.inputpanel.setLookupTable(text);
         this.inputpanel.updatePosition();
+        
         if(this.enabled)
         {
             this.kimicon._active();    
