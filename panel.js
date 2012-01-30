@@ -9,8 +9,8 @@ const Lang = imports.lang;
 inputPanel.prototype = {
     _init: function(kimpanel) {
         //this.panel = new St.Label({ style_class: 'kimpanel-label', text: '' , visible: false});
-
-        this.panel = new BoxPointer.BoxPointer(St.Side.TOP,
+        this._arrowSide = St.Side.TOP;
+        this.panel = new BoxPointer.BoxPointer(this._arrowSide,
                                                      { x_fill: true,
                                                        y_fill: true,
                                                        x_align: St.Align.START });
@@ -47,28 +47,23 @@ inputPanel.prototype = {
         let panel_width = this.actor.get_width();
         let panel_height = this.actor.get_height();
         
-
-        if (x + panel_width > monitor.width)
-            x = monitor.width - panel_width;
-        if (y + panel_height > monitor.height)
-        {
-            y = y - panel_height - 20;
-            let arrowSide = St.Side.BOTTOM;
-        }else{
-            let arrowSide = St.Side.TOP;
-        }
-        if (x < 0)
-            x = 0;
-        if (y < 0)
-            y = 0;
-
-        //this._cursor.set_position(x, y);
-        //this._cursor.set_size(20, 20);
-        //
-        ////this.panel.setArrowOrigin(arrowSide);
-        //this.panel.setPostion(this._cursor, 0.0);
+        y = y - 20;
         
-        //this.panel.set_position(x, y);
+        if (y + panel_height + 20 > monitor.y + monitor.height)
+        {
+            this._arrowSide = St.Side.BOTTOM;
+        }else{
+            this._arrowSide = St.Side.TOP;
+        }
+        
+        this._cursor.set_position(x, y);
+        this._cursor.set_size(20, 20);
+        
+        this.panel._arrowSide = this._arrowSide;
+        this.panel.setArrowOrigin(this._arrowSide);
+        
+        this.panel.setPosition(this._cursor, 0.0);
+        
 
         this.visible = kimpanel.showAux || kimpanel.showPreedit || kimpanel.showLookupTable;
         this.visible ? this.show() : this.hide();
