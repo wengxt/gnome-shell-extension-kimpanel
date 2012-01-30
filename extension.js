@@ -68,6 +68,7 @@ Kimpanel.prototype = {
     addToShell: function ()
     {
         Main.uiGroup.add_actor(this.inputpanel.actor);
+        Main.uiGroup.add_actor(this.inputpanel._cursor);
         Main.panel.addToStatusArea('kimpanel', this.kimicon);
     },
 
