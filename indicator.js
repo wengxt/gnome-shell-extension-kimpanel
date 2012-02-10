@@ -34,12 +34,10 @@ kimIcon.prototype = {
     _parseProperty: function(property) {
         let p = property.split(":");
         key = p[0];
-        if( key in this._properties ){
-            this._properties[key] = {
-                'label': p[1],
-                'icon': p[2],
-                'text': p[3]
-            }
+        this._properties[key] = {
+            'label': p[1],
+            'icon': p[2],
+            'text': p[3]
         }
         return key;
     },
