@@ -126,10 +126,8 @@ function _parseSignal(conn, sender, object, iface, signal, param, user_data)
     switch(signal)
     {
     case 'RegisterProperties':
-        let  properties = value[0];
-        for( p in properties)
-            kimpanel.kimicon._parseProperty(properties[p]);
-        kimpanel.kimicon._updateProperties();
+        let properties = value[0];
+        kimpanel.kimicon._updateProperties(properties);
         break;
     case 'UpdateProperty':
         kimpanel.kimicon._parseProperty(value[0]);
