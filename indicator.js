@@ -10,16 +10,10 @@ kimIcon.prototype = {
     __proto__: PanelMenu.SystemStatusButton.prototype,
 
     _init: function(kimpanel){
-        this._properties = {
-            "/Fcitx/im":{}, 
-            "/Fcitx/chttrans":{},
-            "/Fcitx/punc":{},
-            "/Fcitx/fullwidth":{},
-            "/Fcitx/remind":{}
-        };
+        this._properties = {};
         this._propertySwitch = {};
 
-        PanelMenu.SystemStatusButton.prototype._init.call(this, 'input-keyboard');
+        PanelMenu.SystemStatusButton.prototype._init.call(this, 'input-keyboard', 'kimpanel');
         
         this.kimpanel = kimpanel;
 
@@ -32,9 +26,7 @@ kimIcon.prototype = {
             this.kimpanel.emit('ReloadConfig');
         }));
         
-        this._initProperties(); 
-       
-       this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this.menu.addMenuItem(this._reload);
         this.menu.addMenuItem(this._setting);
     },
@@ -42,24 +34,21 @@ kimIcon.prototype = {
     _parseProperty: function(property) {
         let p = property.split(":");
         key = p[0];
-        if( key in this._properties ){
-            this._properties[key] = {
-                'label': p[1],
-                'icon': p[2],
-                'text': p[3]
-            }
+        this._properties[key] = {
+            'label': p[1],
+            'icon': p[2],
+            'text': p[3]
         }
+        return key;
     },
     
-    
-    _initProperties: function() {
-        for ( key in this._properties )
-        {
-            if( key == '/Fcitx/im')
-                continue;
+    _addPropertyItem: function(key) {
+        if ( key in this._properties )
+        {   
+            let property = this._properties[key];
             let item = new PopupMenu.PopupImageMenuItem("","");
             let _icon = new St.Icon({
-                        icon_name:'fcitx',
+                        icon_name: property['icon'],
                         icon_type: St.IconType.FULLCOLOR, 
                         style_class: 'popup-menu-icon'
                         });
@@ -72,17 +61,37 @@ kimIcon.prototype = {
             }));
             
             this._propertySwitch[key] = item;
-            this.menu.addMenuItem(this._propertySwitch[key]);
+            this.menu.addMenuItem( this._propertySwitch[key], this.menu.length-3 );
         }
     },
+    
+    _updatePropertyItem: function(key) {
+        let property = this._properties[key];
+        let item = this._propertySwitch[key]; 
+        item.setIcon(property.icon);
+        item.label.text = property.label;
+        return;
+    },
 
-    _updateProperties: function( ) {
-        for ( key in this._propertySwitch )
+    _updateProperties: function( properties ) {
+        if( properties == undefined )
         {
-            let property = this._properties[key];
-            let item = this._propertySwitch[key]; 
-            item.setIcon(property.icon);
-            item.label.text = property.label;
+            for ( key in this._propertySwitch )
+            {
+                let property = this._properties[key];
+                let item = this._propertySwitch[key]; 
+                item.setIcon(property.icon);
+                item.label.text = property.label;
+            }
+            return;
+        }else{
+            for( p in properties){
+                let key = this._parseProperty( properties[p] );
+                if( key in this._propertySwitch )
+                    this._updatePropertyItem(key);
+                else
+                    this._addPropertyItem(key);
+            } 
         }
     },
 
