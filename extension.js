@@ -82,7 +82,7 @@ Kimpanel.prototype = {
         let text = '';
         if (this.showLookupTable)
         {
-            i = 0;
+            let i = 0;
             let len = ( this.label.length > this.table.length ) ? this.table.length : this.label.length;
             for(i = 0; i < len ; i ++)
             {
@@ -122,7 +122,7 @@ Kimpanel.prototype = {
 
 function _parseSignal(conn, sender, object, iface, signal, param, user_data)
 {
-    value = param.deep_unpack();
+    let value = param.deep_unpack();
     switch(signal)
     {
     case 'RegisterProperties':

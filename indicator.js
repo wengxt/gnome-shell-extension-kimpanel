@@ -33,7 +33,7 @@ kimIcon.prototype = {
     
     _parseProperty: function(property) {
         let p = property.split(":");
-        key = p[0];
+        let key = p[0];
         this._properties[key] = {
             'label': p[1],
             'icon': p[2],
@@ -49,7 +49,7 @@ kimIcon.prototype = {
             let item = new PopupMenu.PopupImageMenuItem("","");
             let _icon = new St.Icon({
                         icon_name: property['icon'],
-                        icon_type: St.IconType.FULLCOLOR, 
+                        icon_type: St.IconType.FULLCOLOR,
                         style_class: 'popup-menu-icon'
                         });
             item._icon = _icon;
