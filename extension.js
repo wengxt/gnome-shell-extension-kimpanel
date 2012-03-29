@@ -42,7 +42,7 @@ Kimpanel.prototype = {
     {
         DBus.session.proxifyObject(this, 'org.kde.impanel', '/org/kde/impanel');
         DBus.session.exportObject('/org/kde/impanel',this);
-        DBus.session.acquire_name('org.kde.impanel',DBus.SINGLE_INSTANCE,null,null);
+        this.owner_id = DBus.session.acquire_name('org.kde.impanel',DBus.SINGLE_INSTANCE,null,null);
         this.conn = Gio.bus_get_sync( Gio.BusType.SESSION, null );
         this.preedit = '';
         this.aux = '';
@@ -57,11 +57,74 @@ Kimpanel.prototype = {
         this.enabled = false;
         this.kimicon = new KimIcon(this);
         this.inputpanel = new InputPanel(this);
+        var obj = this;
+        
+        function _parseSignal(conn, sender, object, iface, signal, param, user_data)
+        {
+            let value = param.deep_unpack();
+            switch(signal)
+            {
+            case 'RegisterProperties':
+                let properties = value[0];
+                obj.kimicon._updateProperties(properties);
+                break;
+            case 'UpdateProperty':
+                obj.kimicon._parseProperty(value[0]);
+                obj.kimicon._updateProperties();
+                break;
+            case 'UpdateSpotLocation':
+                obj.x = value[0];
+                obj.y = value[1];
+                break;
+            case 'UpdatePreeditText':
+                obj.preedit = value[0];
+                break;
+            case 'UpdateAux':
+                obj.aux = value[0];
+                break;
+            case 'UpdateLookupTable':
+                obj.label = value[0];
+                obj.table = value[1];
+                break;
+            case 'UpdatePreeditCaret':
+                obj.pos = value[0];
+                break;
+            case 'ShowPreedit':
+                obj.showPreedit = value[0];
+                break;
+            case 'ShowLookupTable':
+                obj.showLookupTable = value[0];
+                break;
+            case 'ShowAux':
+                obj.showAux = value[0];
+                break;
+            case 'Enable':
+                obj.enabled = value[0];
+                break;
+            }
+            obj.updateInputPanel();
+        }
+        
+        this.addToShell();
+        this.dbusSignal = this.conn.signal_subscribe(
+            null,
+            "org.kde.kimpanel.inputmethod",
+            null,
+            null,
+            null,
+            Gio.DBusSignalFlags.NONE,
+            _parseSignal,
+            null,
+            null
+        );
     },
 
     destroy: function ()
     {
+        this.conn.signal_unsubscribe(this.dbusSignal);
         this.kimicon.destroy();
+        this.kimicon = null;
+        DBus.session.release_name_by_id(this.owner_id);
         DBus.session.unexportObject(this);
         this.inputpanel = null;
     },
@@ -120,53 +183,6 @@ Kimpanel.prototype = {
     }
 }
 
-
-function _parseSignal(conn, sender, object, iface, signal, param, user_data)
-{
-    let value = param.deep_unpack();
-    switch(signal)
-    {
-    case 'RegisterProperties':
-        let properties = value[0];
-        kimpanel.kimicon._updateProperties(properties);
-        break;
-    case 'UpdateProperty':
-        kimpanel.kimicon._parseProperty(value[0]);
-        kimpanel.kimicon._updateProperties();
-        break;
-    case 'UpdateSpotLocation':
-        kimpanel.x = value[0];
-        kimpanel.y = value[1];
-        break;
-    case 'UpdatePreeditText':
-        kimpanel.preedit = value[0];
-        break;
-    case 'UpdateAux':
-        kimpanel.aux = value[0];
-        break;
-    case 'UpdateLookupTable':
-        kimpanel.label = value[0];    
-        kimpanel.table = value[1];    
-        break;
-    case 'UpdatePreeditCaret':
-        kimpanel.pos = value[0];
-        break;
-    case 'ShowPreedit':
-        kimpanel.showPreedit = value[0];
-        break;
-    case 'ShowLookupTable':
-        kimpanel.showLookupTable = value[0];
-        break;
-    case 'ShowAux':
-        kimpanel.showAux = value[0];
-        break;
-    case 'Enable':
-        kimpanel.enabled = value[0];
-        break;
-    }
-    kimpanel.updateInputPanel();
-}
-
 function init() {
     Lib.initTranslations(Me);
     DBus.proxifyPrototype( Kimpanel.prototype, KimpanelIFace );
@@ -177,18 +193,6 @@ function enable()
 {
     if (!kimpanel) {
         kimpanel = new Kimpanel();
-        kimpanel.addToShell();
-        var signal = kimpanel.conn.signal_subscribe(
-            null,
-            "org.kde.kimpanel.inputmethod",
-            null,
-            null,
-            null,
-            Gio.DBusSignalFlags.NONE,
-            _parseSignal,
-            null,
-            null
-        );
         kimpanel.emit('PanelCreated',[]);
     }
 }
@@ -196,5 +200,6 @@ function enable()
 function disable()
 {
     kimpanel.destroy();
+    kimpanel = null;
 }
 // vim: set ts=4 sw=4 sts=4 expandtab

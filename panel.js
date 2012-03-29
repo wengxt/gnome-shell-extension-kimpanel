@@ -51,7 +51,7 @@ inputPanel.prototype = {
         this.lowerLayout.add(this.lookupTable, {x_fill: true, y_fill: true,
                                     x_align: St.Align.START,
                                     y_align: St.Align.MIDDLE} ); 
-        
+       
         this.kimpanel = kimpanel;
         this.hide();
     },
