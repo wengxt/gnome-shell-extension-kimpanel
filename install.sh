@@ -1,13 +1,24 @@
 #!/bin/bash
 
-extension_name="kimpanel@kde.org"
+function error()
+{
+    echo "Install failed!"
+    exit 1;
+}
 
-if [ $UID -eq 0 ];then
-	DEST="/usr/share/gnome-shell/extensions/$extension_name"
-else
-	DEST=$HOME/.local/share/gnome-shell/extensions/$extension_name/
+rm -rf build
+mkdir build
+cd build
+CMAKE=`which cmake`
+
+if [ ! -x $CMAKE ]; then
+    echo "cmake not found";
+    exit 1;
 fi
-mkdir -p $DEST || exit 1
-cp extension.js indicator.js panel.js metadata.json stylesheet.css "$DEST" || exit 1
+
+cmake .. || error
+make clean || error
+make install-zip || error
+
 echo "Install successfull!"
 echo "Enable it with gnome-tweak-tool"

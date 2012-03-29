@@ -12,6 +12,7 @@ const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const KimIcon = Me.imports.indicator.kimIcon;
 const InputPanel = Me.imports.panel.inputPanel;
+const Lib = Me.imports.lib;
 
 let kimpanel = null;
 
@@ -167,6 +168,7 @@ function _parseSignal(conn, sender, object, iface, signal, param, user_data)
 }
 
 function init() {
+    Lib.initTranslations(Me);
     DBus.proxifyPrototype( Kimpanel.prototype, KimpanelIFace );
     DBus.conformExport(Kimpanel.prototype, KimpanelIFace );
 }

@@ -3,6 +3,8 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Panel = imports.ui.panel;
 const Main = imports.ui.main;
+const Gettext = imports.gettext.domain('gnome-shell-extensions-kimpanel');
+const _ = Gettext.gettext;
 
 const Lang = imports.lang;
 
@@ -17,11 +19,11 @@ kimIcon.prototype = {
         
         this.kimpanel = kimpanel;
 
-        this._setting = new PopupMenu.PopupMenuItem("Settings");
+        this._setting = new PopupMenu.PopupMenuItem(_("Settings"));
         this._setting.connect('activate', Lang.bind(this, function(){
             this.kimpanel.emit('Configure');
         }));
-        this._reload = new PopupMenu.PopupMenuItem("Reload Configuration");
+        this._reload = new PopupMenu.PopupMenuItem(_("Reload Configuration"));
         this._reload.connect('activate', Lang.bind(this, function(){
             this.kimpanel.emit('ReloadConfig');
         }));
