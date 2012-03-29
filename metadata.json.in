@@ -3,6 +3,6 @@
 "uuid": "@uuid@",
 "name": "@extensionname@",
 "description": "KDE Input Method Panel for Gnome-Shell", 
-"url": "http://www.kde.org",
+"url": "http://github.com/csslayer/kimpanel-for-gnome-shell",
 "locale": "@localedir@"
 }
