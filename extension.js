@@ -9,9 +9,9 @@ const DBus = imports.dbus;
 const Gio = imports.gi.Gio;
 const Lang = imports.lang;
 
-const Me = imports.ui.extensionSystem.extensions['kimpanel@kde.org'];
-const KimIcon = Me.indicator.kimIcon;
-const InputPanel = Me.panel.inputPanel;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const KimIcon = Me.imports.indicator.kimIcon;
+const InputPanel = Me.imports.panel.inputPanel;
 
 let kimpanel = null;
 
