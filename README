@@ -1,1 +1,7 @@
 KDE's kimpanel implementation for GNOME Shell
+
+Install requirements
+gettext
+cmake
+
+If you'd like to install it as user, run ./install.sh under the root of source.
