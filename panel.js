@@ -1,33 +1,36 @@
 const St = imports.gi.St;
-
 const Cairo = imports.cairo;
 const Shell = imports.gi.Shell;
 const BoxPointer = imports.ui.boxpointer;
 const Main = imports.ui.main;
+const Params = imports.misc.params;
 const Lang = imports.lang;
 
-inputPanel.prototype = {
-    _init: function(kimpanel) {
+const InputPanel = new Lang.Class({
+    Name: "InputPanel",
+
+    _init: function(params) {
+        params = Params.parse(params, {kimpanel: null});
         this._arrowSide = St.Side.TOP;
         this.panel = new BoxPointer.BoxPointer(this._arrowSide,
                                                      { x_fill: true,
                                                        y_fill: true,
                                                        x_align: St.Align.START });
-        
+
         this.actor = this.panel.actor;
         this.actor.style_class = 'popup-menu-boxpointer';
         this.actor.add_style_class_name('popup-menu');
-        
+
         this._cursor = new Shell.GenericContainer();
-        
+
         this.layout = new St.BoxLayout({vertical: true, style:"padding: .4em;"});
         this.panel.bin.set_child(this.layout);
-        
+
         this.upperLayout = new St.BoxLayout();
         this.separator = new Separator();
         this.lowerLayout = new St.BoxLayout();
-        
-        
+
+
         this.layout.add(this.upperLayout, {});
 
         this.layout.add(this.separator.actor, 
@@ -40,7 +43,7 @@ inputPanel.prototype = {
         this.auxText = new St.Label({style_class:'popup-menu-item', style:"padding:0;", text:''}); 
         this.preeditText = new St.Label({style_class:'popup-menu-item', style:"padding:0;", text:''}); 
         this.lookupTable = new St.Label({style_class:'popup-menu-item', style:"padding:0;",text:''}); 
-      
+
         this.upperLayout.add(this.auxText, {x_fill: false, y_fill: true,
                                     x_align: St.Align.START,
                                     y_align: St.Align.MIDDLE} ); 
@@ -50,8 +53,8 @@ inputPanel.prototype = {
         this.lowerLayout.add(this.lookupTable, {x_fill: true, y_fill: true,
                                     x_align: St.Align.START,
                                     y_align: St.Align.MIDDLE} ); 
-       
-        this.kimpanel = kimpanel;
+
+        this.kimpanel = params.kimpanel;
         this.hide();
     },
 
@@ -68,7 +71,7 @@ inputPanel.prototype = {
     setLookupTable: function(text) {
         this.lookupTable.text = text;
     },
-    
+
     hideAux: function() {
         if(this.auxText.visible )
             this.auxText.hide();
@@ -77,7 +80,7 @@ inputPanel.prototype = {
         if(this.preeditText.visible) 
             this.preeditText.hide();
     },
-    
+
     updatePosition: function() {
         let kimpanel = this.kimpanel;
         let monitor = Main.layoutManager.focusMonitor;
@@ -85,24 +88,24 @@ inputPanel.prototype = {
         let y = kimpanel.y;
         let panel_width = this.actor.get_width();
         let panel_height = this.actor.get_height();
-        
+
         y = y - 20;
-        
+
         if (y + panel_height + 20 > monitor.y + monitor.height)
         {
             this._arrowSide = St.Side.BOTTOM;
         }else{
             this._arrowSide = St.Side.TOP;
         }
-        
+
         this._cursor.set_position(x, y);
         this._cursor.set_size(20, 20);
-        
+
         this.panel._arrowSide = this._arrowSide;
         this.panel.setArrowOrigin(this._arrowSide);
-        
+
         this.panel.setPosition(this._cursor, 0.0);
-        
+
 
         this.visible = kimpanel.showAux || kimpanel.showPreedit || kimpanel.showLookupTable;
         if (this.visible) {
@@ -122,20 +125,12 @@ inputPanel.prototype = {
             this.actor.hide();
     }
 
-}
+});
 
-function inputPanel(kimpanel) {
-    this._init.apply(this, arguments);
-}
+const Separator = new Lang.Class({
+    Name: "Separator",
 
-
-function Separator() {
-    this._init();
-}
-
-Separator.prototype = {
-
-    _init: function () {
+    _init: function (params) {
         this.actor = new St.DrawingArea({ style_class: ' popup-separator-menu-item', 
                                           style:'height:2px;padding:.1em 0;' });
         this.actor.connect('repaint', Lang.bind(this, this._onRepaint));
@@ -161,4 +156,4 @@ Separator.prototype = {
         cr.rectangle(margin, gradientOffset, gradientWidth, gradientHeight);
         cr.fill();
     }
-};
+});

@@ -29,6 +29,7 @@ set(extension_FILES
     extension.js
     indicator.js
     panel.js
+    menu.js
     lib.js
     ${CMAKE_CURRENT_BINARY_DIR}/metadata.json
     stylesheet.css

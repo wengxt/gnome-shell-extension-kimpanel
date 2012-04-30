@@ -1,23 +1,26 @@
 const St = imports.gi.St;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
-const Panel = imports.ui.panel;
-const Main = imports.ui.main;
+const Params = imports.misc.params;
 const Gettext = imports.gettext.domain('gnome-shell-extensions-kimpanel');
 const _ = Gettext.gettext;
-
 const Lang = imports.lang;
 
-kimIcon.prototype = {
-    __proto__: PanelMenu.SystemStatusButton.prototype,
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Lib = Me.imports.lib;
 
-    _init: function(kimpanel){
+const KimIcon = new Lang.Class({
+    Name: "KimIcon",
+    Extends: PanelMenu.SystemStatusButton,
+
+    _init: function(params){
+        params = Params.parse(params, {kimpanel: null});
         this._properties = {};
         this._propertySwitch = {};
 
         PanelMenu.SystemStatusButton.prototype._init.call(this, 'input-keyboard', 'kimpanel');
-        
-        this.kimpanel = kimpanel;
+
+        this.kimpanel = params.kimpanel;
 
         this._setting = new PopupMenu.PopupMenuItem(_("Settings"));
         this._setting.connect('activate', Lang.bind(this, function(){
@@ -27,52 +30,42 @@ kimIcon.prototype = {
         this._reload.connect('activate', Lang.bind(this, function(){
             this.kimpanel.emit('ReloadConfig');
         }));
-        
+
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this.menu.addMenuItem(this._reload);
         this.menu.addMenuItem(this._setting);
     },
-    
-    _parseProperty: function(property) {
-        let p = property.split(":");
-        let key = p[0];
-        this._properties[key] = {
-            'label': p[1],
-            'icon': p[2],
-            'text': p[3]
-        }
-        return key;
-    },
-    
+
     _addPropertyItem: function(key) {
         if ( key in this._properties )
-        {   
+        {
             let property = this._properties[key];
-            let item = new PopupMenu.PopupImageMenuItem("","");
-            let _icon = new St.Icon({
-                        icon_name: property['icon'],
-                        icon_type: St.IconType.FULLCOLOR,
-                        style_class: 'popup-menu-icon'
-                        });
-            item._icon = _icon;
-            item.addActor(item._icon);
-            item._key = key;
-            
+            let item = Lib.createMenuItem(property);
+
             item.connect('activate', Lang.bind(this, function(){
                 this.kimpanel.triggerProperty(item._key);
             }));
-            
+            item.setIcon(property.icon);
+            item.label.text = property.label;
+
             this._propertySwitch[key] = item;
-            this.menu.addMenuItem( this._propertySwitch[key], this.menu.length-3 );
+            this.menu.addMenuItem( this._propertySwitch[key], this.menu.numMenuItems - 3 );
         }
     },
-    
+
     _updatePropertyItem: function(key) {
         let property = this._properties[key];
         let item = this._propertySwitch[key]; 
         item.setIcon(property.icon);
         item.label.text = property.label;
         return;
+    },
+
+    _updateProperty: function(propstr) {
+        let property = Lib.parseProperty(propstr);
+        let key = property.key;
+        this._properties[key] = property;
+        this._updateProperties();
     },
 
     _updateProperties: function( properties ) {
@@ -86,14 +79,30 @@ kimIcon.prototype = {
                 item.label.text = property.label;
             }
             return;
-        }else{
-            for( p in properties){
-                let key = this._parseProperty( properties[p] );
+        } else {
+            for (p in this._propertySwitch) {
+                if (properties[p] == undefined) {
+                    this._propertySwitch[p].destroy();
+                    delete this._propertySwitch[p];
+                }
+            }
+
+            let count = 0;
+            for( p in properties) {
+                count ++;
+                let property = Lib.parseProperty( properties[p] );
+                let key = property.key;
+                this._properties[key] = property;
                 if( key in this._propertySwitch )
                     this._updatePropertyItem(key);
                 else
                     this._addPropertyItem(key);
-            } 
+            }
+            if (count != 0) {
+                this.visible = false;
+            }
+            else
+                this.visible = true;
         }
     },
 
@@ -104,14 +113,8 @@ kimIcon.prototype = {
             this._iconActor = null;
             this._iconName = null;
         }
-        if (this._labelActor) {
-            this.actor.remove_actor(this._labelActor);
-            this._labelActor.destroy();
-            this._labelActor = null;
-            this._label = null;
-        }
     },
-    
+
     _setIcon: function(iconName,type) {
         this._clearActor();
         this._iconName = iconName;
@@ -123,15 +126,10 @@ kimIcon.prototype = {
     },
 
     _active: function(){
-         this._setIcon(this._properties['/Fcitx/im'].icon,St.IconType.FULLCOLOR);   
+         this._setIcon(this._properties['/Fcitx/im'].icon,St.IconType.FULLCOLOR);
     },
 
     _deactive: function(){
         this._setIcon('input-keyboard',St.IconType.SYMBOLIC);
     }
-}
-
-function kimIcon(kimpanel) {
-    this._init.apply(this, arguments);
-}
-
+});

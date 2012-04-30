@@ -1,8 +1,3 @@
-const St = imports.gi.St;
-const PanelMenu = imports.ui.panelMenu;
-const PopupMenu = imports.ui.popupMenu;
-const Panel = imports.ui.panel;
-
 const Main = imports.ui.main;
 
 const DBus = imports.dbus;
@@ -10,8 +5,9 @@ const Gio = imports.gi.Gio;
 const Lang = imports.lang;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const KimIcon = Me.imports.indicator.kimIcon;
-const InputPanel = Me.imports.panel.inputPanel;
+const KimIcon = Me.imports.indicator.KimIcon;
+const InputPanel = Me.imports.panel.InputPanel;
+const KimMenu = Me.imports.menu.KimMenu;
 const Lib = Me.imports.lib;
 
 let kimpanel = null;
@@ -33,13 +29,12 @@ const KimpanelIFace = {
     properties:[]
 };
 
-function Kimpanel() {
-    this._init.apply(this, arguments);
-}
+const Kimpanel = new Lang.Class({
+    Name: "Kimpanel",
 
-Kimpanel.prototype = {
-    _init: function() 
+    _init: function(params)
     {
+        global.log("ABCE");
         DBus.session.proxifyObject(this, 'org.kde.impanel', '/org/kde/impanel');
         DBus.session.exportObject('/org/kde/impanel',this);
         this.owner_id = DBus.session.acquire_name('org.kde.impanel',DBus.SINGLE_INSTANCE,null,null);
@@ -55,22 +50,26 @@ Kimpanel.prototype = {
         this.showLookupTable = false;
         this.showAux = false;
         this.enabled = false;
-        this.kimicon = new KimIcon(this);
-        this.inputpanel = new InputPanel(this);
+        global.log("ABCEF");
+        this.kimicon = new KimIcon({kimpanel: this});
+        this.inputpanel = new InputPanel({kimpanel: this});
+        this.menu = new KimMenu({sourceActor: this.kimicon.actor, kimpanel: this});
+        global.log("ABCEG");
         var obj = this;
-        
+
         function _parseSignal(conn, sender, object, iface, signal, param, user_data)
         {
             let value = param.deep_unpack();
             switch(signal)
             {
+            case 'ExecMenu':
+                obj.menu.execMenu(value[0]);
+                break
             case 'RegisterProperties':
-                let properties = value[0];
-                obj.kimicon._updateProperties(properties);
+                obj.kimicon._updateProperties(value[0]);
                 break;
             case 'UpdateProperty':
-                obj.kimicon._parseProperty(value[0]);
-                obj.kimicon._updateProperties();
+                obj.kimicon._updateProperty(value[0]);
                 break;
             case 'UpdateSpotLocation':
                 obj.x = value[0];
@@ -104,7 +103,7 @@ Kimpanel.prototype = {
             }
             obj.updateInputPanel();
         }
-        
+
         this.addToShell();
         this.dbusSignal = this.conn.signal_subscribe(
             null,
@@ -131,6 +130,8 @@ Kimpanel.prototype = {
 
     addToShell: function ()
     {
+        Main.uiGroup.add_actor(this.menu.actor);
+        this.menu.actor.hide();
         Main.uiGroup.add_actor(this.inputpanel.actor);
         Main.uiGroup.add_actor(this.inputpanel._cursor);
         Main.panel.addToStatusArea('kimpanel', this.kimicon);
@@ -139,7 +140,7 @@ Kimpanel.prototype = {
     updateInputPanel: function()
     {
         let inputpanel = this.inputpanel;
-        
+
         this.showAux ? inputpanel.setAuxText(this.aux) : inputpanel.hideAux();
         this.showPreedit ? inputpanel.setPreeditText(this.preedit) : inputpanel.hidePreedit();
 
@@ -155,23 +156,21 @@ Kimpanel.prototype = {
         }
         this.inputpanel.setLookupTable(text);
         this.inputpanel.updatePosition();
-        
+
         if(this.enabled)
-        {
-            this.kimicon._active();    
-        }else{
+            this.kimicon._active();
+        else
             this.kimicon._deactive();
-        }
     },
 
     emit: function(signal)
     {
         DBus.session.emit_signal('/org/kde/impanel',
                                  'org.kde.impanel',
-                                 signal, 
+                                 signal,
                                   '',[]
                                 );
-    
+
     },
     triggerProperty: function(arg)
     {
@@ -181,7 +180,7 @@ Kimpanel.prototype = {
             's',[arg]
         );
     }
-}
+});
 
 function init() {
     Lib.initTranslations(Me);
@@ -192,7 +191,9 @@ function init() {
 function enable()
 {
     if (!kimpanel) {
+        global.log("ABC");
         kimpanel = new Kimpanel();
+        global.log("ABCD");
         kimpanel.emit('PanelCreated',[]);
     }
 }
