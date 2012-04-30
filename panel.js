@@ -8,7 +8,6 @@ const Lang = imports.lang;
 
 inputPanel.prototype = {
     _init: function(kimpanel) {
-        //this.panel = new St.Label({ style_class: 'kimpanel-label', text: '' , visible: false});
         this._arrowSide = St.Side.TOP;
         this.panel = new BoxPointer.BoxPointer(this._arrowSide,
                                                      { x_fill: true,
@@ -106,7 +105,12 @@ inputPanel.prototype = {
         
 
         this.visible = kimpanel.showAux || kimpanel.showPreedit || kimpanel.showLookupTable;
-        this.visible ? this.show() : this.hide();
+        if (this.visible) {
+            this.show();
+            this.actor.raise_top();
+        }
+        else
+            this.hide();
     },
 
     show: function() {
