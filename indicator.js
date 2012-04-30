@@ -118,11 +118,13 @@ const KimIcon = new Lang.Class({
     _setIcon: function(iconName,type) {
         this._clearActor();
         this._iconName = iconName;
-        this._iconActor = new St.Icon({ icon_name: iconName,
-                                        icon_type: type,
-                                        style_class: 'system-status-icon' });
-        this.actor.add_actor(this._iconActor);
-        this.actor.queue_redraw();
+        this._iconActor = Lib.createIcon(iconName, {style_class: 'system-status-icon kim-icon', icon_type: type});
+        if (!this._iconActor)
+            this._iconActor = Lib.createIcon("input-keyboard", {style_class: 'system-status-icon kim-icon', icon_type: St.IconType.SYMBOLIC});
+        if (this._iconActor) {
+            this.actor.add_actor(this._iconActor);
+            this.actor.queue_redraw();
+        }
     },
 
     _active: function(){

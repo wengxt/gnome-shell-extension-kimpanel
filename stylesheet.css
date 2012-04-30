@@ -5,6 +5,19 @@
     border-radius: 6px;
     padding: .3em;
 }
+
+.kim-icon {
+    height: 22px;
+    width: 22px;
+    icon-size: 1.09em;
+}
+
+.kim-popup-menu-icon {
+    height: 22px;
+    width: 22px;
+    icon-size: 1.09em;
+}
+
 .icon-disable {
   color:rgba(150,150,150,0.5);
 }
