@@ -34,9 +34,15 @@ const Kimpanel = new Lang.Class({
 
     _init: function(params)
     {
+        this.conn = Gio.bus_get_sync( Gio.BusType.SESSION, null );
+        this.owner_id = Gio.bus_own_name(Gio.BusType.SESSION,
+                                         "org.kde.impanel",
+                                         Gio.BusNameOwnerFlags.NONE,
+                                         null,
+                                         null,
+                                         null);
         this._impl = Gio.DBusExportedObject.wrapJSObject(KimpanelIface, this);
         this._impl.export(Gio.DBus.session, '/org/kde/impanel');
-        this.conn = Gio.bus_get_sync( Gio.BusType.SESSION, null );
         this.preedit = '';
         this.aux = '';
         this.x = 0;
@@ -117,6 +123,8 @@ const Kimpanel = new Lang.Class({
     destroy: function ()
     {
         this.conn.signal_unsubscribe(this.dbusSignal);
+        Gio.bus_unown_name(this.owner_id);
+        this._impl.unexport();
         this.kimicon.destroy();
         this.kimicon = null;
         this.inputpanel = null;
