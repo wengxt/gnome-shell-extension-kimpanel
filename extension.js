@@ -34,7 +34,6 @@ const Kimpanel = new Lang.Class({
 
     _init: function(params)
     {
-        global.log("ABCE");
         DBus.session.proxifyObject(this, 'org.kde.impanel', '/org/kde/impanel');
         DBus.session.exportObject('/org/kde/impanel',this);
         this.owner_id = DBus.session.acquire_name('org.kde.impanel',DBus.SINGLE_INSTANCE,null,null);
@@ -50,11 +49,9 @@ const Kimpanel = new Lang.Class({
         this.showLookupTable = false;
         this.showAux = false;
         this.enabled = false;
-        global.log("ABCEF");
         this.kimicon = new KimIcon({kimpanel: this});
         this.inputpanel = new InputPanel({kimpanel: this});
         this.menu = new KimMenu({sourceActor: this.kimicon.actor, kimpanel: this});
-        global.log("ABCEG");
         var obj = this;
 
         function _parseSignal(conn, sender, object, iface, signal, param, user_data)
@@ -191,9 +188,7 @@ function init() {
 function enable()
 {
     if (!kimpanel) {
-        global.log("ABC");
         kimpanel = new Kimpanel();
-        global.log("ABCD");
         kimpanel.emit('PanelCreated',[]);
     }
 }
