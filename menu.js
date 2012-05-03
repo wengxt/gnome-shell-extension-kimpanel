@@ -115,7 +115,6 @@ const KimMenu = new Lang.Class({
         let activeMenuContains = this.actor.contains(event.get_source());
 
         let eventType = event.type();
-        global.log(eventType);
         if (eventType == Clutter.EventType.BUTTON_RELEASE) {
             if (activeMenuContains) {
                 return false;

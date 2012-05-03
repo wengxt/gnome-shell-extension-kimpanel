@@ -1,7 +1,6 @@
 const Main = imports.ui.main;
-
-const DBus = imports.dbus;
 const Gio = imports.gi.Gio;
+const GLib = imports.gi.GLib;
 const Lang = imports.lang;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
@@ -12,33 +11,38 @@ const Lib = Me.imports.lib;
 
 let kimpanel = null;
 
-const KimpanelIFace = {
-    name: 'org.kde.impanel',
-    methods:[],
-    signals:[
-        { name: "SelectCandidate", inSignature:'i' },
-        { name: "MovePreeditCaret", inSignature:'i' },
-        { name: "LookupTablePageUp" },
-        { name: "LookupTablePageDown" },
-        { name: "TriggerProperty", inSignature:'s' },
-        { name: "PanelCreated"},
-        { name: "Exit" },
-        { name: "ReloadConfig" },
-        { name: "Configure" }
-    ],
-    properties:[]
-};
+const KimpanelIface = <interface name="org.kde.impanel">
+<signal name="MovePreeditCaret">
+    <arg type="i" name="position" />
+</signal>
+<signal name="SelectCandidate">
+    <arg type="i" name="index" />
+</signal>
+<signal name="LookupTablePageUp"> </signal>
+<signal name="LookupTablePageDown"> </signal>
+<signal name="TriggerProperty">
+    <arg type="s" name="key" />
+</signal>
+<signal name="PanelCreated"> </signal>
+<signal name="Exit"> </signal>
+<signal name="ReloadConfig"> </signal>
+<signal name="Configure"> </signal>
+</interface>
 
 const Kimpanel = new Lang.Class({
     Name: "Kimpanel",
 
     _init: function(params)
     {
-        global.log("ABCE");
-        DBus.session.proxifyObject(this, 'org.kde.impanel', '/org/kde/impanel');
-        DBus.session.exportObject('/org/kde/impanel',this);
-        this.owner_id = DBus.session.acquire_name('org.kde.impanel',DBus.SINGLE_INSTANCE,null,null);
         this.conn = Gio.bus_get_sync( Gio.BusType.SESSION, null );
+        this.owner_id = Gio.bus_own_name(Gio.BusType.SESSION,
+                                         "org.kde.impanel",
+                                         Gio.BusNameOwnerFlags.NONE,
+                                         null,
+                                         null,
+                                         null);
+        this._impl = Gio.DBusExportedObject.wrapJSObject(KimpanelIface, this);
+        this._impl.export(Gio.DBus.session, '/org/kde/impanel');
         this.preedit = '';
         this.aux = '';
         this.x = 0;
@@ -50,11 +54,9 @@ const Kimpanel = new Lang.Class({
         this.showLookupTable = false;
         this.showAux = false;
         this.enabled = false;
-        global.log("ABCEF");
         this.kimicon = new KimIcon({kimpanel: this});
         this.inputpanel = new InputPanel({kimpanel: this});
         this.menu = new KimMenu({sourceActor: this.kimicon.actor, kimpanel: this});
-        global.log("ABCEG");
         var obj = this;
 
         function _parseSignal(conn, sender, object, iface, signal, param, user_data)
@@ -121,10 +123,10 @@ const Kimpanel = new Lang.Class({
     destroy: function ()
     {
         this.conn.signal_unsubscribe(this.dbusSignal);
+        Gio.bus_unown_name(this.owner_id);
+        this._impl.unexport();
         this.kimicon.destroy();
         this.kimicon = null;
-        DBus.session.release_name_by_id(this.owner_id);
-        DBus.session.unexportObject(this);
         this.inputpanel = null;
     },
 
@@ -165,35 +167,23 @@ const Kimpanel = new Lang.Class({
 
     emit: function(signal)
     {
-        DBus.session.emit_signal('/org/kde/impanel',
-                                 'org.kde.impanel',
-                                 signal,
-                                  '',[]
-                                );
+        this._impl.emit_signal(signal, null);
 
     },
     triggerProperty: function(arg)
     {
-        DBus.session.emit_signal('/org/kde/impanel',
-            'org.kde.impanel',
-            'TriggerProperty', 
-            's',[arg]
-        );
+        this._impl.emit_signal('TriggerProperty', GLib.Variant.new('(s)',[arg]));
     }
 });
 
 function init() {
     Lib.initTranslations(Me);
-    DBus.proxifyPrototype( Kimpanel.prototype, KimpanelIFace );
-    DBus.conformExport(Kimpanel.prototype, KimpanelIFace );
 }
 
 function enable()
 {
     if (!kimpanel) {
-        global.log("ABC");
         kimpanel = new Kimpanel();
-        global.log("ABCD");
         kimpanel.emit('PanelCreated',[]);
     }
 }
