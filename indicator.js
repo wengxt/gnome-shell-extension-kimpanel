@@ -9,8 +9,8 @@ const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Lib = Me.imports.lib;
 
-const KimIcon = new Lang.Class({
-    Name: "KimIcon",
+const KimIndicator = new Lang.Class({
+    Name: "KimIndicator",
     Extends: PanelMenu.SystemStatusButton,
 
     _init: function(params){
@@ -118,9 +118,9 @@ const KimIcon = new Lang.Class({
     _setIcon: function(iconName,type) {
         this._clearActor();
         this._iconName = iconName;
-        this._iconActor = Lib.createIcon(iconName, {style_class: 'system-status-icon kim-icon', icon_type: type});
+        this._iconActor = Lib.createIcon(iconName, {style_class: 'system-status-icon', icon_type: type});
         if (!this._iconActor)
-            this._iconActor = Lib.createIcon("input-keyboard", {style_class: 'system-status-icon kim-icon', icon_type: St.IconType.SYMBOLIC});
+            this._iconActor = Lib.createIcon("input-keyboard", {style_class: 'system-status-icon', icon_type: St.IconType.SYMBOLIC});
         if (this._iconActor) {
             this.actor.add_actor(this._iconActor);
             this.actor.queue_redraw();

@@ -31,6 +31,23 @@ const KimMenuItem = new Lang.Class({
     }
 });
 
+const KimIcon = new Lang.Class({
+    Name: 'KimIcon',
+    Extends: St.Bin,
+
+    _init: function(name, params) {
+        this.parent(params);
+        this.child = Clutter.Texture.new_from_file(name);
+        this.connect("style-changed", Lang.bind(this, this._style_changed));
+    },
+
+    _style_changed: function() {
+        let size = (0.5 + this.get_theme_node().get_length("icon-size"));
+        this.child.width = size;
+        this.child.height = size;
+    }
+});
+
 function initTranslations(extension) {
     let localeDir = extension.dir.get_child('locale').get_path();
 
@@ -59,11 +76,9 @@ function createIcon(name, params) {
     if (!name)
         return null;
 
-    params = Params.parse(params, {style_class: 'kim-popup-menu-icon', icon_type: St.IconType.FULLCOLOR});
+    params = Params.parse(params, {style_class: 'popup-menu-icon', icon_type: St.IconType.FULLCOLOR});
     if (name[0] == '/') {
-        let iconBox = new St.Bin({ style_class: params.style_class });
-        iconBox.child = Clutter.Texture.new_from_file(name);
-        return iconBox;
+        return new KimIcon(name, {style_class: params.style_class});
     }
     else {
         return new St.Icon({

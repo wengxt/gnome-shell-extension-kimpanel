@@ -4,7 +4,7 @@ const GLib = imports.gi.GLib;
 const Lang = imports.lang;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const KimIcon = Me.imports.indicator.KimIcon;
+const KimIndicator = Me.imports.indicator.KimIndicator;
 const InputPanel = Me.imports.panel.InputPanel;
 const KimMenu = Me.imports.menu.KimMenu;
 const Lib = Me.imports.lib;
@@ -54,9 +54,9 @@ const Kimpanel = new Lang.Class({
         this.showLookupTable = false;
         this.showAux = false;
         this.enabled = false;
-        this.kimicon = new KimIcon({kimpanel: this});
+        this.indicator = new KimIndicator({kimpanel: this});
         this.inputpanel = new InputPanel({kimpanel: this});
-        this.menu = new KimMenu({sourceActor: this.kimicon.actor, kimpanel: this});
+        this.menu = new KimMenu({sourceActor: this.indicator.actor, kimpanel: this});
         var obj = this;
 
         function _parseSignal(conn, sender, object, iface, signal, param, user_data)
@@ -68,10 +68,10 @@ const Kimpanel = new Lang.Class({
                 obj.menu.execMenu(value[0]);
                 break
             case 'RegisterProperties':
-                obj.kimicon._updateProperties(value[0]);
+                obj.indicator._updateProperties(value[0]);
                 break;
             case 'UpdateProperty':
-                obj.kimicon._updateProperty(value[0]);
+                obj.indicator._updateProperty(value[0]);
                 break;
             case 'UpdateSpotLocation':
                 obj.x = value[0];
@@ -125,8 +125,8 @@ const Kimpanel = new Lang.Class({
         this.conn.signal_unsubscribe(this.dbusSignal);
         Gio.bus_unown_name(this.owner_id);
         this._impl.unexport();
-        this.kimicon.destroy();
-        this.kimicon = null;
+        this.indicator.destroy();
+        this.indicator = null;
         this.inputpanel = null;
     },
 
@@ -136,7 +136,7 @@ const Kimpanel = new Lang.Class({
         this.menu.actor.hide();
         Main.uiGroup.add_actor(this.inputpanel.actor);
         Main.uiGroup.add_actor(this.inputpanel._cursor);
-        Main.panel.addToStatusArea('kimpanel', this.kimicon);
+        Main.panel.addToStatusArea('kimpanel', this.indicator);
     },
 
     updateInputPanel: function()
@@ -160,9 +160,9 @@ const Kimpanel = new Lang.Class({
         this.inputpanel.updatePosition();
 
         if(this.enabled)
-            this.kimicon._active();
+            this.indicator._active();
         else
-            this.kimicon._deactive();
+            this.indicator._deactive();
     },
 
     emit: function(signal)

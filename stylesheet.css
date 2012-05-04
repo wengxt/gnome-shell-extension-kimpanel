@@ -1,18 +1,7 @@
 .kimpanel-label {
   font-family:sans;
   font-weight:normal;
-}
-
-.kim-icon {
-    height: 22px;
-    width: 22px;
-    icon-size: 1.09em;
-}
-
-.kim-popup-menu-icon {
-    height: 22px;
-    width: 22px;
-    icon-size: 1.09em;
+  padding: 2px;
 }
 
 .icon-disable {
