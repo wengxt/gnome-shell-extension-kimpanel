@@ -40,9 +40,9 @@ const InputPanel = new Lang.Class({
 
         this.layout.add(this.lowerLayout, {});
 
-        this.auxText = new St.Label({style_class:'popup-menu-item', style:"padding:0;", text:''}); 
-        this.preeditText = new St.Label({style_class:'popup-menu-item', style:"padding:0;", text:''}); 
-        this.lookupTable = new St.Label({style_class:'popup-menu-item', style:"padding:0;",text:''}); 
+        this.auxText = new St.Label({style_class:'popup-menu-item kimpanel-label', style:"padding:0;", text:''}); 
+        this.preeditText = new St.Label({style_class:'popup-menu-item kimpanel-label', style:"padding:0;", text:''}); 
+        this.lookupTable = new St.Label({style_class:'popup-menu-item kimpanel-label ', style:"padding:0;",text:''}); 
 
         this.upperLayout.add(this.auxText, {x_fill: false, y_fill: true,
                                     x_align: St.Align.START,
