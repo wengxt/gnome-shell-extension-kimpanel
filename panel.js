@@ -6,6 +6,10 @@ const Main = imports.ui.main;
 const Params = imports.misc.params;
 const Lang = imports.lang;
 
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Lib = Me.imports.lib;
+
+
 const InputPanel = new Lang.Class({
     Name: "InputPanel",
 
@@ -40,9 +44,11 @@ const InputPanel = new Lang.Class({
 
         this.layout.add(this.lowerLayout, {});
 
-        this.auxText = new St.Label({style_class:'kimpanel-label', text:''}); 
-        this.preeditText = new St.Label({style_class:'kimpanel-label', text:''}); 
-        this.lookupTable = new St.Label({style_class:'kimpanel-label ', text:''}); 
+        let text_style = Lib.getTextStyle();
+
+        this.auxText = new St.Label({style_class:'kimpanel-label', style: text_style, text:''}); 
+        this.preeditText = new St.Label({style_class:'kimpanel-label', style: text_style, text:''}); 
+        this.lookupTable = new St.Label({style_class:'kimpanel-label ', style: text_style, text:''}); 
 
         this.upperLayout.add(this.auxText, {x_fill: false, y_fill: true,
                                     x_align: St.Align.START,

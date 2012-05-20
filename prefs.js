@@ -4,8 +4,8 @@ const Gettext = imports.gettext.domain('gnome-shell-extensions');
 const _ = Gettext.gettext;
 const N_ = function(e) { return e; };
 
-let extension = imports.misc.extensionUtils.getCurrentExtension();
-let convenience = extension.imports.convenience;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const convenience = Me.imports.convenience;
 
 let settings;
 let settings_bool;
@@ -65,7 +65,6 @@ function createFontSelection() {
 function buildPrefsWidget() {
     let frame = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL,
                               border_width: 10 });
-
     let vbox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL,
                              margin: 20, margin_top:10 });
 
@@ -75,6 +74,9 @@ function buildPrefsWidget() {
     }
     let hbox = createFontSelection();
     vbox.add(hbox);
+    
+    let hint  = new Gtk.Label({ label:_("You need to restart gnome-shell or reload this extension to take effect.") })
+    vbox.add(hint); 
     frame.add(vbox);
     frame.show_all();
     return frame;
