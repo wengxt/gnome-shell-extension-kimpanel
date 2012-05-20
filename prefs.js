@@ -75,8 +75,6 @@ function buildPrefsWidget() {
     let hbox = createFontSelection();
     vbox.add(hbox);
     
-    let hint  = new Gtk.Label({ label:_("You need to restart gnome-shell or reload this extension to take effect.") })
-    vbox.add(hint); 
     frame.add(vbox);
     frame.show_all();
     return frame;

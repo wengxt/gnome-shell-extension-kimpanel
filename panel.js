@@ -33,8 +33,11 @@ const InputPanel = new Lang.Class({
 
         this.upperLayout = new St.BoxLayout();
         this.separator = new Separator();
-        this.lowerLayout = new St.BoxLayout({vertical:true});
-
+        
+        
+        this.lookupTableVertical = Lib.isLookupTableVertical();
+        this.lookupTableLayout = new St.BoxLayout({vertical:this.lookupTableVertical});
+       
         this.layout.add(this.upperLayout, {});
 
         this.layout.add(this.separator.actor, 
@@ -42,13 +45,10 @@ const InputPanel = new Lang.Class({
                          x_align: St.Align.MIDDLE,
                          y_align: St.Align.MIDDLE} ); 
 
-        this.layout.add(this.lowerLayout, {});
-        
+        this.layout.add(this.lookupTableLayout, {});
+       
+
         this.text_style = Lib.getTextStyle();
-        this.lookupTableVertical = Lib.isLookupTableVertical();
-        
-        this.lookupTableLayout = new St.BoxLayout({vertical:this.lookupTableVertical});
-        
         this.auxText = new St.Label({style_class:'kimpanel-label', style: this.text_style, text:''}); 
         this.preeditText = new St.Label({style_class:'kimpanel-label', style: this.text_style, text:''}); 
         
@@ -59,8 +59,6 @@ const InputPanel = new Lang.Class({
         this.upperLayout.add(this.preeditText, {x_fill: false, y_fill: true,
                                     x_align: St.Align.START,
                                     y_align: St.Align.MIDDLE} ); 
-
-        this.lowerLayout.add(this.lookupTableLayout, {} ); 
 
         this.kimpanel = params.kimpanel;
         this.hide();
@@ -77,17 +75,17 @@ const InputPanel = new Lang.Class({
         this.preeditText.text = text;
     },
     setLookupTable: function( label, table ) {
-        let len = ( label.length > table.length ) ? table.length : label.length;
+        let len = table.length;
         let lutLen = this.lookupTableLayout.get_children().length;
         
         //global.log('candi:'+len + ', panel:'+lutLen);
 
-        if( len >= lutLen )
+        if( len > lutLen )
             for( let i=0;i<len-lutLen;i++){
                 let item = new St.Label({style_class:'kimpanel-label-item', style: this.text_style, text:''}); 
                 this.lookupTableLayout.add(item, PanelItemProperty);
             }
-        else
+        else if( len<lutLen )
             for( let i=0;i<lutLen-len;i++){
                 this.lookupTableLayout.get_children()[0].destroy();
             }
@@ -95,12 +93,21 @@ const InputPanel = new Lang.Class({
         //lutLen = this.lookupTableLayout.get_children().length;
         //global.log('candi:'+len + ', panel:'+lutLen);
         let lookupTable = this.lookupTableLayout.get_children();
-        for(let i=0;i<len;i++){
+        for(let i=0;i<lookupTable.length;i++)
             lookupTable[i].text = label[i] + table[i];
-        }
          
     },
-
+    setVertical: function(vertical){
+        this.lookupTableLayout.set_vertical(vertical);
+    },
+    updateFont: function(){
+        this.text_style = Lib.getTextStyle();
+        this.auxText.set_style(this.text_style);
+        this.preeditText.set_style(this.text_style);
+        let lookupTable = this.lookupTableLayout.get_children();
+        for(let i=0;i<lookupTable.length;i++)
+            lookupTable[i].set_style(this.text_style);
+    },
     hideAux: function() {
         if(this.auxText.visible )
             this.auxText.hide();

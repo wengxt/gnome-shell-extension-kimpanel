@@ -11,6 +11,7 @@ const Lib = Me.imports.lib;
 const convenience = Me.imports.convenience;
 
 let kimpanel = null;
+let settings;
 
 const KimpanelIface = <interface name="org.kde.impanel">
 <signal name="MovePreeditCaret">
@@ -107,6 +108,14 @@ const Kimpanel = new Lang.Class({
             obj.updateInputPanel();
         }
 
+        settings.connect('changed::vertical', Lang.bind(this, function(){
+            this.inputpanel.setVertical(settings.get_boolean('vertical'));
+        }));
+        
+        settings.connect('changed::font', Lang.bind(this, function(){
+            this.inputpanel.updateFont();
+        }));
+
         this.addToShell();
         this.dbusSignal = this.conn.signal_subscribe(
             null,
@@ -181,6 +190,7 @@ const Kimpanel = new Lang.Class({
 
 function init() {
     convenience.initTranslations();
+    settings = convenience.getSettings();
 }
 
 function enable()
