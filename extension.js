@@ -8,6 +8,7 @@ const KimIndicator = Me.imports.indicator.KimIndicator;
 const InputPanel = Me.imports.panel.InputPanel;
 const KimMenu = Me.imports.menu.KimMenu;
 const Lib = Me.imports.lib;
+const convenience = Me.imports.convenience;
 
 let kimpanel = null;
 
@@ -177,7 +178,7 @@ const Kimpanel = new Lang.Class({
 });
 
 function init() {
-    Lib.initTranslations(Me);
+    convenience.initTranslations();
 }
 
 function enable()
