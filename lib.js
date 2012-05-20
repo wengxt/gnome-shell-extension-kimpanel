@@ -90,7 +90,6 @@ function getTextStyle() {
     let settings = convenience.getSettings();
 
     let font_string = settings.get_string('font') || "Sans 11";
-    global.log(font_string);
     let desc = Pango.FontDescription.from_string(font_string);
 
     let font_family = desc.get_family();
