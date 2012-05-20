@@ -93,7 +93,7 @@ function getTextStyle() {
     let desc = Pango.FontDescription.from_string(font_string);
 
     let font_family = desc.get_family();
-    let font_size = (desc.get_size()/1024)+"px";
+    let font_size = (desc.get_size()/Pango.SCALE)+"pt";
     let font_style; 
     for( i in Pango.Style )
         if( Pango.Style[i] == desc.get_style() )
@@ -103,4 +103,9 @@ function getTextStyle() {
 
     return "font-family:"+font_family+";font-size:"+font_size+";font-style:" 
     +font_style+";font-weight:"+font_weight;
+}
+
+function isLookupTableVertical() {
+    let settings = convenience.getSettings();
+    return settings.get_boolean('vertical') || false ;
 }

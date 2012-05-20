@@ -1,9 +1,12 @@
 .kimpanel-label {
   font-family:sans;
   font-weight:normal;
-  padding: 2px;
+  padding: 5px;
 }
 
+.kimpanel-label-item {
+  padding: 3px;
+}
 .icon-disable {
   color:rgba(150,150,150,0.5);
 }
