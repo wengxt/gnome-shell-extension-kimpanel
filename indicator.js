@@ -2,6 +2,7 @@ const St = imports.gi.St;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Params = imports.misc.params;
+const Shell = imports.gi.Shell;
 const Gettext = imports.gettext.domain('gnome-shell-extensions-kimpanel');
 const _ = Gettext.gettext;
 const Lang = imports.lang;
@@ -22,7 +23,7 @@ const KimIndicator = new Lang.Class({
 
         this.kimpanel = params.kimpanel;
 
-        this._setting = new PopupMenu.PopupMenuItem(_("Settings"));
+        this._setting = new PopupMenu.PopupMenuItem(_("IM Settings"));
         this._setting.connect('activate', Lang.bind(this, function(){
             this.kimpanel.emit('Configure');
         }));
@@ -31,9 +32,25 @@ const KimIndicator = new Lang.Class({
             this.kimpanel.emit('ReloadConfig');
         }));
 
+
+        let _appSys = Shell.AppSystem.get_default();
+        let _gsmPrefs = _appSys.lookup_app('gnome-shell-extension-prefs.desktop');
+        let item;
+
+        this._prefs = new PopupMenu.PopupMenuItem(_("Panel Preferences"));
+        this._prefs.connect('activate', function () {
+            if (_gsmPrefs.get_state() == _gsmPrefs.SHELL_APP_STATE_RUNNING){
+                _gsmPrefs.activate();
+            } else {
+                _gsmPrefs.launch(global.display.get_current_time_roundtrip(),
+                                 [Me.metadata.uuid],-1,null);
+            }
+        });
+        
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this.menu.addMenuItem(this._reload);
         this.menu.addMenuItem(this._setting);
+        this.menu.addMenuItem(this._prefs);
     },
 
     _addPropertyItem: function(key) {
@@ -49,7 +66,7 @@ const KimIndicator = new Lang.Class({
             item.label.text = property.label;
 
             this._propertySwitch[key] = item;
-            this.menu.addMenuItem( this._propertySwitch[key], this.menu.numMenuItems - 3 );
+            this.menu.addMenuItem( this._propertySwitch[key], this.menu.numMenuItems - 4 );
         }
     },
 

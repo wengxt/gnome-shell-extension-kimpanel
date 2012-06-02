@@ -8,8 +8,10 @@ const KimIndicator = Me.imports.indicator.KimIndicator;
 const InputPanel = Me.imports.panel.InputPanel;
 const KimMenu = Me.imports.menu.KimMenu;
 const Lib = Me.imports.lib;
+const convenience = Me.imports.convenience;
 
 let kimpanel = null;
+let settings;
 
 const KimpanelIface = <interface name="org.kde.impanel">
 <signal name="MovePreeditCaret">
@@ -106,6 +108,14 @@ const Kimpanel = new Lang.Class({
             obj.updateInputPanel();
         }
 
+        settings.connect('changed::vertical', Lang.bind(this, function(){
+            this.inputpanel.setVertical(settings.get_boolean('vertical'));
+        }));
+        
+        settings.connect('changed::font', Lang.bind(this, function(){
+            this.inputpanel.updateFont();
+        }));
+
         this.addToShell();
         this.dbusSignal = this.conn.signal_subscribe(
             null,
@@ -149,14 +159,16 @@ const Kimpanel = new Lang.Class({
         let text = '';
         if (this.showLookupTable)
         {
-            let i = 0;
-            let len = ( this.label.length > this.table.length ) ? this.table.length : this.label.length;
-            for(i = 0; i < len ; i ++)
-            {
-                text = text + this.label[i] + this.table[i];
-            }
+            //let i = 0;
+            //let len = ( this.label.length > this.table.length ) ? this.table.length : this.label.length;
+            //for(i = 0; i < len ; i ++)
+            //{
+            //    text = text + this.label[i] + this.table[i];
+            //}
+            
+            this.inputpanel.setLookupTable(this.label, this.table);
         }
-        this.inputpanel.setLookupTable(text);
+        //this.inputpanel.setLookupTable(text);
         this.inputpanel.updatePosition();
 
         if(this.enabled)
@@ -177,7 +189,8 @@ const Kimpanel = new Lang.Class({
 });
 
 function init() {
-    Lib.initTranslations(Me);
+    convenience.initTranslations();
+    settings = convenience.getSettings();
 }
 
 function enable()

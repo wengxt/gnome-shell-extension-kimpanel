@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schemalist>
+  <schema path="/org/gnome/shell/extensions/kimpanel/" id="org.gnome.shell.extensions.kimpanel">
+    <key type="b" name="vertical">
+        <default>false</default>
+        <summary>vertical candidate text</summary>
+        <description>whether to show candidate text vertically in panel.</description>
+    </key>
+    <key type="s" name="font">
+        <default>'Sans 11'</default>
+        <summary>Font of input and candidate text panel</summary>
+        <description>Set font of kimpanel input and candidate text.</description>
+    </key>
+  </schema>
+</schemalist>

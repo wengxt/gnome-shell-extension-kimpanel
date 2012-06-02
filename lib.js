@@ -5,6 +5,10 @@ const Clutter = imports.gi.Clutter;
 const GLib = imports.gi.GLib;
 const Gettext = imports.gettext;
 const Lang = imports.lang;
+const Pango = imports.gi.Pango;
+
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const convenience = Me.imports.convenience;
 
 const KimMenuItem = new Lang.Class({
     Name: 'KimMenuItem',
@@ -48,19 +52,6 @@ const KimIcon = new Lang.Class({
     }
 });
 
-function initTranslations(extension) {
-    let localeDir = extension.dir.get_child('locale').get_path();
-
-    // Extension installed in .local
-    if (GLib.file_test(localeDir, GLib.FileTest.EXISTS)) {
-        Gettext.bindtextdomain('gnome-shell-extensions-kimpanel', localeDir);
-    }
-    // Extension installed system-wide
-    else {
-        Gettext.bindtextdomain('gnome-shell-extensions-kimpanel', extension.metadata.locale);
-    }
-}
-
 function parseProperty(str) {
     let p = str.split(":");
     let property = {
@@ -93,4 +84,28 @@ function createMenuItem(property) {
     let item = new KimMenuItem("","");
     item._key = property.key;
     return item;
+}
+
+function getTextStyle() {
+    let settings = convenience.getSettings();
+
+    let font_string = settings.get_string('font') || "Sans 11";
+    let desc = Pango.FontDescription.from_string(font_string);
+
+    let font_family = desc.get_family();
+    let font_size = (desc.get_size()/Pango.SCALE)+"pt";
+    let font_style; 
+    for( i in Pango.Style )
+        if( Pango.Style[i] == desc.get_style() )
+            font_style = i.toLowerCase();
+    
+    let font_weight = desc.get_weight();
+
+    return "font-family:"+font_family+";font-size:"+font_size+";font-style:" 
+    +font_style+";font-weight:"+font_weight;
+}
+
+function isLookupTableVertical() {
+    let settings = convenience.getSettings();
+    return settings.get_boolean('vertical') || false ;
 }
