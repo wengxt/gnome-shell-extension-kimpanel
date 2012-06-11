@@ -1,10 +1,11 @@
 const St = imports.gi.St;
 const Cairo = imports.cairo;
 const Shell = imports.gi.Shell;
-const BoxPointer = imports.ui.boxpointer;
 const Main = imports.ui.main;
 const Params = imports.misc.params;
 const Lang = imports.lang;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const BoxPointer = imports.ui.boxpointer;
 
 const InputPanel = new Lang.Class({
     Name: "InputPanel",
@@ -12,10 +13,13 @@ const InputPanel = new Lang.Class({
     _init: function(params) {
         params = Params.parse(params, {kimpanel: null});
         this._arrowSide = St.Side.TOP;
-        this.panel = new BoxPointer.BoxPointer(this._arrowSide,
-                                                     { x_fill: true,
-                                                       y_fill: true,
-                                                       x_align: St.Align.START });
+        this.panel = new BoxPointer.BoxPointer(
+            this._arrowSide,
+            {
+                x_fill: true,
+                y_fill: true,
+                x_align: St.Align.START
+            });
 
         this.actor = this.panel.actor;
         this.actor.style_class = 'popup-menu-boxpointer';
@@ -61,15 +65,21 @@ const InputPanel = new Lang.Class({
     setAuxText: function(text) {
         if(!this.auxText.visible)
             this.auxText.show();
-        this.auxText.text = text;
+        this.auxText.set_text(text);
+        let clutter_text = this.auxText.get_clutter_text();
+        clutter_text.queue_redraw();
     },
     setPreeditText: function(text) {
         if(!this.preeditText.visible)
             this.preeditText.show();
-        this.preeditText.text = text;
+        this.preeditText.set_text(text);
+        let clutter_text = this.preeditText.get_clutter_text();
+        clutter_text.queue_redraw();
     },
     setLookupTable: function(text) {
-        this.lookupTable.text = text;
+        this.lookupTable.set_text(text);
+        let clutter_text = this.lookupTable.get_clutter_text();
+        clutter_text.queue_redraw();
     },
 
     hideAux: function() {

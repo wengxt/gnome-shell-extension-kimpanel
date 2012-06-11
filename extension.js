@@ -62,6 +62,7 @@ const Kimpanel = new Lang.Class({
         function _parseSignal(conn, sender, object, iface, signal, param, user_data)
         {
             let value = param.deep_unpack();
+            let changed = false;
             switch(signal)
             {
             case 'ExecMenu':
@@ -74,13 +75,19 @@ const Kimpanel = new Lang.Class({
                 obj.indicator._updateProperty(value[0]);
                 break;
             case 'UpdateSpotLocation':
+                if (obj.x != value[0] || obj.y != value[1])
+                    changed = true;
                 obj.x = value[0];
                 obj.y = value[1];
                 break;
             case 'UpdatePreeditText':
+                if (obj.preedit != value[0])
+                    changed = true;
                 obj.preedit = value[0];
                 break;
             case 'UpdateAux':
+                if (obj.aux != value[0])
+                    changed = true;
                 obj.aux = value[0];
                 break;
             case 'UpdateLookupTable':
@@ -88,22 +95,33 @@ const Kimpanel = new Lang.Class({
                 obj.table = value[1];
                 break;
             case 'UpdatePreeditCaret':
+                if (obj.pos != value[0])
+                    changed = true;
                 obj.pos = value[0];
                 break;
             case 'ShowPreedit':
+                if (obj.showPreedit != value[0])
+                    changed = true;
                 obj.showPreedit = value[0];
                 break;
             case 'ShowLookupTable':
+                if (obj.showLookupTable != value[0])
+                    changed = true;
                 obj.showLookupTable = value[0];
                 break;
             case 'ShowAux':
+                if (obj.showAux != value[0])
+                    changed = true;
                 obj.showAux = value[0];
                 break;
             case 'Enable':
+                if (obj.enabled != value[0])
+                    changed = true;
                 obj.enabled = value[0];
                 break;
             }
-            obj.updateInputPanel();
+            if (changed)
+                obj.updateInputPanel();
         }
 
         this.addToShell();
