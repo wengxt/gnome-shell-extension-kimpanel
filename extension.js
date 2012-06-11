@@ -73,6 +73,10 @@ const Kimpanel = new Lang.Class({
                 break;
             case 'UpdateProperty':
                 obj.indicator._updateProperty(value[0]);
+                if(obj.enabled)
+                    obj.indicator._active();
+                else
+                    obj.indicator._deactive();
                 break;
             case 'UpdateSpotLocation':
                 if (obj.x != value[0] || obj.y != value[1])
@@ -115,9 +119,11 @@ const Kimpanel = new Lang.Class({
                 obj.showAux = value[0];
                 break;
             case 'Enable':
-                if (obj.enabled != value[0])
-                    changed = true;
                 obj.enabled = value[0];
+                if(obj.enabled)
+                    obj.indicator._active();
+                else
+                    obj.indicator._deactive();
                 break;
             }
             if (changed)
@@ -176,11 +182,6 @@ const Kimpanel = new Lang.Class({
         }
         this.inputpanel.setLookupTable(text);
         this.inputpanel.updatePosition();
-
-        if(this.enabled)
-            this.indicator._active();
-        else
-            this.indicator._deactive();
     },
 
     emit: function(signal)
