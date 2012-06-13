@@ -95,6 +95,7 @@ const Kimpanel = new Lang.Class({
                 obj.aux = value[0];
                 break;
             case 'UpdateLookupTable':
+                changed = true;
                 obj.label = value[0];
                 obj.table = value[1];
                 break;
