@@ -4,5 +4,7 @@
 "name": "@extensionname@",
 "description": "KDE Input Method Panel for Gnome-Shell", 
 "url": "http://github.com/csslayer/kimpanel-for-gnome-shell",
-"locale": "@localedir@"
+"locale": "@localedir@",
+"gettext-domain": "gnome-shell-extensions-kimpanel",
+"settings-schema": "org.gnome.shell.extensions.kimpanel"
 }

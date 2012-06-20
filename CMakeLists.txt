@@ -31,11 +31,18 @@ set(extension_FILES
     panel.js
     menu.js
     lib.js
+    convenience.js
     ${CMAKE_CURRENT_BINARY_DIR}/metadata.json
     stylesheet.css
 )
 
+set(schema_FILES
+    schemas/org.gnome.shell.extensions.kimpanel.gschema.xml
+    schemas/gschemas.compiled
+    )
+
 install(FILES ${extension_FILES} DESTINATION ${extensiondir})
+install(FILES ${schema_FILES} DESTINATION ${extensiondir}/schemas)
 
 add_custom_command(OUTPUT ${uuid}.zip
     COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/_build"
