@@ -4,9 +4,10 @@ const Shell = imports.gi.Shell;
 const Main = imports.ui.main;
 const Params = imports.misc.params;
 const Lang = imports.lang;
-const BoxPointer = imports.ui.boxpointer;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+const BoxPointer = imports.ui.boxpointer;
+//const BoxPointer = Me.imports.boxpointer;
 const Lib = Me.imports.lib;
 
 const PanelItemProperty = { x_fill: false, y_fill: false, x_align: St.Align.START, y_align: St.Align.START };
@@ -175,10 +176,9 @@ const InputPanel = new Lang.Class({
 
         y = y - 20;
 
-        if (y + panel_height + 20 > monitor.y + monitor.height)
-        {
+        if (y + panel_height + 20 > monitor.y + monitor.height) {
             this._arrowSide = St.Side.BOTTOM;
-        }else{
+        } else {
             this._arrowSide = St.Side.TOP;
         }
 
