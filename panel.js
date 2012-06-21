@@ -96,7 +96,7 @@ const InputPanel = new Lang.Class({
         clutter_text.queue_redraw();
     },
     _candidateClicked: function(widget, event) {
-        this.kimpanel.selectCandidate(widget.candidateIndex);
+        this.kimpanel.selectCandidate(widget.candidate_index);
     },
     setLookupTable: function( label, table ) {
         let len = table.length;
@@ -109,23 +109,24 @@ const InputPanel = new Lang.Class({
                 let item = new St.Label({style_class:'kimpanel-candidate-item kimpanel-label-item',
                                          style: this.text_style,
                                          text:'',
-                                         reactive: true,
-                                         can_focus: true,
-                                         track_hover: true
+                                         reactive: true
                                         });
-                item.candidateIndex = lutLen + i;
-                item.connect('button-press-event',
+                item.candidate_index = lutLen + i;
+                item.ignore_focus = true;
+                item.connect('button-release-event',
                              Lang.bind(this, function (widget, event) {
-                                 this._candidateClicked(widget, event);
+                                 if (!widget.ignore_focus)
+                                    this._candidateClicked(widget, event);
                              }));
                 item.connect('enter-event',
                              function(widget, event) {
-                                 global.log('aaaaaaaaaaaaaaaaaaa');
-                                 widget.add_style_pseudo_class('hover');
+                                 if (!widget.ignore_focus)
+                                    widget.add_style_pseudo_class('hover');
                              });
                 item.connect('leave-event',
                              function(widget, event) {
-                                 widget.remove_style_pseudo_class('hover');
+                                 if (!widget.ignore_focus)
+                                    widget.remove_style_pseudo_class('hover');
                              });
                 this.lookupTableLayout.add(item, PanelItemProperty);
             }
@@ -138,8 +139,13 @@ const InputPanel = new Lang.Class({
         //lutLen = this.lookupTableLayout.get_children().length;
         //global.log('candi:'+len + ', panel:'+lutLen);
         let lookupTable = this.lookupTableLayout.get_children();
-        for(let i=0;i<lookupTable.length;i++)
+        for(let i=0;i<lookupTable.length;i++) {
+            if (label[i].length == 0)
+                lookupTable[i].ignore_focus = true;
+            else
+                lookupTable[i].ignore_focus = false;
             lookupTable[i].text = label[i] + table[i];
+        }
     },
     setLookupTableCursor: function(cursor) {
         let lutLen = this.lookupTableLayout.get_children().length;
