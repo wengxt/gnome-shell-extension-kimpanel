@@ -6,8 +6,8 @@ const Params = imports.misc.params;
 const Lang = imports.lang;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const BoxPointer = imports.ui.boxpointer;
-//const BoxPointer = Me.imports.boxpointer;
+//const BoxPointer = imports.ui.boxpointer;
+const BoxPointer = Me.imports.boxpointer;
 const Lib = Me.imports.lib;
 
 const PanelItemProperty = { x_fill: false, y_fill: false, x_align: St.Align.START, y_align: St.Align.START };
@@ -21,6 +21,7 @@ const InputPanel = new Lang.Class({
         // create boxpointer as UI
         this.panel = new BoxPointer.BoxPointer(
             this._arrowSide,
+            80,
             {
                 x_fill: true,
                 y_fill: true,

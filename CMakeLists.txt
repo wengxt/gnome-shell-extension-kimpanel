@@ -32,6 +32,7 @@ set(extension_FILES
     menu.js
     lib.js
     convenience.js
+    boxpointer.js
     ${CMAKE_CURRENT_BINARY_DIR}/metadata.json
     stylesheet.css
 )
