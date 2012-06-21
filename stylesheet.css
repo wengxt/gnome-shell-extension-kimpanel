@@ -7,6 +7,19 @@
 .kimpanel-label-item {
   padding: 3px;
 }
+
+.kimpanel-candidate-item {
+  cursor: pointer;
+}
+
+.kimpanel-candidate-item:hover {
+  color: #729FCF;
+}
+
+.kimpanel-candidate-item:active {
+  color: #729FCF;
+}
+
 .icon-disable {
   color:rgba(150,150,150,0.5);
 }

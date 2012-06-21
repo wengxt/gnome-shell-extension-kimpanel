@@ -52,6 +52,7 @@ const Kimpanel = new Lang.Class({
         this.table = [];
         this.label = [];
         this.pos = 0;
+        this.cursor = -1;
         this.showPreedit = false;
         this.showLookupTable = false;
         this.showAux = false;
@@ -101,6 +102,11 @@ const Kimpanel = new Lang.Class({
                 obj.label = value[0];
                 obj.table = value[1];
                 break;
+            case 'UpdateLookupTableCursor':
+                if (obj.pos != value[0])
+                    changed = true;
+                obj.cursor = value[0];
+                break;
             case 'UpdatePreeditCaret':
                 if (obj.pos != value[0])
                     changed = true;
@@ -136,7 +142,7 @@ const Kimpanel = new Lang.Class({
         settings.connect('changed::vertical', Lang.bind(this, function(){
             this.inputpanel.setVertical(settings.get_boolean('vertical'));
         }));
-        
+
         settings.connect('changed::font', Lang.bind(this, function(){
             this.inputpanel.updateFont();
         }));
@@ -169,7 +175,7 @@ const Kimpanel = new Lang.Class({
     {
         Main.uiGroup.add_actor(this.menu.actor);
         this.menu.actor.hide();
-        Main.uiGroup.add_actor(this.inputpanel.actor);
+        Main.layoutManager.addChrome(this.inputpanel.actor, {visibleInFullscreen: true});
         Main.uiGroup.add_actor(this.inputpanel._cursor);
         Main.panel.addToStatusArea('kimpanel', this.indicator);
     },
@@ -193,6 +199,7 @@ const Kimpanel = new Lang.Class({
             
             this.inputpanel.setLookupTable(this.label, this.table);
         }
+        this.inputpanel.setLookupTableCursor(this.cursor);
         //this.inputpanel.setLookupTable(text);
         this.inputpanel.updatePosition();
     },
@@ -205,6 +212,10 @@ const Kimpanel = new Lang.Class({
     triggerProperty: function(arg)
     {
         this._impl.emit_signal('TriggerProperty', GLib.Variant.new('(s)',[arg]));
+    },
+    selectCandidate: function(arg)
+    {
+        this._impl.emit_signal('SelectCandidate', GLib.Variant.new('(i)',[arg]));
     }
 });
 

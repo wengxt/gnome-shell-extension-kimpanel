@@ -26,6 +26,11 @@ const InputPanel = new Lang.Class({
             });
 
         this.actor = this.panel.actor;
+//        this.actor.reactive = true;
+//        this.actor.track_hover = true;
+//        this.actor.can_focus = true;
+
+        this.actor._delegate = this;
         this.actor.style_class = 'popup-menu-boxpointer';
         this.actor.add_style_class_name('popup-menu');
 
@@ -34,34 +39,42 @@ const InputPanel = new Lang.Class({
         this.layout = new St.BoxLayout({vertical: true, style:"padding: .4em;"});
         this.panel.bin.set_child(this.layout);
 
+//        this.panel.bin.reactive = true;
+//        this.panel.bin.track_hover = true;
+//        this.panel.bin.can_focus = true;
+
+//        this.layout.reactive = true;
+//        this.layout.track_hover = true;
+//        this.layout.can_focus = true;
+
         this.upperLayout = new St.BoxLayout();
         this.separator = new Separator();
-        
-        
+
+
         this.lookupTableVertical = Lib.isLookupTableVertical();
         this.lookupTableLayout = new St.BoxLayout({vertical:this.lookupTableVertical});
-       
+
         this.layout.add(this.upperLayout, {});
 
-        this.layout.add(this.separator.actor, 
-                        {x_fill: true, y_fill:false, 
+        this.layout.add(this.separator.actor,
+                        {x_fill: true, y_fill:false,
                          x_align: St.Align.MIDDLE,
-                         y_align: St.Align.MIDDLE} ); 
+                         y_align: St.Align.MIDDLE} );
 
         this.layout.add(this.lookupTableLayout, {});
-       
+
 
         this.text_style = Lib.getTextStyle();
-        this.auxText = new St.Label({style_class:'kimpanel-label', style: this.text_style, text:''}); 
-        this.preeditText = new St.Label({style_class:'kimpanel-label', style: this.text_style, text:''}); 
-        
+        this.auxText = new St.Label({style_class:'kimpanel-label', style: this.text_style, text:''});
+        this.preeditText = new St.Label({style_class:'kimpanel-label', style: this.text_style, text:''});
+
         this.upperLayout.add(this.auxText, {x_fill: false, y_fill: true,
                                     x_align: St.Align.START,
-                                    y_align: St.Align.MIDDLE} ); 
+                                    y_align: St.Align.MIDDLE} );
 
         this.upperLayout.add(this.preeditText, {x_fill: false, y_fill: true,
                                     x_align: St.Align.START,
-                                    y_align: St.Align.MIDDLE} ); 
+                                    y_align: St.Align.MIDDLE} );
 
         this.kimpanel = params.kimpanel;
         this.hide();
@@ -82,28 +95,60 @@ const InputPanel = new Lang.Class({
         let clutter_text = this.preeditText.get_clutter_text();
         clutter_text.queue_redraw();
     },
+    _candidateClicked: function(widget, event) {
+        this.kimpanel.selectCandidate(widget.candidateIndex);
+    },
     setLookupTable: function( label, table ) {
         let len = table.length;
         let lutLen = this.lookupTableLayout.get_children().length;
-        
+
         //global.log('candi:'+len + ', panel:'+lutLen);
 
-        if( len > lutLen )
+        if( len > lutLen ) {
             for( let i=0;i<len-lutLen;i++){
-                let item = new St.Label({style_class:'kimpanel-label-item', style: this.text_style, text:''}); 
+                let item = new St.Label({style_class:'kimpanel-candidate-item kimpanel-label-item',
+                                         style: this.text_style,
+                                         text:'',
+                                         reactive: true,
+                                         can_focus: true,
+                                         track_hover: true
+                                        });
+                item.candidateIndex = lutLen + i;
+                item.connect('button-press-event',
+                             Lang.bind(this, function (widget, event) {
+                                 this._candidateClicked(widget, event);
+                             }));
+                item.connect('enter-event',
+                             function(widget, event) {
+                                 global.log('aaaaaaaaaaaaaaaaaaa');
+                                 widget.add_style_pseudo_class('hover');
+                             });
+                item.connect('leave-event',
+                             function(widget, event) {
+                                 widget.remove_style_pseudo_class('hover');
+                             });
                 this.lookupTableLayout.add(item, PanelItemProperty);
             }
-        else if( len<lutLen )
+        }
+        else if( len < lutLen ) {
             for( let i=0;i<lutLen-len;i++){
                 this.lookupTableLayout.get_children()[0].destroy();
             }
-        
+        }
         //lutLen = this.lookupTableLayout.get_children().length;
         //global.log('candi:'+len + ', panel:'+lutLen);
         let lookupTable = this.lookupTableLayout.get_children();
         for(let i=0;i<lookupTable.length;i++)
             lookupTable[i].text = label[i] + table[i];
-         
+    },
+    setLookupTableCursor: function(cursor) {
+        let lutLen = this.lookupTableLayout.get_children().length;
+        for (let i = 0; i < lutLen; i++) {
+            if (i == cursor)
+                this.lookupTableLayout.get_children()[i].add_style_pseudo_class('active');
+            else
+                this.lookupTableLayout.get_children()[i].remove_style_pseudo_class('active');
+        }
     },
     setVertical: function(vertical){
         this.lookupTableLayout.set_vertical(vertical);
@@ -121,7 +166,7 @@ const InputPanel = new Lang.Class({
             this.auxText.hide();
     },
     hidePreedit: function() {
-        if(this.preeditText.visible) 
+        if(this.preeditText.visible)
             this.preeditText.hide();
     },
 
@@ -162,7 +207,7 @@ const InputPanel = new Lang.Class({
 
     show: function() {
             this.actor.opacity=255;
-            this.actor.show(); 
+            this.actor.show();
     },
     hide: function() {
             this.actor.opacity=0;
@@ -175,7 +220,7 @@ const Separator = new Lang.Class({
     Name: "Separator",
 
     _init: function (params) {
-        this.actor = new St.DrawingArea({ style_class: ' popup-separator-menu-item', 
+        this.actor = new St.DrawingArea({ style_class: ' popup-separator-menu-item',
                                           style:'height:2px;padding:.1em 0;' });
         this.actor.connect('repaint', Lang.bind(this, this._onRepaint));
     },
