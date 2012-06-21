@@ -189,18 +189,8 @@ const Kimpanel = new Lang.Class({
 
         let text = '';
         if (this.showLookupTable)
-        {
-            //let i = 0;
-            //let len = ( this.label.length > this.table.length ) ? this.table.length : this.label.length;
-            //for(i = 0; i < len ; i ++)
-            //{
-            //    text = text + this.label[i] + this.table[i];
-            //}
-            
             this.inputpanel.setLookupTable(this.label, this.table);
-        }
         this.inputpanel.setLookupTableCursor(this.cursor);
-        //this.inputpanel.setLookupTable(text);
         this.inputpanel.updatePosition();
     },
 

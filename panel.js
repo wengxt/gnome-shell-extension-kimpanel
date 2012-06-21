@@ -101,7 +101,7 @@ const InputPanel = new Lang.Class({
                                          text:'',
                                          reactive: true
                                         });
-                item.candidate_index = labelLen + i;
+                item.candidate_index = 0;
                 item.ignore_focus = true;
                 item.connect('button-release-event',
                              Lang.bind(this, function (widget, event) {
@@ -135,6 +135,7 @@ const InputPanel = new Lang.Class({
                 lookupTable[i].ignore_focus = true;
             else
                 lookupTable[i].ignore_focus = false;
+            lookupTable[i].candidate_index = i;
             lookupTable[i].text = label[i] + table[i];
         }
     },
