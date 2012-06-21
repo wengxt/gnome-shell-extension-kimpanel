@@ -17,6 +17,7 @@ const InputPanel = new Lang.Class({
     _init: function(params) {
         params = Params.parse(params, {kimpanel: null});
         this._arrowSide = St.Side.TOP;
+        // create boxpointer as UI
         this.panel = new BoxPointer.BoxPointer(
             this._arrowSide,
             {
@@ -26,10 +27,6 @@ const InputPanel = new Lang.Class({
             });
 
         this.actor = this.panel.actor;
-//        this.actor.reactive = true;
-//        this.actor.track_hover = true;
-//        this.actor.can_focus = true;
-
         this.actor._delegate = this;
         this.actor.style_class = 'popup-menu-boxpointer';
         this.actor.add_style_class_name('popup-menu');
@@ -38,14 +35,6 @@ const InputPanel = new Lang.Class({
 
         this.layout = new St.BoxLayout({vertical: true, style:"padding: .4em;"});
         this.panel.bin.set_child(this.layout);
-
-//        this.panel.bin.reactive = true;
-//        this.panel.bin.track_hover = true;
-//        this.panel.bin.can_focus = true;
-
-//        this.layout.reactive = true;
-//        this.layout.track_hover = true;
-//        this.layout.can_focus = true;
 
         this.upperLayout = new St.BoxLayout();
         this.separator = new Separator();
@@ -100,18 +89,17 @@ const InputPanel = new Lang.Class({
     },
     setLookupTable: function( label, table ) {
         let len = table.length;
-        let lutLen = this.lookupTableLayout.get_children().length;
+        let labelLen = this.lookupTableLayout.get_children().length;
 
-        //global.log('candi:'+len + ', panel:'+lutLen);
-
-        if( len > lutLen ) {
-            for( let i=0;i<len-lutLen;i++){
+        // if number is not enough, create new
+        if(len > labelLen) {
+            for(let i = 0; i < len - labelLen; i++){
                 let item = new St.Label({style_class:'kimpanel-candidate-item kimpanel-label-item',
                                          style: this.text_style,
                                          text:'',
                                          reactive: true
                                         });
-                item.candidate_index = lutLen + i;
+                item.candidate_index = labelLen + i;
                 item.ignore_focus = true;
                 item.connect('button-release-event',
                              Lang.bind(this, function (widget, event) {
@@ -131,13 +119,14 @@ const InputPanel = new Lang.Class({
                 this.lookupTableLayout.add(item, PanelItemProperty);
             }
         }
-        else if( len < lutLen ) {
-            for( let i=0;i<lutLen-len;i++){
+        else if (len < labelLen ) {
+            // else destroy unnecessary one
+            for (let i = 0; i < labelLen - len; i++){
                 this.lookupTableLayout.get_children()[0].destroy();
             }
         }
-        //lutLen = this.lookupTableLayout.get_children().length;
-        //global.log('candi:'+len + ', panel:'+lutLen);
+
+        // update label and text
         let lookupTable = this.lookupTableLayout.get_children();
         for(let i=0;i<lookupTable.length;i++) {
             if (label[i].length == 0)
@@ -148,8 +137,8 @@ const InputPanel = new Lang.Class({
         }
     },
     setLookupTableCursor: function(cursor) {
-        let lutLen = this.lookupTableLayout.get_children().length;
-        for (let i = 0; i < lutLen; i++) {
+        let labelLen = this.lookupTableLayout.get_children().length;
+        for (let i = 0; i < labelLen; i++) {
             if (i == cursor)
                 this.lookupTableLayout.get_children()[i].add_style_pseudo_class('active');
             else
@@ -164,7 +153,7 @@ const InputPanel = new Lang.Class({
         this.auxText.set_style(this.text_style);
         this.preeditText.set_style(this.text_style);
         let lookupTable = this.lookupTableLayout.get_children();
-        for(let i=0;i<lookupTable.length;i++)
+        for(let i = 0; i < lookupTable.length; i++)
             lookupTable[i].set_style(this.text_style);
     },
     hideAux: function() {
