@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: fcitx-dev@googlegroups.com\n"
-"POT-Creation-Date: 2012-03-29 10:11+0800\n"
-"PO-Revision-Date: 2012-03-29 10:12+0800\n"
+"POT-Creation-Date: 2012-06-21 12:15+0800\n"
+"PO-Revision-Date: 2012-06-21 12:16+0800\n"
 "Last-Translator: Xuetian Weng <wengxt@gmail.com>\n"
 "Language-Team: Chinese Simplified <kde-i18n-doc@kde.org>\n"
 "Language: zh_CN\n"
@@ -15,12 +15,34 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Lokalize 1.4\n"
+"X-Generator: Lokalize 1.5\n"
 
+#: ../build/_build/kimpanel@kde.org/prefs.js:48
+#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/prefs.js:48
+#: ../prefs.js:48
+msgid "Font"
+msgstr "字体"
+
+#: ../build/_build/kimpanel@kde.org/indicator.js:26
+#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:26
 #: ../indicator.js:26
+msgid "IM Settings"
+msgstr "输入法设置"
+
+#: ../build/_build/kimpanel@kde.org/indicator.js:40
+#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:40
+#: ../indicator.js:40
+msgid "Panel Preferences"
+msgstr "面板选项"
+
+#: ../build/_build/kimpanel@kde.org/indicator.js:30
+#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:30
+#: ../indicator.js:30
 msgid "Reload Configuration"
 msgstr "重新加载配置"
 
-#: ../indicator.js:22
-msgid "Settings"
-msgstr "设置"
+#: ../build/_build/kimpanel@kde.org/prefs.js:19
+#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/prefs.js:19
+#: ../prefs.js:19
+msgid "Vertical List"
+msgstr "竖排列表"
