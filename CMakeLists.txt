@@ -33,6 +33,7 @@ set(extension_FILES
     lib.js
     convenience.js
     boxpointer.js
+    prefs.js
     ${CMAKE_CURRENT_BINARY_DIR}/metadata.json
     stylesheet.css
 )
