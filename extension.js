@@ -11,7 +11,6 @@ const Lib = Me.imports.lib;
 const convenience = Me.imports.convenience;
 
 let kimpanel = null;
-let settings;
 
 const KimpanelIface = <interface name="org.kde.impanel">
 <signal name="MovePreeditCaret">
@@ -43,6 +42,7 @@ const Kimpanel = new Lang.Class({
                                          null,
                                          null,
                                          null);
+        this.settings = convenience.getSettings();
         this._impl = Gio.DBusExportedObject.wrapJSObject(KimpanelIface, this);
         this._impl.export(Gio.DBus.session, '/org/kde/impanel');
         this.preedit = '';
@@ -139,12 +139,13 @@ const Kimpanel = new Lang.Class({
                 obj.updateInputPanel();
         }
 
-        settings.connect('changed::vertical', Lang.bind(this, function(){
-            this.inputpanel.setVertical(settings.get_boolean('vertical'));
+        this.verticalSignal = this.settings.connect('changed::vertical', Lang.bind(this, function(){
+            this.inputpanel.setVertical(this.isLookupTableVertical());
         }));
 
-        settings.connect('changed::font', Lang.bind(this, function(){
-            this.inputpanel.updateFont();
+        this.fontSignal = this.settings.connect('changed::font', Lang.bind(this, function(){
+            global.log(this.getTextStyle());
+            this.inputpanel.updateFont(this.getTextStyle());
         }));
 
         this.addToShell();
@@ -161,8 +162,18 @@ const Kimpanel = new Lang.Class({
         );
     },
 
+    isLookupTableVertical: function() {
+        return Lib.isLookupTableVertical(this.settings);
+    },
+
+    getTextStyle: function() {
+        return Lib.getTextStyle(this.settings);
+    },
+
     destroy: function ()
     {
+        this.settings.disconnect(this.verticalSignal);
+        this.settings.disconnect(this.fontSignal);
         this.conn.signal_unsubscribe(this.dbusSignal);
         Gio.bus_unown_name(this.owner_id);
         this._impl.unexport();
@@ -211,7 +222,6 @@ const Kimpanel = new Lang.Class({
 
 function init() {
     convenience.initTranslations();
-    settings = convenience.getSettings();
 }
 
 function enable()

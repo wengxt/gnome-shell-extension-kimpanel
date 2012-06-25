@@ -8,7 +8,6 @@ const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 //const BoxPointer = imports.ui.boxpointer;
 const BoxPointer = Me.imports.boxpointer;
-const Lib = Me.imports.lib;
 
 const PanelItemProperty = { x_fill: false, y_fill: false, x_align: St.Align.START, y_align: St.Align.START };
 
@@ -28,6 +27,8 @@ const InputPanel = new Lang.Class({
                 x_align: St.Align.START
             });
 
+        this.kimpanel = params.kimpanel;
+
         this.actor = this.panel.actor;
         this.actor._delegate = this;
         this.actor.style_class = 'popup-menu-boxpointer';
@@ -42,7 +43,7 @@ const InputPanel = new Lang.Class({
         this.separator = new Separator();
 
 
-        this.lookupTableVertical = Lib.isLookupTableVertical();
+        this.lookupTableVertical = this.kimpanel.isLookupTableVertical();
         this.lookupTableLayout = new St.BoxLayout({vertical:this.lookupTableVertical});
 
         this.layout.add(this.upperLayout, {});
@@ -55,7 +56,8 @@ const InputPanel = new Lang.Class({
         this.layout.add(this.lookupTableLayout, {});
 
 
-        this.text_style = Lib.getTextStyle();
+        this.text_style = this.kimpanel.getTextStyle();
+        global.log(this.text_style);
         this.auxText = new St.Label({style_class:'kimpanel-label', style: this.text_style, text:''});
         this.preeditText = new St.Label({style_class:'kimpanel-label', style: this.text_style, text:''});
 
@@ -66,8 +68,6 @@ const InputPanel = new Lang.Class({
         this.upperLayout.add(this.preeditText, {x_fill: false, y_fill: true,
                                     x_align: St.Align.START,
                                     y_align: St.Align.MIDDLE} );
-
-        this.kimpanel = params.kimpanel;
         this.hide();
     },
 
@@ -151,8 +151,8 @@ const InputPanel = new Lang.Class({
     setVertical: function(vertical){
         this.lookupTableLayout.set_vertical(vertical);
     },
-    updateFont: function(){
-        this.text_style = Lib.getTextStyle();
+    updateFont: function(textStyle){
+        this.text_style = textStyle;
         this.auxText.set_style(this.text_style);
         this.preeditText.set_style(this.text_style);
         let lookupTable = this.lookupTableLayout.get_children();

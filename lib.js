@@ -86,9 +86,7 @@ function createMenuItem(property) {
     return item;
 }
 
-function getTextStyle() {
-    let settings = convenience.getSettings();
-
+function getTextStyle(settings) {
     let font_string = settings.get_string('font') || "Sans 11";
     let desc = Pango.FontDescription.from_string(font_string);
 
@@ -98,14 +96,13 @@ function getTextStyle() {
     for( i in Pango.Style )
         if( Pango.Style[i] == desc.get_style() )
             font_style = i.toLowerCase();
-    
+
     let font_weight = desc.get_weight();
 
     return "font-family:"+font_family+";font-size:"+font_size+";font-style:" 
     +font_style+";font-weight:"+font_weight;
 }
 
-function isLookupTableVertical() {
-    let settings = convenience.getSettings();
+function isLookupTableVertical(settings) {
     return settings.get_boolean('vertical') || false ;
 }
