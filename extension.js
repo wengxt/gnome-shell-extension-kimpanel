@@ -30,6 +30,16 @@ const KimpanelIface = <interface name="org.kde.impanel">
 <signal name="Configure"> </signal>
 </interface>
 
+const Kimpanel2Iface = <interface name="org.kde.impanel2">
+<signal name="PanelCreated2"> </signal>
+<method name="SetSpotRect">
+    <arg type="i" name="x" direction="in" />
+    <arg type="i" name="y" direction="in" />
+    <arg type="i" name="w" direction="in" />
+    <arg type="i" name="h" direction="in" />
+</method>
+</interface>
+
 const Kimpanel = new Lang.Class({
     Name: "Kimpanel",
 
@@ -45,10 +55,14 @@ const Kimpanel = new Lang.Class({
         this.settings = convenience.getSettings();
         this._impl = Gio.DBusExportedObject.wrapJSObject(KimpanelIface, this);
         this._impl.export(Gio.DBus.session, '/org/kde/impanel');
+        this._impl2 = Gio.DBusExportedObject.wrapJSObject(Kimpanel2Iface, this);
+        this._impl2.export(Gio.DBus.session, '/org/kde/impanel');
         this.preedit = '';
         this.aux = '';
         this.x = 0;
         this.y = 0;
+        this.w = 0;
+        this.h = 0;
         this.table = [];
         this.label = [];
         this.pos = 0;
@@ -82,10 +96,12 @@ const Kimpanel = new Lang.Class({
                     obj.indicator._deactive();
                 break;
             case 'UpdateSpotLocation':
-                if (obj.x != value[0] || obj.y != value[1])
+                if (obj.x != value[0] || obj.y != value[1] || obj.w != 0 || obj.h != 0)
                     changed = true;
                 obj.x = value[0];
                 obj.y = value[1];
+                obj.w = 0;
+                obj.h = 0;
                 break;
             case 'UpdatePreeditText':
                 if (obj.preedit != value[0])
@@ -176,6 +192,7 @@ const Kimpanel = new Lang.Class({
         this.conn.signal_unsubscribe(this.dbusSignal);
         Gio.bus_unown_name(this.owner_id);
         this._impl.unexport();
+        this._impl2.unexport();
         this.indicator.destroy();
         this.indicator = null;
         this.inputpanel = null;
@@ -203,11 +220,13 @@ const Kimpanel = new Lang.Class({
         this.inputpanel.setLookupTableCursor(this.cursor);
         this.inputpanel.updatePosition();
     },
-
     emit: function(signal)
     {
         this._impl.emit_signal(signal, null);
-
+    },
+    emit2: function(signal)
+    {
+        this._impl2.emit_signal(signal, null);
     },
     triggerProperty: function(arg)
     {
@@ -216,6 +235,18 @@ const Kimpanel = new Lang.Class({
     selectCandidate: function(arg)
     {
         this._impl.emit_signal('SelectCandidate', GLib.Variant.new('(i)',[arg]));
+    },
+    SetSpotRect: function(x, y, w, h)
+    {
+        let changed = false;
+        if (this.x != x || this.y != y || this.w != w || this.h != h)
+            changed = true;
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        if (changed)
+            this.updateInputPanel();
     }
 });
 
@@ -227,7 +258,8 @@ function enable()
 {
     if (!kimpanel) {
         kimpanel = new Kimpanel();
-        kimpanel.emit('PanelCreated',[]);
+        kimpanel.emit('PanelCreated');
+        kimpanel.emit2('PanelCreated2');
     }
 }
 

@@ -172,19 +172,24 @@ const InputPanel = new Lang.Class({
         let monitor = Main.layoutManager.focusMonitor;
         let x = kimpanel.x;
         let y = kimpanel.y;
+        let w = kimpanel.w;
+        let h = kimpanel.h;
         let panel_width = this.actor.get_width();
         let panel_height = this.actor.get_height();
 
-        y = y - 20;
+        if (h == 0) {
+            h = 20;
+            y = y - 20;
+        }
 
-        if (y + panel_height + 20 > monitor.y + monitor.height) {
+        if (y + panel_height + h > monitor.y + monitor.height) {
             this._arrowSide = St.Side.BOTTOM;
         } else {
             this._arrowSide = St.Side.TOP;
         }
 
         this._cursor.set_position(x, y);
-        this._cursor.set_size(20, 20);
+        this._cursor.set_size((w == 0? 1 : w), h);
 
         this.panel._arrowSide = this._arrowSide;
         this.panel.setArrowOrigin(this._arrowSide);
