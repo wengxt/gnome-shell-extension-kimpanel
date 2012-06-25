@@ -215,8 +215,7 @@ const Kimpanel = new Lang.Class({
         this.showPreedit ? inputpanel.setPreeditText(this.preedit, this.pos) : inputpanel.hidePreedit();
 
         let text = '';
-        if (this.showLookupTable)
-            this.inputpanel.setLookupTable(this.label, this.table);
+        this.inputpanel.setLookupTable(this.label, this.table, this.showLookupTable);
         this.inputpanel.setLookupTableCursor(this.cursor);
         this.inputpanel.updatePosition();
     },

@@ -88,9 +88,10 @@ const InputPanel = new Lang.Class({
     _candidateClicked: function(widget, event) {
         this.kimpanel.selectCandidate(widget.candidate_index);
     },
-    setLookupTable: function( label, table ) {
-        let len = table.length;
+    setLookupTable: function( label, table, visible ) {
+        let len = visible ? table.length : 0;
         let labelLen = this.lookupTableLayout.get_children().length;
+        global.log(len + ' ' + labelLen );
 
         // if number is not enough, create new
         if(len > labelLen) {
