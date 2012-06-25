@@ -136,7 +136,7 @@ const InputPanel = new Lang.Class({
             else
                 lookupTable[i].ignore_focus = false;
             lookupTable[i].candidate_index = i;
-            lookupTable[i].text = label[i] + table[i];
+            lookupTable[i].text = label[i] + (label[i].length != 0 ? ' ': '') + table[i];
         }
     },
     setLookupTableCursor: function(cursor) {
