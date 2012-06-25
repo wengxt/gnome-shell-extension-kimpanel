@@ -57,7 +57,6 @@ const InputPanel = new Lang.Class({
 
 
         this.text_style = this.kimpanel.getTextStyle();
-        global.log(this.text_style);
         this.auxText = new St.Label({style_class:'kimpanel-label', style: this.text_style, text:''});
         this.preeditText = new St.Label({style_class:'kimpanel-label', style: this.text_style, text:''});
 

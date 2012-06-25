@@ -144,7 +144,6 @@ const Kimpanel = new Lang.Class({
         }));
 
         this.fontSignal = this.settings.connect('changed::font', Lang.bind(this, function(){
-            global.log(this.getTextStyle());
             this.inputpanel.updateFont(this.getTextStyle());
         }));
 
