@@ -202,7 +202,7 @@ const Kimpanel = new Lang.Class({
     {
         Main.uiGroup.add_actor(this.menu.actor);
         this.menu.actor.hide();
-        Main.layoutManager.addChrome(this.inputpanel.actor, {visibleInFullscreen: true});
+        Main.layoutManager.addChrome(this.inputpanel.actor, {});
         Main.uiGroup.add_actor(this.inputpanel._cursor);
         Main.panel.addToStatusArea('kimpanel', this.indicator);
     },

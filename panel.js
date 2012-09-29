@@ -91,7 +91,6 @@ const InputPanel = new Lang.Class({
     setLookupTable: function( label, table, visible ) {
         let len = visible ? table.length : 0;
         let labelLen = this.lookupTableLayout.get_children().length;
-        global.log(len + ' ' + labelLen );
 
         // if number is not enough, create new
         if(len > labelLen) {
@@ -170,7 +169,7 @@ const InputPanel = new Lang.Class({
 
     updatePosition: function() {
         let kimpanel = this.kimpanel;
-        let monitor = Main.layoutManager.focusMonitor;
+        let monitor = Main.layoutManager.currentMonitor;
         let x = kimpanel.x;
         let y = kimpanel.y;
         let w = kimpanel.w;

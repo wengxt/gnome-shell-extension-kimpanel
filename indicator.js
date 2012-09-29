@@ -132,12 +132,12 @@ const KimIndicator = new Lang.Class({
         }
     },
 
-    _setIcon: function(iconName,type) {
+    _setIcon: function(iconName) {
         this._clearActor();
         this._iconName = iconName;
-        this._iconActor = Lib.createIcon(iconName, {style_class: 'system-status-icon', icon_type: type});
+        this._iconActor = Lib.createIcon(iconName, {style_class: 'system-status-icon'});
         if (!this._iconActor)
-            this._iconActor = Lib.createIcon("input-keyboard", {style_class: 'system-status-icon', icon_type: St.IconType.SYMBOLIC});
+            this._iconActor = Lib.createIcon("input-keyboard-symbolic", {style_class: 'system-status-icon'});
         if (this._iconActor) {
             this.actor.add_actor(this._iconActor);
             this.actor.queue_redraw();
@@ -145,10 +145,10 @@ const KimIndicator = new Lang.Class({
     },
 
     _active: function(){
-         this._setIcon(this._properties['/Fcitx/im'].icon,St.IconType.FULLCOLOR);
+         this._setIcon(this._properties['/Fcitx/im'].icon);
     },
 
     _deactive: function(){
-        this._setIcon('input-keyboard',St.IconType.SYMBOLIC);
+        this._setIcon('input-keyboard-symbolic');
     }
 });

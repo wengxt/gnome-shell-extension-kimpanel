@@ -67,14 +67,14 @@ function createIcon(name, params) {
     if (!name)
         return null;
 
-    params = Params.parse(params, {style_class: 'popup-menu-icon', icon_type: St.IconType.FULLCOLOR});
+    params = Params.parse(params, {style_class: 'popup-menu-icon'});
     if (name[0] == '/') {
         return new KimIcon(name, {style_class: params.style_class});
     }
     else {
         return new St.Icon({
             icon_name: name,
-            icon_type: params.icon_type,
+            // icon_type: params.icon_type,
             style_class: params.style_class
         });
     }
