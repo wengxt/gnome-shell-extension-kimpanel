@@ -73,8 +73,7 @@ function createIcon(name, params) {
     }
     else {
         return new St.Icon({
-            icon_name: name,
-            // icon_type: params.icon_type,
+            icon_name: name + '-symbolic',
             style_class: params.style_class
         });
     }

@@ -19,7 +19,7 @@ const KimIndicator = new Lang.Class({
         this._properties = {};
         this._propertySwitch = {};
 
-        PanelMenu.SystemStatusButton.prototype._init.call(this, 'input-keyboard', 'kimpanel');
+        PanelMenu.SystemStatusButton.prototype._init.call(this, 'input-keyboard-symbolic', 'kimpanel');
 
         this.kimpanel = params.kimpanel;
 
@@ -46,7 +46,7 @@ const KimIndicator = new Lang.Class({
                                  [Me.metadata.uuid],-1,null);
             }
         });
-        
+
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this.menu.addMenuItem(this._reload);
         this.menu.addMenuItem(this._setting);
@@ -124,10 +124,10 @@ const KimIndicator = new Lang.Class({
     },
 
     _clearActor: function() {
-        if (this._iconActor != null) {
-            this.actor.remove_actor(this._iconActor);
-            this._iconActor.destroy();
-            this._iconActor = null;
+        if (this.mainIcon != null) {
+            this._box.remove_actor(this.mainIcon);
+            this.mainIcon.destroy();
+            this.mainIcon = null;
             this._iconName = null;
         }
     },
@@ -135,17 +135,17 @@ const KimIndicator = new Lang.Class({
     _setIcon: function(iconName) {
         this._clearActor();
         this._iconName = iconName;
-        this._iconActor = Lib.createIcon(iconName, {style_class: 'system-status-icon'});
-        if (!this._iconActor)
-            this._iconActor = Lib.createIcon("input-keyboard-symbolic", {style_class: 'system-status-icon'});
-        if (this._iconActor) {
-            this.actor.add_actor(this._iconActor);
-            this.actor.queue_redraw();
+        this.mainIcon = Lib.createIcon(iconName, {style_class: 'system-status-icon'});
+        if (!this.mainIcon)
+            this.mainIcon = Lib.createIcon("input-keyboard-symbolic", {style_class: 'system-status-icon'});
+        if (this.mainIcon) {
+            this._box.add_actor(this.mainIcon);
+            this._box.queue_redraw();
         }
     },
 
     _active: function(){
-         this._setIcon(this._properties['/Fcitx/im'].icon);
+         this.setIcon(this._properties['/Fcitx/im'].icon);
     },
 
     _deactive: function(){
