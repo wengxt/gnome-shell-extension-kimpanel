@@ -13,12 +13,21 @@
 }
 
 .kimpanel-candidate-item:hover {
-  color: #729FCF;
+  border-radius: 4px;
+  background-color: rgba(255,255,255,0.33);
 }
 
 .kimpanel-candidate-item:active {
-  color: #729FCF;
+  border-radius: 4px;
+  background-color: rgba(255,255,255,0.33);
 }
+
+.kimpanel-candidate-item:active:hover {
+  border-radius: 4px;
+  background-color: rgba(255,255,255,0.15);
+}
+
+
 
 .icon-disable {
   color:rgba(150,150,150,0.5);
