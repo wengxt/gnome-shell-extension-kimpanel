@@ -1,5 +1,6 @@
 {
-"shell-version": ["3.6"],
+"extension-id": "kimpanel",
+"shell-version": ["3.7.91", "3.8"],
 "uuid": "@uuid@",
 "name": "@extensionname@",
 "description": "KDE Input Method Panel for Gnome-Shell", 
