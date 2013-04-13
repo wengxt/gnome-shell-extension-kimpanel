@@ -38,6 +38,15 @@ const Kimpanel2Iface = <interface name="org.kde.impanel2">
     <arg type="i" name="w" direction="in" />
     <arg type="i" name="h" direction="in" />
 </method>
+<method name="SetLookupTable">
+    <arg direction="in" type="as" name="label"/>
+    <arg direction="in" type="as" name="text"/>
+    <arg direction="in" type="as" name="attr"/>
+    <arg direction="in" type="b" name="hasPrev"/>
+    <arg direction="in" type="b" name="hasNext"/>
+    <arg direction="in" type="i" name="cursor"/>
+    <arg direction="in" type="i" name="layout"/>
+</method>
 </interface>
 
 const Kimpanel = new Lang.Class({
@@ -49,7 +58,7 @@ const Kimpanel = new Lang.Class({
         this.owner_id = Gio.bus_own_name(Gio.BusType.SESSION,
                                          "org.kde.impanel",
                                          Gio.BusNameOwnerFlags.NONE,
-                                         null,
+                                         Lang.bind(this, this.requestNameFinished),
                                          null,
                                          null);
         this.settings = convenience.getSettings();
@@ -59,6 +68,7 @@ const Kimpanel = new Lang.Class({
         this._impl2.export(Gio.DBus.session, '/org/kde/impanel');
         this.preedit = '';
         this.aux = '';
+        this.layoutHint = 0;
         this.x = 0;
         this.y = 0;
         this.w = 0;
@@ -177,8 +187,13 @@ const Kimpanel = new Lang.Class({
         );
     },
 
+    requestNameFinished: function() {
+        this.emit('PanelCreated');
+        this.emit2('PanelCreated2');
+    },
+
     isLookupTableVertical: function() {
-        return Lib.isLookupTableVertical(this.settings);
+        return this.layoutHint == 0 ? Lib.isLookupTableVertical(this.settings) : (this.layoutHint == 1);
     },
 
     getTextStyle: function() {
@@ -246,6 +261,15 @@ const Kimpanel = new Lang.Class({
         this.h = h;
         if (changed)
             this.updateInputPanel();
+    },
+    SetLookupTable: function(labels, texts, attrs, hasPrev, hasNext, cursor, layout)
+    {
+        this.label = labels;
+        this.table = texts;
+        this.cursor = cursor;
+        this.layoutHint = layout;
+        this.updateInputPanel();
+        this.inputpanel.setVertical(this.isLookupTableVertical());
     }
 });
 
@@ -257,8 +281,6 @@ function enable()
 {
     if (!kimpanel) {
         kimpanel = new Kimpanel();
-        kimpanel.emit('PanelCreated');
-        kimpanel.emit2('PanelCreated2');
     }
 }
 

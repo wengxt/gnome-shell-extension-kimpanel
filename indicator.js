@@ -88,6 +88,7 @@ const KimIndicator = new Lang.Class({
     _updateProperties: function( properties ) {
         if( properties == undefined )
         {
+            let key;
             for ( key in this._propertySwitch )
             {
                 let property = this._properties[key];
@@ -105,6 +106,7 @@ const KimIndicator = new Lang.Class({
             }
 
             let count = 0;
+            let p;
             for( p in properties) {
                 count ++;
                 let property = Lib.parseProperty( properties[p] );
