@@ -51,6 +51,7 @@ const KimIndicator = new Lang.Class({
         this.menu.addMenuItem(this._reload);
         this.menu.addMenuItem(this._setting);
         this.menu.addMenuItem(this._prefs);
+        this.actor.hide();
     },
 
     _addPropertyItem: function(key) {
@@ -117,11 +118,11 @@ const KimIndicator = new Lang.Class({
                 else
                     this._addPropertyItem(key);
             }
-            if (count != 0) {
-                this.visible = false;
+            if (count > 0) {
+                this.actor.show();
+            } else {
+                this.actor.hide();
             }
-            else
-                this.visible = true;
         }
     },
 
@@ -137,7 +138,6 @@ const KimIndicator = new Lang.Class({
     _setIcon: function(iconName) {
         this._clearActor();
         this._iconName = iconName;
-        global.log(iconName);
         this.mainIcon = Lib.createIcon(iconName, {style_class: 'system-status-icon'});
         if (!this.mainIcon)
             this.mainIcon = Lib.createIcon("input-keyboard-symbolic", {style_class: 'system-status-icon'});
@@ -148,7 +148,7 @@ const KimIndicator = new Lang.Class({
     },
 
     _active: function(){
-         this._setIcon(this._properties['/Fcitx/im'].icon);
+         this._setIcon(this._properties['/Fcitx/im'] ? this._properties['/Fcitx/im'].icon : 'input-keyboard-symbolic');
     },
 
     _deactive: function(){

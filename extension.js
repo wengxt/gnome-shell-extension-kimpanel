@@ -66,21 +66,9 @@ const Kimpanel = new Lang.Class({
         this._impl.export(Gio.DBus.session, '/org/kde/impanel');
         this._impl2 = Gio.DBusExportedObject.wrapJSObject(Kimpanel2Iface, this);
         this._impl2.export(Gio.DBus.session, '/org/kde/impanel');
-        this.preedit = '';
-        this.aux = '';
-        this.layoutHint = 0;
-        this.x = 0;
-        this.y = 0;
-        this.w = 0;
-        this.h = 0;
-        this.table = [];
-        this.label = [];
-        this.pos = 0;
-        this.cursor = -1;
-        this.showPreedit = false;
-        this.showLookupTable = false;
-        this.showAux = false;
-        this.enabled = false;
+        this.current_service = '';
+        this.watch_id = 0;
+        this.resetData();
         this.indicator = new KimIndicator({kimpanel: this});
         this.inputpanel = new InputPanel({kimpanel: this});
         this.menu = new KimMenu({sourceActor: this.indicator.actor, kimpanel: this});
@@ -96,6 +84,17 @@ const Kimpanel = new Lang.Class({
                 obj.menu.execMenu(value[0]);
                 break
             case 'RegisterProperties':
+                if (this.current_service != sender) {
+                    this.current_service = sender;
+                    if (this.watch_id != 0) {
+                        Gio.bus_unwatch_name(this.watch_id);
+                    }
+                    this.watch_id = Gio.bus_watch_name(Gio.BusType.SESSION,
+                                                       this.current_service,
+                                                       Gio.BusNameWatcherFlags.NONE,
+                                                       null,
+                                                       Lang.bind(this, this.imExit));
+                }
                 obj.indicator._updateProperties(value[0]);
                 break;
             case 'UpdateProperty':
@@ -185,6 +184,38 @@ const Kimpanel = new Lang.Class({
             null,
             null
         );
+    },
+
+    resetData: function() {
+        this.preedit = '';
+        this.aux = '';
+        this.layoutHint = 0;
+        this.x = 0;
+        this.y = 0;
+        this.w = 0;
+        this.h = 0;
+        this.table = [];
+        this.label = [];
+        this.pos = 0;
+        this.cursor = -1;
+        this.showPreedit = false;
+        this.showLookupTable = false;
+        this.showAux = false;
+        this.enabled = false;
+    },
+
+    imExit: function(conn, name) {
+        if (this.current_service == name) {
+            this.current_service = '';
+            if (this.watch_id != 0) {
+                Gio.bus_unwatch_name(this.watch_id);
+                this.watch_id = 0;
+            }
+
+            this.resetData();
+            this.indicator._updateProperties({});
+            this.updateInputPanel();
+        }
     },
 
     requestNameFinished: function() {
