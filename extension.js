@@ -58,8 +58,8 @@ const Kimpanel = new Lang.Class({
         this.owner_id = Gio.bus_own_name(Gio.BusType.SESSION,
                                          "org.kde.impanel",
                                          Gio.BusNameOwnerFlags.NONE,
-                                         Lang.bind(this, this.requestNameFinished),
                                          null,
+                                         Lang.bind(this, this.requestNameFinished),
                                          null);
         this.settings = convenience.getSettings();
         this._impl = Gio.DBusExportedObject.wrapJSObject(KimpanelIface, this);
@@ -233,6 +233,11 @@ const Kimpanel = new Lang.Class({
 
     destroy: function ()
     {
+        if (this.watch_id != 0) {
+            Gio.bus_unwatch_name(this.watch_id);
+            this.watch_id = 0;
+            this.current_service = '';
+        }
         this.settings.disconnect(this.verticalSignal);
         this.settings.disconnect(this.fontSignal);
         this.conn.signal_unsubscribe(this.dbusSignal);
