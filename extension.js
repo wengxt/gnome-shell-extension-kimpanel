@@ -84,16 +84,16 @@ const Kimpanel = new Lang.Class({
                 obj.menu.execMenu(value[0]);
                 break
             case 'RegisterProperties':
-                if (this.current_service != sender) {
-                    this.current_service = sender;
-                    if (this.watch_id != 0) {
-                        Gio.bus_unwatch_name(this.watch_id);
+                if (obj.current_service != sender) {
+                    obj.current_service = sender;
+                    if (obj.watch_id != 0) {
+                        Gio.bus_unwatch_name(obj.watch_id);
                     }
-                    this.watch_id = Gio.bus_watch_name(Gio.BusType.SESSION,
-                                                       this.current_service,
+                    obj.watch_id = Gio.bus_watch_name(Gio.BusType.SESSION,
+                                                       obj.current_service,
                                                        Gio.BusNameWatcherFlags.NONE,
                                                        null,
-                                                       Lang.bind(this, this.imExit));
+                                                       Lang.bind(obj, obj.imExit));
                 }
                 obj.indicator._updateProperties(value[0]);
                 break;
