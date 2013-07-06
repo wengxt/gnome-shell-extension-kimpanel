@@ -3,6 +3,7 @@ const St = imports.gi.St;
 const Params = imports.misc.params;
 const Clutter = imports.gi.Clutter;
 const GLib = imports.gi.GLib;
+const Gio = imports.gi.Gio;
 const Gettext = imports.gettext;
 const Lang = imports.lang;
 const Pango = imports.gi.Pango;
@@ -19,19 +20,14 @@ const KimMenuItem = new Lang.Class({
 
         this.label = new St.Label({ text: text });
         this.addActor(this.label);
-        this._icon = null;
+        this._icon = new St.Icon({ style_class: 'popup-menu-icon' });
+        this.addActor(this._icon, { align: St.Align.END });
 
         this.setIcon(iconName);
     },
 
     setIcon: function(name) {
-        if (this._icon) {
-            this.removeActor(this._icon);
-            this._icon.destroy();
-        }
-        this._icon = createIcon(name);
-        if (this._icon)
-            this.addActor(this._icon, { align: St.Align.END });
+        this._icon.gicon = createIcon(name);
     }
 });
 
@@ -67,16 +63,10 @@ function createIcon(name, params) {
     if (!name)
         return null;
 
-    params = Params.parse(params, {style_class: 'popup-menu-icon'});
     if (name[0] == '/') {
-        return new KimIcon(name, {style_class: params.style_class});
+        return Gio.FileIcon.new(Gio.File.new_for_path(name));
     }
-    else {
-        return new St.Icon({
-            icon_name: name + '-symbolic',
-            style_class: params.style_class
-        });
-    }
+    return Gio.ThemedIcon.new_with_default_fallbacks(name + '-symbolic');
 }
 
 function createMenuItem(property) {

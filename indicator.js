@@ -126,32 +126,15 @@ const KimIndicator = new Lang.Class({
         }
     },
 
-    _clearActor: function() {
-        if (this.mainIcon != null) {
-            this._box.remove_actor(this.mainIcon);
-            this.mainIcon.destroy();
-            this.mainIcon = null;
-            this._iconName = null;
-        }
-    },
-
     _setIcon: function(iconName) {
-        this._clearActor();
-        this._iconName = iconName;
-        this.mainIcon = Lib.createIcon(iconName, {style_class: 'system-status-icon'});
-        if (!this.mainIcon)
-            this.mainIcon = Lib.createIcon("input-keyboard-symbolic", {style_class: 'system-status-icon'});
-        if (this.mainIcon) {
-            this._box.add_actor(this.mainIcon);
-            this._box.queue_redraw();
-        }
+         this.setGIcon(Lib.createIcon(iconName));
     },
 
     _active: function(){
-         this._setIcon(this._properties['/Fcitx/im'] ? this._properties['/Fcitx/im'].icon : 'input-keyboard-symbolic');
+         this._setIcon(this._properties['/Fcitx/im'] ? this._properties['/Fcitx/im'].icon : 'input-keyboard');
     },
 
     _deactive: function(){
-        this._setIcon('input-keyboard-symbolic');
+        this._setIcon('input-keyboard');
     }
 });
