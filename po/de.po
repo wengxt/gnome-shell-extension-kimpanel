@@ -18,17 +18,17 @@ msgstr ""
 "X-Generator: Poedit 1.5.4\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
+#: ../build/_build/kimpanel@kde.org/prefs.js:48
+#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/prefs.js:48
+#: ../prefs.js:48
+msgid "Font"
+msgstr "Schriftart"
+
 #: ../build/_build/kimpanel@kde.org/indicator.js:26
 #: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:26
 #: ../indicator.js:26
 msgid "IM Settings"
 msgstr "IM-Einstellungen"
-
-#: ../build/_build/kimpanel@kde.org/indicator.js:30
-#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:30
-#: ../indicator.js:30
-msgid "Reload Configuration"
-msgstr "Konfiguration neu laden"
 
 #: ../build/_build/kimpanel@kde.org/indicator.js:40
 #: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:40
@@ -36,14 +36,14 @@ msgstr "Konfiguration neu laden"
 msgid "Panel Preferences"
 msgstr "Panel-Einstellungen"
 
+#: ../build/_build/kimpanel@kde.org/indicator.js:30
+#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:30
+#: ../indicator.js:30
+msgid "Reload Configuration"
+msgstr "Konfiguration neu laden"
+
 #: ../build/_build/kimpanel@kde.org/prefs.js:19
 #: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/prefs.js:19
 #: ../prefs.js:19
 msgid "Vertical List"
 msgstr "Vertikale Liste"
-
-#: ../build/_build/kimpanel@kde.org/prefs.js:48
-#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/prefs.js:48
-#: ../prefs.js:48
-msgid "Font"
-msgstr "Schriftart"

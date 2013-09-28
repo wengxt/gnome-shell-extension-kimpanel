@@ -12,14 +12,17 @@ const Lib = Me.imports.lib;
 
 const KimIndicator = new Lang.Class({
     Name: "KimIndicator",
-    Extends: PanelMenu.SystemStatusButton,
+    Extends: PanelMenu.Button,
 
     _init: function(params){
+        this.parent(0.0, 'kimpanel');
         params = Params.parse(params, {kimpanel: null});
         this._properties = {};
         this._propertySwitch = {};
 
-        PanelMenu.SystemStatusButton.prototype._init.call(this, 'input-keyboard-symbolic', 'kimpanel');
+        this._box = new St.BoxLayout({ style_class: 'panel-status-button-box' });
+        this.actor.add_actor(this._box);
+        this._setIcon('input-keyboard-symbolic');
 
         this.kimpanel = params.kimpanel;
 
@@ -127,7 +130,15 @@ const KimIndicator = new Lang.Class({
     },
 
     _setIcon: function(iconName) {
-         this.setGIcon(Lib.createIcon(iconName));
+        let gicon = Lib.createIcon(iconName);
+        if (this.mainIcon) {
+           this.mainIcon.gicon = gicon;
+        } else {
+            let icon = new St.Icon({ gicon: gicon,
+                                     style_class: 'system-status-icon' });
+            this._box.add_actor(icon);
+            this.mainIcon = icon;
+        }
     },
 
     _active: function(){

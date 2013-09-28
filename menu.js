@@ -32,6 +32,7 @@ const KimMenu = new Lang.Class({
     },
 
     execMenu: function(properties) {
+        let p = null;
         for (p in this._propertySwitch) {
             this._propertySwitch[p].destroy();
             delete this._propertySwitch[p];

@@ -19,9 +19,10 @@ const KimMenuItem = new Lang.Class({
         this.parent(params);
 
         this.label = new St.Label({ text: text });
-        this.addActor(this.label);
-        this._icon = new St.Icon({ style_class: 'popup-menu-icon' });
-        this.addActor(this._icon, { align: St.Align.END });
+        this.actor.add_child(this.label);
+        this.actor.label_actor = this.label
+        this._icon = new St.Icon({ x_align: St.Align.END, style_class: 'popup-menu-icon' });
+        this.actor.add_child(this._icon);
 
         this.setIcon(iconName);
     },
@@ -66,7 +67,11 @@ function createIcon(name, params) {
     if (name[0] == '/') {
         return Gio.FileIcon.new(Gio.File.new_for_path(name));
     }
-    return Gio.ThemedIcon.new_with_default_fallbacks(name + '-symbolic');
+    // this is to hack through the gtk silly icon theme code.
+    // gtk doesn't want to mix symbolic icon and normal icon together,
+    // while in our case, it's much better to show an icon instead of
+    // hide everything.
+    return Gio.ThemedIcon.new_with_default_fallbacks(name + '-symbolic-hack');
 }
 
 function createMenuItem(property) {
