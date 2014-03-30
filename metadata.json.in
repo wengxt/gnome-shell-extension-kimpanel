@@ -1,10 +1,10 @@
 {
 "extension-id": "kimpanel",
 "shell-version": ["3.12"],
-"uuid": "@uuid@",
-"name": "@extensionname@",
-"description": "KDE Input Method Panel for Gnome-Shell", 
-"url": "http://github.com/csslayer/kimpanel-for-gnome-shell",
+"uuid": "kimpanel@kde.org",
+"name": "Input Method Panel",
+"description": "Input Method Panel using KDE's kimpanel protocol for Gnome-Shell", 
+"url": "http://github.com/wengxt/kimpanel-for-gnome-shell",
 "locale": "@localedir@",
 "gettext-domain": "gnome-shell-extensions-kimpanel",
 "settings-schema": "org.gnome.shell.extensions.kimpanel"

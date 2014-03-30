@@ -17,8 +17,6 @@ add_subdirectory(po)
 
 set(datadir "${CMAKE_INSTALL_PREFIX}/share")
 set(topextensiondir "${datadir}/gnome-shell/extensions")
-set(extensionname "kimpanel")
-set(uuid "${extensionname}@kde.org")
 set(extensiondir "${topextensiondir}/${uuid}")
 set(localextensiondir "$ENV{HOME}/.local/share/gnome-shell/extensions/${uuid}")
 set(localedir "${datadir}/locale")
@@ -46,7 +44,8 @@ set(schema_FILES
 install(FILES ${extension_FILES} DESTINATION ${extensiondir})
 install(FILES ${schema_FILES} DESTINATION ${extensiondir}/schemas)
 
-add_custom_command(OUTPUT ${uuid}.zip
+set(uuid "kimpanel@kde.org")
+add_custom_command(OUTPUT "${uuid}.zip"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/_build"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/_build"
     COMMAND ${CMAKE_MAKE_PROGRAM} install DESTDIR="${CMAKE_CURRENT_BINARY_DIR}/_build"
