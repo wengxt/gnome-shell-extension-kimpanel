@@ -12,42 +12,43 @@ const convenience = Me.imports.convenience;
 
 let kimpanel = null;
 
-const KimpanelIface = <interface name="org.kde.impanel">
-<signal name="MovePreeditCaret">
-    <arg type="i" name="position" />
-</signal>
-<signal name="SelectCandidate">
-    <arg type="i" name="index" />
-</signal>
-<signal name="LookupTablePageUp"> </signal>
-<signal name="LookupTablePageDown"> </signal>
-<signal name="TriggerProperty">
-    <arg type="s" name="key" />
-</signal>
-<signal name="PanelCreated"> </signal>
-<signal name="Exit"> </signal>
-<signal name="ReloadConfig"> </signal>
-<signal name="Configure"> </signal>
-</interface>
-
-const Kimpanel2Iface = <interface name="org.kde.impanel2">
-<signal name="PanelCreated2"> </signal>
-<method name="SetSpotRect">
-    <arg type="i" name="x" direction="in" />
-    <arg type="i" name="y" direction="in" />
-    <arg type="i" name="w" direction="in" />
-    <arg type="i" name="h" direction="in" />
-</method>
-<method name="SetLookupTable">
-    <arg direction="in" type="as" name="label"/>
-    <arg direction="in" type="as" name="text"/>
-    <arg direction="in" type="as" name="attr"/>
-    <arg direction="in" type="b" name="hasPrev"/>
-    <arg direction="in" type="b" name="hasNext"/>
-    <arg direction="in" type="i" name="cursor"/>
-    <arg direction="in" type="i" name="layout"/>
-</method>
-</interface>
+const KimpanelIface = '<node> \
+<interface name="org.kde.impanel"> \
+<signal name="MovePreeditCaret"> \
+    <arg type="i" name="position" /> \
+</signal> \
+<signal name="SelectCandidate"> \
+    <arg type="i" name="index" /> \
+</signal> \
+<signal name="LookupTablePageUp"> </signal> \
+<signal name="LookupTablePageDown"> </signal> \
+<signal name="TriggerProperty"> \
+    <arg type="s" name="key" /> \
+</signal> \
+<signal name="PanelCreated"> </signal> \
+<signal name="Exit"> </signal> \
+<signal name="ReloadConfig"> </signal> \
+<signal name="Configure"> </signal> \
+</interface> \
+<interface name="org.kde.impanel2"> \
+<signal name="PanelCreated2"> </signal> \
+<method name="SetSpotRect"> \
+    <arg type="i" name="x" direction="in" /> \
+    <arg type="i" name="y" direction="in" /> \
+    <arg type="i" name="w" direction="in" /> \
+    <arg type="i" name="h" direction="in" /> \
+</method> \
+<method name="SetLookupTable"> \
+    <arg direction="in" type="as" name="label"/> \
+    <arg direction="in" type="as" name="text"/> \
+    <arg direction="in" type="as" name="attr"/> \
+    <arg direction="in" type="b" name="hasPrev"/> \
+    <arg direction="in" type="b" name="hasNext"/> \
+    <arg direction="in" type="i" name="cursor"/> \
+    <arg direction="in" type="i" name="layout"/> \
+</method> \
+</interface> \
+</node>'
 
 const Kimpanel = new Lang.Class({
     Name: "Kimpanel",
@@ -55,17 +56,9 @@ const Kimpanel = new Lang.Class({
     _init: function(params)
     {
         this.conn = Gio.bus_get_sync( Gio.BusType.SESSION, null );
-        this.owner_id = Gio.bus_own_name(Gio.BusType.SESSION,
-                                         "org.kde.impanel",
-                                         Gio.BusNameOwnerFlags.NONE,
-                                         null,
-                                         Lang.bind(this, this.requestNameFinished),
-                                         null);
         this.settings = convenience.getSettings();
         this._impl = Gio.DBusExportedObject.wrapJSObject(KimpanelIface, this);
         this._impl.export(Gio.DBus.session, '/org/kde/impanel');
-        this._impl2 = Gio.DBusExportedObject.wrapJSObject(Kimpanel2Iface, this);
-        this._impl2.export(Gio.DBus.session, '/org/kde/impanel');
         this.current_service = '';
         this.watch_id = 0;
         this.resetData();
@@ -184,6 +177,12 @@ const Kimpanel = new Lang.Class({
             null,
             null
         );
+        this.owner_id = Gio.bus_own_name(Gio.BusType.SESSION,
+                                         "org.kde.impanel",
+                                         Gio.BusNameOwnerFlags.NONE,
+                                         null,
+                                         Lang.bind(this, this.requestNameFinished),
+                                         null);
     },
 
     resetData: function() {
@@ -220,7 +219,6 @@ const Kimpanel = new Lang.Class({
 
     requestNameFinished: function() {
         this.emit('PanelCreated');
-        this.emit2('PanelCreated2');
     },
 
     isLookupTableVertical: function() {
@@ -243,7 +241,6 @@ const Kimpanel = new Lang.Class({
         this.conn.signal_unsubscribe(this.dbusSignal);
         Gio.bus_unown_name(this.owner_id);
         this._impl.unexport();
-        this._impl2.unexport();
         this.indicator.destroy();
         this.indicator = null;
         this.inputpanel = null;
@@ -273,10 +270,6 @@ const Kimpanel = new Lang.Class({
     emit: function(signal)
     {
         this._impl.emit_signal(signal, null);
-    },
-    emit2: function(signal)
-    {
-        this._impl2.emit_signal(signal, null);
     },
     triggerProperty: function(arg)
     {
