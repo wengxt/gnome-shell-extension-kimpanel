@@ -4,6 +4,7 @@ const Shell = imports.gi.Shell;
 const Main = imports.ui.main;
 const Params = imports.misc.params;
 const Lang = imports.lang;
+const Meta = imports.gi.Meta;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 //const BoxPointer = imports.ui.boxpointer;
@@ -169,11 +170,12 @@ const InputPanel = new Lang.Class({
 
     updatePosition: function() {
         let kimpanel = this.kimpanel;
-        let monitor = Main.layoutManager.currentMonitor;
         let x = kimpanel.x;
         let y = kimpanel.y;
         let w = kimpanel.w;
         let h = kimpanel.h;
+        let rect = new Meta.Rectangle({ x: x, y: y, width: w, height: h });
+        let monitor = Main.layoutManager.monitors[global.screen.get_monitor_index_for_rect(rect)];
         let panel_width = this.actor.get_width();
         let panel_height = this.actor.get_height();
 
@@ -184,16 +186,26 @@ const InputPanel = new Lang.Class({
 
         if (y + panel_height + h > monitor.y + monitor.height) {
             this._arrowSide = St.Side.BOTTOM;
+
+            if (y + h > monitor.y + monitor.height) {
+                y = monitor.y + monitor.height - 1;
+                h = 1;
+            }
         } else {
             this._arrowSide = St.Side.TOP;
         }
 
+        if (x < monitor.x) {
+            x = monitor.x;
+        }
+        if (x + panel_width > monitor.x + monitor.width) {
+            x = monitor.x + monitor.width;
+        }
+
         this._cursor.set_position(x, y);
-        this._cursor.set_size((w == 0? 1 : w), h);
+        this._cursor.set_size((w == 0? 1 : w), (h == 0? 1 : h));
 
         this.panel._arrowSide = this._arrowSide;
-        this.panel.setArrowOrigin(this._arrowSide);
-
         this.panel.setPosition(this._cursor, 0.0);
 
 

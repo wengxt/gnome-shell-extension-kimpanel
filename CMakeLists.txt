@@ -15,6 +15,7 @@ endif (NOT UNZIP)
 
 add_subdirectory(po)
 
+set(uuid "kimpanel@kde.org")
 set(datadir "${CMAKE_INSTALL_PREFIX}/share")
 set(topextensiondir "${datadir}/gnome-shell/extensions")
 set(extensiondir "${topextensiondir}/${uuid}")
@@ -44,7 +45,6 @@ set(schema_FILES
 install(FILES ${extension_FILES} DESTINATION ${extensiondir})
 install(FILES ${schema_FILES} DESTINATION ${extensiondir}/schemas)
 
-set(uuid "kimpanel@kde.org")
 add_custom_command(OUTPUT "${uuid}.zip"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/_build"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/_build"
