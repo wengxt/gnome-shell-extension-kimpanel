@@ -32,23 +32,6 @@ const KimMenuItem = new Lang.Class({
     }
 });
 
-const KimIcon = new Lang.Class({
-    Name: 'KimIcon',
-    Extends: St.Bin,
-
-    _init: function(name, params) {
-        this.parent(params);
-        this.child = Clutter.Texture.new_from_file(name);
-        this.connect("style-changed", Lang.bind(this, this._style_changed));
-    },
-
-    _style_changed: function() {
-        let size = (0.5 + this.get_theme_node().get_length("icon-size"));
-        this.child.width = size;
-        this.child.height = size;
-    }
-});
-
 function parseProperty(str) {
     let p = str.split(":");
     let property = {
@@ -100,4 +83,12 @@ function getTextStyle(settings) {
 
 function isLookupTableVertical(settings) {
     return settings.get_boolean('vertical') || false ;
+}
+
+function extractLabelString(l) {
+    if (l.length >= 2 && l.charCodeAt(0) < 127 && l.charCodeAt(1) < 127) {
+        return l.substring(0, 2);
+    } else {
+        return l.substring(0, 1);
+    }
 }

@@ -20,9 +20,15 @@ const KimIndicator = new Lang.Class({
         this._properties = {};
         this._propertySwitch = {};
 
-        this._box = new St.BoxLayout({ style_class: 'panel-status-button-box' });
+        this._box = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
+        this.labelIcon = new St.Label({ style_class: 'system-status-icon' });
+        this.mainIcon = new St.Icon({ gicon: Lib.createIcon('input-keyboard'),
+                                 style_class: 'system-status-icon' });
+        this._box.add_child(this.labelIcon);
+        this._box.add_child(this.mainIcon);
+        this._box.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
         this.actor.add_actor(this._box);
-        this._setIcon('input-keyboard-symbolic');
+        this._setIcon('input-keyboard', '');
 
         this.kimpanel = params.kimpanel;
 
@@ -35,19 +41,13 @@ const KimIndicator = new Lang.Class({
             this.kimpanel.emit('ReloadConfig');
         }));
 
-
-        let _appSys = Shell.AppSystem.get_default();
-        let _gsmPrefs = _appSys.lookup_app('gnome-shell-extension-prefs.desktop');
-        let item;
-
         this._prefs = new PopupMenu.PopupMenuItem(_("Panel Preferences"));
         this._prefs.connect('activate', function () {
-            if (_gsmPrefs.get_state() == _gsmPrefs.SHELL_APP_STATE_RUNNING){
-                _gsmPrefs.activate();
-            } else {
-                _gsmPrefs.launch(global.display.get_current_time_roundtrip(),
-                                 [Me.metadata.uuid],-1,null);
-            }
+            let _appSys = Shell.AppSystem.get_default();
+            let _gsmPrefs = _appSys.lookup_app('gnome-shell-extension-prefs.desktop');
+            let info = _gsmPrefs.get_app_info();
+            let timestamp = global.display.get_current_time_roundtrip();
+            info.launch_uris([Me.metadata.uuid], global.create_app_launch_context(timestamp, -1));
         });
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
@@ -129,23 +129,28 @@ const KimIndicator = new Lang.Class({
         }
     },
 
-    _setIcon: function(iconName) {
-        let gicon = Lib.createIcon(iconName);
-        if (this.mainIcon) {
-           this.mainIcon.gicon = gicon;
+    _setIcon: function(iconName, labelName) {
+        if (iconName === '') {
+            this.labelIcon.text = Lib.extractLabelString(labelName);
+            this.mainIcon.visible = false
+            this.labelIcon.visible = true
         } else {
-            let icon = new St.Icon({ gicon: gicon,
-                                     style_class: 'system-status-icon' });
-            this._box.add_actor(icon);
-            this.mainIcon = icon;
+            let gicon = Lib.createIcon(iconName);
+            this.mainIcon.gicon = gicon;
+            this.mainIcon.visible = true
+            this.labelIcon.visible = false
         }
     },
 
     _active: function(){
-         this._setIcon(this._properties['/Fcitx/im'] ? this._properties['/Fcitx/im'].icon : 'input-keyboard');
+         if (this._properties['/Fcitx/im']) {
+             this._setIcon(this._properties['/Fcitx/im'].icon, this._properties['/Fcitx/im'].label);
+         } else {
+             this._setIcon('input-keyboard', '');
+         }
     },
 
     _deactive: function(){
-        this._setIcon('input-keyboard');
+        this._setIcon('input-keyboard', '');
     }
 });
