@@ -21,7 +21,7 @@ const InputPanel = new Lang.Class({
         // create boxpointer as UI
         this.panel = new BoxPointer.BoxPointer(
             this._arrowSide,
-            80,
+            10,
             {
                 x_fill: true,
                 y_fill: true,
@@ -34,6 +34,7 @@ const InputPanel = new Lang.Class({
         this.actor._delegate = this;
         this.actor.style_class = 'popup-menu-boxpointer';
         this.actor.add_style_class_name('popup-menu');
+        this.actor.add_style_class_name('minwidth-zero');
 
         this._cursor = new Shell.GenericContainer();
 
