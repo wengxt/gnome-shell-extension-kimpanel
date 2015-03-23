@@ -4,6 +4,15 @@
   padding: 5px;
 }
 
+.kimpanel-separator {
+  -gradient-height: 1px;
+  -gradient-start: rgba(255, 255, 255, 0);
+  -gradient-end: rgba(255, 255, 255, 0.1);
+  -marigin-horizontal: 1.5em;
+  padding: 0 0 0.5em 0;
+  height: 1px;
+}
+
 .kimpanel-label-item {
   padding: 3px;
 }

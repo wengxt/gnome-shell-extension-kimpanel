@@ -43,20 +43,15 @@ const InputPanel = new Lang.Class({
 
         this.upperLayout = new St.BoxLayout();
         this.separator = new Separator();
-
+        this.separator.x_fill = true;
+        this.separator.y_fill = true;
+        this.separator.x_align = St.Align.MIDDLE;
+        this.separator.y_align = St.Align.MIDDLE;
 
         this.lookupTableVertical = this.kimpanel.isLookupTableVertical();
         this.lookupTableLayout = new St.BoxLayout({vertical:this.lookupTableVertical});
 
-        this.layout.add(this.upperLayout, {});
-
-        this.layout.add(this.separator.actor,
-                        {x_fill: true, y_fill:false,
-                         x_align: St.Align.MIDDLE,
-                         y_align: St.Align.MIDDLE} );
-
-        this.layout.add(this.lookupTableLayout, {});
-
+        this.layout.add_child(this.upperLayout);
 
         this.text_style = this.kimpanel.getTextStyle();
         this.auxText = new St.Label({style_class:'kimpanel-label', style: this.text_style, text:''});
@@ -93,6 +88,15 @@ const InputPanel = new Lang.Class({
     setLookupTable: function( label, table, visible ) {
         let len = visible ? table.length : 0;
         let labelLen = this.lookupTableLayout.get_children().length;
+
+        if (labelLen > 0 && len == 0) {
+            this.layout.remove_child(this.separator.actor);
+            this.layout.remove_child(this.lookupTableLayout);
+        } else if (labelLen == 0 && len > 0) {
+            this.layout.add_child(this.separator.actor);
+
+            this.layout.add_child(this.lookupTableLayout);
+        }
 
         // if number is not enough, create new
         if(len > labelLen) {
@@ -234,8 +238,7 @@ const Separator = new Lang.Class({
     Name: "Separator",
 
     _init: function (params) {
-        this.actor = new St.DrawingArea({ style_class: ' popup-separator-menu-item',
-                                          style:'height:2px;padding:.1em 0;' });
+        this.actor = new St.DrawingArea({ style_class: 'kimpanel-separator'});
         this.actor.connect('repaint', Lang.bind(this, this._onRepaint));
     },
 
