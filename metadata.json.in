@@ -1,6 +1,6 @@
 {
 "extension-id": "kimpanel",
-"shell-version": ["3.15.91", "3.16", "3.18"],
+"shell-version": ["3.15.91", "3.16", "3.18", "3.20"],
 "uuid": "kimpanel@kde.org",
 "name": "Input Method Panel",
 "description": "Input Method Panel using KDE's kimpanel protocol for Gnome-Shell", 
