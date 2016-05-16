@@ -3,6 +3,7 @@ const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Params = imports.misc.params;
 const Shell = imports.gi.Shell;
+const Clutter = imports.gi.Clutter;
 const Gettext = imports.gettext.domain('gnome-shell-extensions-kimpanel');
 const _ = Gettext.gettext;
 const Lang = imports.lang;
@@ -21,7 +22,7 @@ const KimIndicator = new Lang.Class({
         this._propertySwitch = {};
 
         this._box = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
-        this.labelIcon = new St.Label({ style_class: 'system-status-icon' });
+        this.labelIcon = new St.Label({ y_align: Clutter.ActorAlign.CENTER });
         this.mainIcon = new St.Icon({ gicon: Lib.createIcon('input-keyboard'),
                                  style_class: 'system-status-icon' });
         this._box.add_child(this.labelIcon);
