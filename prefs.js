@@ -24,6 +24,7 @@ function setBehaviour(behaviour) {
     settings.set_boolean(SETTINGS_FIRST_TIME_KEY, false);
 }
 
+
 function createBoolSetting(setting) {
 
     let hbox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL });
@@ -62,6 +63,25 @@ function createFontSelection() {
     return hbox;
 }
 
+function createWrongPositionWindowListSetting(setting) {
+
+    let hbox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL });
+
+    let setting_label = new Gtk.Label({label: _("Wrong position window list"), xalign: 0 });
+
+    let setting_entry = new Gtk.Entry({ hexpand: true, margin_bottom: 12 });
+    setting_entry.set_text(settings.get_string('wrong-position-window-list') || "[]");
+
+    setting_entry.connect('activate', function(entry) {
+        settings.set_string('wrong-position-window-list', entry.get_text());
+    });
+
+    hbox.pack_start(setting_label, true, true, 0);
+    hbox.add(setting_entry);
+
+    return hbox;
+}
+
 function buildPrefsWidget() {
     let frame = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL,
                               border_width: 10 });
@@ -75,6 +95,8 @@ function buildPrefsWidget() {
     }
     let hbox = createFontSelection();
     vbox.add(hbox);
+
+    vbox.add(createWrongPositionWindowListSetting());
     
     frame.add(vbox);
     frame.show_all();

@@ -10,6 +10,8 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 //const BoxPointer = imports.ui.boxpointer;
 const BoxPointer = Me.imports.boxpointer;
 
+const convenience = Me.imports.convenience;
+
 const PanelItemProperty = { x_fill: false, y_fill: false, x_align: St.Align.START, y_align: St.Align.START };
 
 const InputPanel = new Lang.Class({
@@ -183,6 +185,15 @@ const InputPanel = new Lang.Class({
         let monitor = Main.layoutManager.monitors[global.screen.get_monitor_index_for_rect(rect)];
         let panel_width = this.actor.get_width();
         let panel_height = this.actor.get_height();
+
+        let wm_class = global.display.get_focus_window().get_wm_class();
+
+        let list = JSON.parse(convenience.getSettings().get_string('wrong-position-window-list'));
+
+        if ( list.indexOf(wm_class) != -1 ) {
+            x *= 2;
+            y *= 2;
+        }
 
         if (h == 0) {
             h = 20;

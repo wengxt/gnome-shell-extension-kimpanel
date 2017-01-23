@@ -11,5 +11,10 @@
         <summary>Font of input and candidate text panel</summary>
         <description>Set font of kimpanel input and candidate text.</description>
     </key>
+    <key type="s" name="wrong-position-window-list">
+        <default>'[]'</default>
+        <summary>Wrong position window list</summary>
+        <description>Fix the candidate panel when these windows on focus.</description>
+    </key>
   </schema>
 </schemalist>
