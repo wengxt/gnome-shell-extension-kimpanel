@@ -320,7 +320,7 @@ const Kimpanel = new Lang.Class({
         this.updateInputPanel();
         this.inputpanel.setVertical(this.isLookupTableVertical());
     },
-    LockXkbGroup: function(group)
+    LockXkbGroup: function(idx)
     {
         Meta.get_backend().lock_layout_group(idx);
     },
