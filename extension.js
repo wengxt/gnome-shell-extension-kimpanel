@@ -2,6 +2,7 @@ const Main = imports.ui.main;
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const Lang = imports.lang;
+const Meta = imports.gi.Meta;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const KimIndicator = Me.imports.indicator.KimIndicator;
@@ -50,6 +51,14 @@ const KimpanelIface = '<node> \
 </interface> \
 </node>'
 
+const HelperIface = '<node> \
+<interface name="org.fcitx.GnomeHelper"> \
+<method name="LockXkbGroup"> \
+    <arg direction="in" type="i" name="idx"/> \
+</method> \
+</interface> \
+</node>'
+
 const Kimpanel = new Lang.Class({
     Name: "Kimpanel",
 
@@ -59,6 +68,8 @@ const Kimpanel = new Lang.Class({
         this.settings = convenience.getSettings();
         this._impl = Gio.DBusExportedObject.wrapJSObject(KimpanelIface, this);
         this._impl.export(Gio.DBus.session, '/org/kde/impanel');
+        this._helperImpl = Gio.DBusExportedObject.wrapJSObject(HelperIface, this);
+        this._helperImpl.export(Gio.DBus.session, '/org/fcitx/GnomeHelper');
         this.current_service = '';
         this.watch_id = 0;
         this.resetData();
@@ -183,6 +194,12 @@ const Kimpanel = new Lang.Class({
                                          null,
                                          Lang.bind(this, this.requestNameFinished),
                                          null);
+        this.helper_owner_id = Gio.bus_own_name(Gio.BusType.SESSION,
+                                                "org.fcitx.GnomeHelper",
+                                                Gio.BusNameOwnerFlags.NONE,
+                                                null,
+                                                null,
+                                                null);
     },
 
     resetData: function() {
@@ -219,6 +236,7 @@ const Kimpanel = new Lang.Class({
 
     requestNameFinished: function() {
         this.emit('PanelCreated');
+        this.emit('PanelCreated2');
     },
 
     isLookupTableVertical: function() {
@@ -240,7 +258,9 @@ const Kimpanel = new Lang.Class({
         this.settings.disconnect(this.fontSignal);
         this.conn.signal_unsubscribe(this.dbusSignal);
         Gio.bus_unown_name(this.owner_id);
+        Gio.bus_unown_name(this.helper_owner_id);
         this._impl.unexport();
+        this._helperImpl.unexport();
         this.indicator.destroy();
         this.indicator = null;
         this.inputpanel = null;
@@ -299,7 +319,11 @@ const Kimpanel = new Lang.Class({
         this.layoutHint = layout;
         this.updateInputPanel();
         this.inputpanel.setVertical(this.isLookupTableVertical());
-    }
+    },
+    LockXkbGroup: function(group)
+    {
+        Meta.get_backend().lock_layout_group(idx);
+    },
 });
 
 function init() {
