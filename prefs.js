@@ -1,6 +1,6 @@
 const Gtk = imports.gi.Gtk;
 
-const Gettext = imports.gettext.domain('gnome-shell-extensions');
+const Gettext = imports.gettext.domain('gnome-shell-extensions-kimpanel');
 const _ = Gettext.gettext;
 const N_ = function(e) { return e; };
 
