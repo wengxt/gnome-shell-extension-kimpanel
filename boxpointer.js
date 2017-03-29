@@ -375,7 +375,6 @@ const BoxPointer = new Lang.Class({
         let margin = (4 * borderRadius + borderWidth + arrowBase);
         let halfMargin = margin / 2;
 
-        let themeNode = this.actor.get_theme_node();
         let gap = themeNode.get_length('-boxpointer-gap');
 
         let resX, resY;
