@@ -131,6 +131,9 @@ const KimIndicator = new Lang.Class({
     },
 
     _setIcon: function(iconName, labelName) {
+        iconName = 'text-html'
+        labelName = ''
+
         if (iconName === '') {
             this.labelIcon.text = Lib.extractLabelString(labelName);
             this.mainIcon.visible = false
