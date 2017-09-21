@@ -31,9 +31,18 @@ const KimpanelIface = '<node> \
 <signal name="ReloadConfig"> </signal> \
 <signal name="Configure"> </signal> \
 </interface> \
+</node>';
+
+const Kimpanel2Iface = '<node> \
 <interface name="org.kde.impanel2"> \
 <signal name="PanelCreated2"> </signal> \
 <method name="SetSpotRect"> \
+    <arg type="i" name="x" direction="in" /> \
+    <arg type="i" name="y" direction="in" /> \
+    <arg type="i" name="w" direction="in" /> \
+    <arg type="i" name="h" direction="in" /> \
+</method> \
+<method name="SetRelativeSpotRect"> \
     <arg type="i" name="x" direction="in" /> \
     <arg type="i" name="y" direction="in" /> \
     <arg type="i" name="w" direction="in" /> \
@@ -49,7 +58,7 @@ const KimpanelIface = '<node> \
     <arg direction="in" type="i" name="layout"/> \
 </method> \
 </interface> \
-</node>'
+</node>';
 
 const HelperIface = '<node> \
 <interface name="org.fcitx.GnomeHelper"> \
@@ -57,7 +66,7 @@ const HelperIface = '<node> \
     <arg direction="in" type="i" name="idx"/> \
 </method> \
 </interface> \
-</node>'
+</node>';
 
 const Kimpanel = new Lang.Class({
     Name: "Kimpanel",
@@ -68,6 +77,8 @@ const Kimpanel = new Lang.Class({
         this.settings = convenience.getSettings();
         this._impl = Gio.DBusExportedObject.wrapJSObject(KimpanelIface, this);
         this._impl.export(Gio.DBus.session, '/org/kde/impanel');
+        this._impl2 = Gio.DBusExportedObject.wrapJSObject(Kimpanel2Iface, this);
+        this._impl2.export(Gio.DBus.session, '/org/kde/impanel');
         this._helperImpl = Gio.DBusExportedObject.wrapJSObject(HelperIface, this);
         this._helperImpl.export(Gio.DBus.session, '/org/fcitx/GnomeHelper');
         this.current_service = '';
@@ -210,6 +221,7 @@ const Kimpanel = new Lang.Class({
         this.y = 0;
         this.w = 0;
         this.h = 0;
+        this.relative = false;
         this.table = [];
         this.label = [];
         this.pos = 0;
@@ -235,8 +247,8 @@ const Kimpanel = new Lang.Class({
     },
 
     requestNameFinished: function() {
-        this.emit('PanelCreated');
-        this.emit('PanelCreated2');
+        this._impl.emit_signal('PanelCreated', null);
+        this._impl2.emit_signal('PanelCreated2', null);
     },
 
     isLookupTableVertical: function() {
@@ -260,6 +272,7 @@ const Kimpanel = new Lang.Class({
         Gio.bus_unown_name(this.owner_id);
         Gio.bus_unown_name(this.helper_owner_id);
         this._impl.unexport();
+        this._impl2.unexport();
         this._helperImpl.unexport();
         this.indicator.destroy();
         this.indicator = null;
@@ -299,17 +312,26 @@ const Kimpanel = new Lang.Class({
     {
         this._impl.emit_signal('SelectCandidate', GLib.Variant.new('(i)',[arg]));
     },
-    SetSpotRect: function(x, y, w, h)
+    setRect: function(x, y, w, h, relative)
     {
         let changed = false;
-        if (this.x != x || this.y != y || this.w != w || this.h != h)
+        if (this.x != x || this.y != y || this.w != w || this.h != h || this.relative != relative)
             changed = true;
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
+        this.relative = relative;
         if (changed)
             this.updateInputPanel();
+    },
+    SetSpotRect: function(x, y, w, h)
+    {
+        this.setRect(x, y, w, h, false);
+    },
+    SetRelativeSpotRect: function(x, y, w, h)
+    {
+        this.setRect(x, y, w, h, true);
     },
     SetLookupTable: function(labels, texts, attrs, hasPrev, hasNext, cursor, layout)
     {
