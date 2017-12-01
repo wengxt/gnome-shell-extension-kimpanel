@@ -11,7 +11,7 @@ const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Lib = Me.imports.lib;
 
-const KimMenu = new Lang.Class({
+var KimMenu = new Lang.Class({
     Name: "KimMenu",
     Extends: PopupMenu.PopupMenu,
 

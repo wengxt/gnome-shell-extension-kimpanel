@@ -68,7 +68,7 @@ const HelperIface = '<node> \
 </interface> \
 </node>';
 
-const Kimpanel = new Lang.Class({
+var Kimpanel = new Lang.Class({
     Name: "Kimpanel",
 
     _init: function(params)

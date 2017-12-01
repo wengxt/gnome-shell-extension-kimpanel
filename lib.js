@@ -11,7 +11,7 @@ const Pango = imports.gi.Pango;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const convenience = Me.imports.convenience;
 
-const KimMenuItem = new Lang.Class({
+var KimMenuItem = new Lang.Class({
     Name: 'KimMenuItem',
     Extends: PopupMenu.PopupBaseMenuItem,
 

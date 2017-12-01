@@ -12,7 +12,7 @@ const BoxPointer = Me.imports.boxpointer;
 
 const PanelItemProperty = { x_fill: false, y_fill: false, x_align: St.Align.START, y_align: St.Align.START };
 
-const InputPanel = new Lang.Class({
+var InputPanel = new Lang.Class({
     Name: "InputPanel",
 
     _init: function(params) {
@@ -240,7 +240,7 @@ const InputPanel = new Lang.Class({
 
 });
 
-const Separator = new Lang.Class({
+var Separator = new Lang.Class({
     Name: "Separator",
 
     _init: function (params) {

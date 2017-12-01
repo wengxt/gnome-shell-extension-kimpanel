@@ -11,7 +11,7 @@ const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Lib = Me.imports.lib;
 
-const KimIndicator = new Lang.Class({
+var KimIndicator = new Lang.Class({
     Name: "KimIndicator",
     Extends: PanelMenu.Button,
 
