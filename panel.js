@@ -232,12 +232,10 @@ const InputPanel = new Lang.Class({
     },
 
     show: function() {
-            this.actor.opacity=255;
-            this.actor.show();
+	    this.panel.show(BoxPointer.PopupAnimation.NONE);
     },
     hide: function() {
-            this.actor.opacity=0;
-            this.actor.hide();
+	    this.panel.hide(BoxPointer.PopupAnimation.NONE);
     }
 
 });

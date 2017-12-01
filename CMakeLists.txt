@@ -49,8 +49,8 @@ add_custom_command(OUTPUT "${uuid}.zip"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/_build"
     COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/_build"
     COMMAND ${CMAKE_MAKE_PROGRAM} install DESTDIR="${CMAKE_CURRENT_BINARY_DIR}/_build"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/_build/${extensiondir}" "${CMAKE_CURRENT_BINARY_DIR}/_build/${uuid}/";
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/_build/${datadir}/locale" "${CMAKE_CURRENT_BINARY_DIR}/_build/${uuid}/locale";
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/_build/${extensiondir}" "${CMAKE_CURRENT_BINARY_DIR}/_build/${uuid}/"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/_build/${datadir}/locale" "${CMAKE_CURRENT_BINARY_DIR}/_build/${uuid}/locale"
     COMMAND cd "${CMAKE_CURRENT_BINARY_DIR}/_build/${uuid}" && ${ZIP} -qr "${CMAKE_CURRENT_BINARY_DIR}/${uuid}.zip" .
 )
 
