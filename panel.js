@@ -21,7 +21,6 @@ const InputPanel = new Lang.Class({
         // create boxpointer as UI
         this.panel = new BoxPointer.BoxPointer(
             this._arrowSide,
-            10,
             {
                 x_fill: true,
                 y_fill: true,

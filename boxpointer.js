@@ -3,13 +3,21 @@
 const Clutter = imports.gi.Clutter;
 const Lang = imports.lang;
 const Meta = imports.gi.Meta;
-const St = imports.gi.St;
 const Shell = imports.gi.Shell;
+const Signals = imports.signals;
+const St = imports.gi.St;
 
 const Main = imports.ui.main;
 const Tweener = imports.ui.tweener;
 
-const POPUP_ANIMATION_TIME = 0.15;
+var PopupAnimation = {
+    NONE:  0,
+    SLIDE: 1 << 0,
+    FADE:  1 << 1,
+    FULL:  ~0,
+};
+
+var POPUP_ANIMATION_TIME = 0.15;
 
 /**
  * BoxPointer:
@@ -18,16 +26,20 @@ const POPUP_ANIMATION_TIME = 0.15;
  *
  * An actor which displays a triangle "arrow" pointing to a given
  * side.  The .bin property is a container in which content can be
- * placed.  The arrow position may be controlled via setArrowOrigin().
+ * placed.  The arrow position may be controlled via
+ * setArrowOrigin(). The arrow side might be temporarily flipped
+ * depending on the box size and source position to keep the box
+ * totally inside the monitor if possible.
  *
  */
-const BoxPointer = new Lang.Class({
+var BoxPointer = new Lang.Class({
     Name: 'BoxPointer',
 
-    _init: function(arrowSide, roundSize, binProperties) {
-        this.roundSize = roundSize;
+    _init: function(arrowSide, binProperties) {
         this._arrowSide = arrowSide;
+        this._userArrowSide = arrowSide;
         this._arrowOrigin = 0;
+        this._arrowActor = null;
         this.actor = new St.Bin({ x_fill: true,
                                   y_fill: true });
         this._container = new Shell.GenericContainer();
@@ -50,10 +62,14 @@ const BoxPointer = new Lang.Class({
         this._muteInput();
     },
 
+    get arrowSide() {
+        return this._arrowSide;
+    },
+
     _muteInput: function() {
         if (this._capturedEventId == 0)
             this._capturedEventId = this.actor.connect('captured-event',
-                                                       function() { return true; });
+                                                       function() { return Clutter.EVENT_STOP; });
     },
 
     _unmuteInput: function() {
@@ -66,11 +82,16 @@ const BoxPointer = new Lang.Class({
     show: function(animate, onComplete) {
         let themeNode = this.actor.get_theme_node();
         let rise = themeNode.get_length('-arrow-rise');
+        let animationTime = (animate & PopupAnimation.FULL) ? POPUP_ANIMATION_TIME : 0;
 
-        this.opacity = 0;
+        if (animate & PopupAnimation.FADE)
+            this.opacity = 0;
+        else
+            this.opacity = 255;
+
         this.actor.show();
 
-        if (animate) {
+        if (animate & PopupAnimation.SLIDE) {
             switch (this._arrowSide) {
                 case St.Side.TOP:
                     this.yOffset = -rise;
@@ -96,16 +117,21 @@ const BoxPointer = new Lang.Class({
                                      if (onComplete)
                                          onComplete();
                                  }),
-                                 time: POPUP_ANIMATION_TIME });
+                                 time: animationTime });
     },
 
     hide: function(animate, onComplete) {
+        if (!this.actor.visible)
+            return;
+
         let xOffset = 0;
         let yOffset = 0;
         let themeNode = this.actor.get_theme_node();
         let rise = themeNode.get_length('-arrow-rise');
+        let fade = (animate & PopupAnimation.FADE);
+        let animationTime = (animate & PopupAnimation.FULL) ? POPUP_ANIMATION_TIME : 0;
 
-        if (animate) {
+        if (animate & PopupAnimation.SLIDE) {
             switch (this._arrowSide) {
                 case St.Side.TOP:
                     yOffset = rise;
@@ -124,13 +150,15 @@ const BoxPointer = new Lang.Class({
 
         this._muteInput();
 
-        Tweener.addTween(this, { opacity: 0,
+        Tweener.removeTweens(this);
+        Tweener.addTween(this, { opacity: fade ? 0 : 255,
                                  xOffset: xOffset,
                                  yOffset: yOffset,
                                  transition: 'linear',
-                                 time: POPUP_ANIMATION_TIME,
+                                 time: animationTime,
                                  onComplete: Lang.bind(this, function () {
                                      this.actor.hide();
+                                     this.opacity = 0;
                                      this.xOffset = 0;
                                      this.yOffset = 0;
                                      if (onComplete)
@@ -152,19 +180,17 @@ const BoxPointer = new Lang.Class({
         }
     },
 
-    _round: function(size) {
-        return (Math.floor(size / this.roundSize) + 1) * this.roundSize;
-    },
-
     _getPreferredWidth: function(actor, forHeight, alloc) {
         let [minInternalSize, natInternalSize] = this.bin.get_preferred_width(forHeight);
-        alloc.min_size = this._round(minInternalSize);
-        alloc.natural_size = this._round(natInternalSize);
+        alloc.min_size = minInternalSize;
+        alloc.natural_size = natInternalSize;
         this._adjustAllocationForArrow(true, alloc);
     },
 
     _getPreferredHeight: function(actor, forWidth, alloc) {
-        let [minSize, naturalSize] = this.bin.get_preferred_height(forWidth);
+        let themeNode = this.actor.get_theme_node();
+        let borderWidth = themeNode.get_length('-arrow-border-width');
+        let [minSize, naturalSize] = this.bin.get_preferred_height(forWidth - 2 * borderWidth);
         alloc.min_size = minSize;
         alloc.natural_size = naturalSize;
         this._adjustAllocationForArrow(false, alloc);
@@ -204,12 +230,27 @@ const BoxPointer = new Lang.Class({
         }
         this.bin.allocate(childBox, flags);
 
-        if (this._sourceActor && this._sourceActor.mapped)
-            this._reposition(this._sourceActor, this._arrowAlignment);
+        if (this._sourceActor && this._sourceActor.mapped) {
+            this._reposition();
+            this._updateFlip();
+        }
     },
 
     _drawBorder: function(area) {
         let themeNode = this.actor.get_theme_node();
+
+        if (this._arrowActor) {
+            let [sourceX, sourceY] = this._arrowActor.get_transformed_position();
+            let [sourceWidth, sourceHeight] = this._arrowActor.get_transformed_size();
+            let [absX, absY] = this.actor.get_transformed_position();
+
+            if (this._arrowSide == St.Side.TOP ||
+                this._arrowSide == St.Side.BOTTOM) {
+                this._arrowOrigin = sourceX - absX + sourceWidth / 2;
+            } else {
+                this._arrowOrigin = sourceY - absY + sourceHeight / 2;
+            }
+        }
 
         let borderWidth = themeNode.get_length('-arrow-border-width');
         let base = themeNode.get_length('-arrow-base');
@@ -219,7 +260,6 @@ const BoxPointer = new Lang.Class({
         let halfBorder = borderWidth / 2;
         let halfBase = Math.floor(base/2);
 
-        let borderColor = themeNode.get_color('-arrow-border-color');
         let backgroundColor = themeNode.get_color('-arrow-background-color');
 
         let [width, height] = area.get_surface_size();
@@ -230,7 +270,6 @@ const BoxPointer = new Lang.Class({
             boxWidth -= rise;
         }
         let cr = area.get_context();
-        Clutter.cairo_set_source_color(cr, borderColor);
 
         // Translate so that box goes from 0,0 to boxWidth,boxHeight,
         // with the arrow poking out of that
@@ -243,14 +282,53 @@ const BoxPointer = new Lang.Class({
         let [x1, y1] = [halfBorder, halfBorder];
         let [x2, y2] = [boxWidth - halfBorder, boxHeight - halfBorder];
 
+        let skipTopLeft = false;
+        let skipTopRight = false;
+        let skipBottomLeft = false;
+        let skipBottomRight = false;
+
+        if (rise) {
+            switch (this._arrowSide) {
+            case St.Side.TOP:
+                if (this._arrowOrigin == x1)
+                    skipTopLeft = true;
+                else if (this._arrowOrigin == x2)
+                    skipTopRight = true;
+                break;
+
+            case St.Side.RIGHT:
+                if (this._arrowOrigin == y1)
+                    skipTopRight = true;
+                else if (this._arrowOrigin == y2)
+                    skipBottomRight = true;
+                break;
+
+            case St.Side.BOTTOM:
+                if (this._arrowOrigin == x1)
+                    skipBottomLeft = true;
+                else if (this._arrowOrigin == x2)
+                    skipBottomRight = true;
+                break;
+
+            case St.Side.LEFT:
+                if (this._arrowOrigin == y1)
+                    skipTopLeft = true;
+                else if (this._arrowOrigin == y2)
+                    skipBottomLeft = true;
+                break;
+            }
+        }
+
         cr.moveTo(x1 + borderRadius, y1);
-        if (this._arrowSide == St.Side.TOP) {
-            if (this._arrowOrigin < (x1 + (borderRadius + halfBase))) {
-                cr.lineTo(this._arrowOrigin, y1 - rise);
-                cr.lineTo(Math.max(x1 + borderRadius, this._arrowOrigin) + halfBase, y1);
-            } else if (this._arrowOrigin > (x2 - (borderRadius + halfBase))) {
-                cr.lineTo(Math.min(x2 - borderRadius, this._arrowOrigin) - halfBase, y1);
-                cr.lineTo(this._arrowOrigin, y1 - rise);
+        if (this._arrowSide == St.Side.TOP && rise) {
+            if (skipTopLeft) {
+                cr.moveTo(x1, y2 - borderRadius);
+                cr.lineTo(x1, y1 - rise);
+                cr.lineTo(x1 + halfBase, y1);
+            } else if (skipTopRight) {
+                cr.lineTo(x2 - halfBase, y1);
+                cr.lineTo(x2, y1 - rise);
+                cr.lineTo(x2, y1 + borderRadius);
             } else {
                 cr.lineTo(this._arrowOrigin - halfBase, y1);
                 cr.lineTo(this._arrowOrigin, y1 - rise);
@@ -258,19 +336,20 @@ const BoxPointer = new Lang.Class({
             }
         }
 
-        cr.lineTo(x2 - borderRadius, y1);
+        if (!skipTopRight) {
+            cr.lineTo(x2 - borderRadius, y1);
+            cr.arc(x2 - borderRadius, y1 + borderRadius, borderRadius,
+                   3*Math.PI/2, Math.PI*2);
+        }
 
-        // top-right corner
-        cr.arc(x2 - borderRadius, y1 + borderRadius, borderRadius,
-               3*Math.PI/2, Math.PI*2);
-
-        if (this._arrowSide == St.Side.RIGHT) {
-            if (this._arrowOrigin < (y1 + (borderRadius + halfBase))) {
-                cr.lineTo(x2 + rise, this._arrowOrigin);
-                cr.lineTo(x2, Math.max(y1 + borderRadius, this._arrowOrigin) + halfBase);
-            } else if (this._arrowOrigin > (y2 - (borderRadius + halfBase))) {
-                cr.lineTo(x2, Math.min(y2 - borderRadius, this._arrowOrigin) - halfBase);
-                cr.lineTo(x2 + rise, this._arrowOrigin);
+        if (this._arrowSide == St.Side.RIGHT && rise) {
+            if (skipTopRight) {
+                cr.lineTo(x2 + rise, y1);
+                cr.lineTo(x2 + rise, y1 + halfBase);
+            } else if (skipBottomRight) {
+                cr.lineTo(x2, y2 - halfBase);
+                cr.lineTo(x2 + rise, y2);
+                cr.lineTo(x2 - borderRadius, y2);
             } else {
                 cr.lineTo(x2, this._arrowOrigin - halfBase);
                 cr.lineTo(x2 + rise, this._arrowOrigin);
@@ -278,19 +357,20 @@ const BoxPointer = new Lang.Class({
             }
         }
 
-        cr.lineTo(x2, y2 - borderRadius);
+        if (!skipBottomRight) {
+            cr.lineTo(x2, y2 - borderRadius);
+            cr.arc(x2 - borderRadius, y2 - borderRadius, borderRadius,
+                   0, Math.PI/2);
+        }
 
-        // bottom-right corner
-        cr.arc(x2 - borderRadius, y2 - borderRadius, borderRadius,
-               0, Math.PI/2);
-
-        if (this._arrowSide == St.Side.BOTTOM) {
-            if (this._arrowOrigin < (x1 + (borderRadius + halfBase))) {
-                cr.lineTo(Math.max(x1 + borderRadius, this._arrowOrigin) + halfBase, y2);
-                cr.lineTo(this._arrowOrigin, y2 + rise);
-            } else if (this._arrowOrigin > (x2 - (borderRadius + halfBase))) {
-                cr.lineTo(this._arrowOrigin, y2 + rise);
-                cr.lineTo(Math.min(x2 - borderRadius, this._arrowOrigin) - halfBase, y2);
+        if (this._arrowSide == St.Side.BOTTOM && rise) {
+            if (skipBottomLeft) {
+                cr.lineTo(x1 + halfBase, y2);
+                cr.lineTo(x1, y2 + rise);
+                cr.lineTo(x1, y2 - borderRadius);
+            } else if (skipBottomRight) {
+                cr.lineTo(x2, y2 + rise);
+                cr.lineTo(x2 - halfBase, y2);
             } else {
                 cr.lineTo(this._arrowOrigin + halfBase, y2);
                 cr.lineTo(this._arrowOrigin, y2 + rise);
@@ -298,19 +378,20 @@ const BoxPointer = new Lang.Class({
             }
         }
 
-        cr.lineTo(x1 + borderRadius, y2);
+        if (!skipBottomLeft) {
+            cr.lineTo(x1 + borderRadius, y2);
+            cr.arc(x1 + borderRadius, y2 - borderRadius, borderRadius,
+                   Math.PI/2, Math.PI);
+        }
 
-        // bottom-left corner
-        cr.arc(x1 + borderRadius, y2 - borderRadius, borderRadius,
-               Math.PI/2, Math.PI);
-
-        if (this._arrowSide == St.Side.LEFT) {
-            if (this._arrowOrigin < (y1 + (borderRadius + halfBase))) {
-                cr.lineTo(x1, Math.max(y1 + borderRadius, this._arrowOrigin) + halfBase);
-                cr.lineTo(x1 - rise, this._arrowOrigin);
-            } else if (this._arrowOrigin > (y2 - (borderRadius + halfBase))) {
-                cr.lineTo(x1 - rise, this._arrowOrigin);
-                cr.lineTo(x1, Math.min(y2 - borderRadius, this._arrowOrigin) - halfBase);
+        if (this._arrowSide == St.Side.LEFT && rise) {
+            if (skipTopLeft) {
+                cr.lineTo(x1, y1 + halfBase);
+                cr.lineTo(x1 - rise, y1);
+                cr.lineTo(x1 + borderRadius, y1);
+            } else if (skipBottomLeft) {
+                cr.lineTo(x1 - rise, y2)
+                cr.lineTo(x1 - rise, y2 - halfBase);
             } else {
                 cr.lineTo(x1, this._arrowOrigin + halfBase);
                 cr.lineTo(x1 - rise, this._arrowOrigin);
@@ -318,17 +399,23 @@ const BoxPointer = new Lang.Class({
             }
         }
 
-        cr.lineTo(x1, y1 + borderRadius);
-
-        // top-left corner
-        cr.arc(x1 + borderRadius, y1 + borderRadius, borderRadius,
-               Math.PI, 3*Math.PI/2);
+        if (!skipTopLeft) {
+            cr.lineTo(x1, y1 + borderRadius);
+            cr.arc(x1 + borderRadius, y1 + borderRadius, borderRadius,
+                   Math.PI, 3*Math.PI/2);
+        }
 
         Clutter.cairo_set_source_color(cr, backgroundColor);
         cr.fillPreserve();
-        Clutter.cairo_set_source_color(cr, borderColor);
-        cr.setLineWidth(borderWidth);
-        cr.stroke();
+
+        if (borderWidth > 0) {
+            let borderColor = themeNode.get_color('-arrow-border-color');
+            Clutter.cairo_set_source_color(cr, borderColor);
+            cr.setLineWidth(borderWidth);
+            cr.stroke();
+        }
+
+        cr.$dispose();
     },
 
     setPosition: function(sourceActor, alignment) {
@@ -339,7 +426,8 @@ const BoxPointer = new Lang.Class({
         this._sourceActor = sourceActor;
         this._arrowAlignment = alignment;
 
-        this._reposition(sourceActor, alignment);
+        this._reposition();
+        this._updateFlip();
     },
 
     setSourceAlignment: function(alignment) {
@@ -348,14 +436,13 @@ const BoxPointer = new Lang.Class({
         if (!this._sourceActor)
             return;
 
-        // We need to show it now to force an allocation,
-        // so that we can query the correct size.
-        this.actor.show();
-
-        this._reposition(this._sourceActor, this._arrowAlignment);
+        this.setPosition(this._sourceActor, this._arrowAlignment);
     },
 
-    _reposition: function(sourceActor, alignment) {
+    _reposition: function() {
+        let sourceActor = this._sourceActor;
+        let alignment = this._arrowAlignment;
+
         // Position correctly relative to the sourceActor
         let sourceNode = sourceActor.get_theme_node();
         let sourceContentBox = sourceNode.get_content_box(sourceActor.get_allocation_box());
@@ -373,9 +460,9 @@ const BoxPointer = new Lang.Class({
         let arrowBase = themeNode.get_length('-arrow-base');
         let borderRadius = themeNode.get_length('-arrow-border-radius');
         let margin = (4 * borderRadius + borderWidth + arrowBase);
-        let halfMargin = margin / 2;
 
         let gap = themeNode.get_length('-boxpointer-gap');
+        let padding = themeNode.get_length('-arrow-rise');
 
         let resX, resY;
 
@@ -394,28 +481,65 @@ const BoxPointer = new Lang.Class({
             break;
         }
 
-        // Now align and position the pointing axis, making sure
-        // it fits on screen
+        // Now align and position the pointing axis, making sure it fits on
+        // screen. If the arrowOrigin is so close to the edge that the arrow
+        // will not be isosceles, we try to compensate as follows:
+        //   - We skip the rounded corner and settle for a right angled arrow
+        //     as shown below. See _drawBorder for further details.
+        //     |\_____
+        //     |
+        //     |
+        //   - If the arrow was going to be acute angled, we move the position
+        //     of the box to maintain the arrow's accuracy.
+
+        let arrowOrigin;
+        let halfBase = Math.floor(arrowBase/2);
+        let halfBorder = borderWidth / 2;
+        let halfMargin = margin / 2;
+        let [x1, y1] = [halfBorder, halfBorder];
+        let [x2, y2] = [natWidth - halfBorder, natHeight - halfBorder];
+
         switch (this._arrowSide) {
         case St.Side.TOP:
         case St.Side.BOTTOM:
             resX = sourceCenterX - (halfMargin + (natWidth - margin) * alignment);
 
-            resX = Math.max(resX, monitor.x + 10);
-            resX = Math.min(resX, monitor.x + monitor.width - (10 + natWidth));
-            this.setArrowOrigin(sourceCenterX - resX);
+            resX = Math.max(resX, monitor.x + padding);
+            resX = Math.min(resX, monitor.x + monitor.width - (padding + natWidth));
+
+            arrowOrigin = sourceCenterX - resX;
+            if (arrowOrigin <= (x1 + (borderRadius + halfBase))) {
+                if (arrowOrigin > x1)
+                    resX += (arrowOrigin - x1);
+                arrowOrigin = x1;
+            } else if (arrowOrigin >= (x2 - (borderRadius + halfBase))) {
+                if (arrowOrigin < x2)
+                    resX -= (x2 - arrowOrigin);
+                arrowOrigin = x2;
+            }
             break;
 
         case St.Side.LEFT:
         case St.Side.RIGHT:
             resY = sourceCenterY - (halfMargin + (natHeight - margin) * alignment);
 
-            resY = Math.max(resY, monitor.y + 10);
-            resY = Math.min(resY, monitor.y + monitor.height - (10 + natHeight));
+            resY = Math.max(resY, monitor.y + padding);
+            resY = Math.min(resY, monitor.y + monitor.height - (padding + natHeight));
 
-            this.setArrowOrigin(sourceCenterY - resY);
+            arrowOrigin = sourceCenterY - resY;
+            if (arrowOrigin <= (y1 + (borderRadius + halfBase))) {
+                if (arrowOrigin > y1)
+                    resY += (arrowOrigin - y1);
+                arrowOrigin = y1;
+            } else if (arrowOrigin >= (y2 - (borderRadius + halfBase))) {
+                if (arrowOrigin < y2)
+                    resX -= (y2 - arrowOrigin);
+                arrowOrigin = y2;
+            }
             break;
         }
+
+        this.setArrowOrigin(arrowOrigin);
 
         let parent = this.actor.get_parent();
         let success, x, y;
@@ -439,15 +563,73 @@ const BoxPointer = new Lang.Class({
         }
     },
 
+    // @actor: an actor relative to which the arrow is positioned.
+    // Differently from setPosition, this will not move the boxpointer itself,
+    // on the arrow
+    setArrowActor: function(actor) {
+        if (this._arrowActor != actor) {
+            this._arrowActor = actor;
+            this._border.queue_repaint();
+        }
+    },
+
     _shiftActor : function() {
         // Since the position of the BoxPointer depends on the allocated size
         // of the BoxPointer and the position of the source actor, trying
-        // to position the BoxPoiner via the x/y properties will result in
+        // to position the BoxPointer via the x/y properties will result in
         // allocation loops and warnings. Instead we do the positioning via
         // the anchor point, which is independent of allocation, and leave
         // x == y == 0.
         this.actor.set_anchor_point(-(this._xPosition + this._xOffset),
                                     -(this._yPosition + this._yOffset));
+    },
+
+    _calculateArrowSide: function(arrowSide) {
+        let sourceAllocation = Shell.util_get_transformed_allocation(this._sourceActor);
+        let [minWidth, minHeight, boxWidth, boxHeight] = this._container.get_preferred_size();
+        let monitorActor = this.sourceActor;
+        if (!monitorActor)
+            monitorActor = this.actor;
+        let monitor = Main.layoutManager.findMonitorForActor(monitorActor);
+
+        switch (arrowSide) {
+        case St.Side.TOP:
+            if (sourceAllocation.y2 + boxHeight > monitor.y + monitor.height &&
+                boxHeight < sourceAllocation.y1 - monitor.y)
+                return St.Side.BOTTOM;
+            break;
+        case St.Side.BOTTOM:
+            if (sourceAllocation.y1 - boxHeight < monitor.y &&
+                boxHeight < monitor.y + monitor.height - sourceAllocation.y2)
+                return St.Side.TOP;
+            break;
+        case St.Side.LEFT:
+            if (sourceAllocation.x2 + boxWidth > monitor.x + monitor.width &&
+                boxWidth < sourceAllocation.x1 - monitor.x)
+                return St.Side.RIGHT;
+            break;
+        case St.Side.RIGHT:
+            if (sourceAllocation.x1 - boxWidth < monitor.x &&
+                boxWidth < monitor.x + monitor.width - sourceAllocation.x2)
+                return St.Side.LEFT;
+            break;
+        }
+
+        return arrowSide;
+    },
+
+    _updateFlip: function() {
+        let arrowSide = this._calculateArrowSide(this._userArrowSide);
+        if (this._arrowSide != arrowSide) {
+            this._arrowSide = arrowSide;
+            this._reposition();
+            Meta.later_add(Meta.LaterType.BEFORE_REDRAW, Lang.bind(this, function() {
+                this._container.queue_relayout();
+                return false;
+            }));
+
+            this.emit('arrow-side-changed');
+        }
     },
 
     set xOffset(offset) {
@@ -474,5 +656,21 @@ const BoxPointer = new Lang.Class({
 
     get opacity() {
         return this.actor.opacity;
+    },
+
+    updateArrowSide: function(side) {
+        this._arrowSide = side;
+        this._border.queue_repaint();
+
+        this.emit('arrow-side-changed');
+    },
+
+    getPadding: function(side) {
+        return this.bin.get_theme_node().get_padding(side);
+    },
+
+    getArrowHeight: function() {
+        return this.actor.get_theme_node().get_length('-arrow-rise');
     }
 });
+Signals.addSignalMethods(BoxPointer.prototype);
