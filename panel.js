@@ -64,6 +64,7 @@ var InputPanel = new Lang.Class({
                                     x_align: St.Align.START,
                                     y_align: St.Align.MIDDLE} );
         this.hide();
+        this.actor.hide();
     },
 
     setAuxText: function(text) {
