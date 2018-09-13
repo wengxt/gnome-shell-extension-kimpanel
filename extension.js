@@ -195,9 +195,7 @@ var Kimpanel = new Lang.Class({
             null,
             null,
             Gio.DBusSignalFlags.NONE,
-            _parseSignal,
-            null,
-            null
+            _parseSignal
         );
         this.owner_id = Gio.bus_own_name(Gio.BusType.SESSION,
                                          "org.kde.impanel",
