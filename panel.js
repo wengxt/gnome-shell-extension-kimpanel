@@ -189,7 +189,7 @@ var InputPanel = new Lang.Class({
             }
         }
         let rect = new Meta.Rectangle({ x: x, y: y, width: w, height: h });
-        let monitor = Main.layoutManager.monitors[global.screen.get_monitor_index_for_rect(rect)];
+        let monitor = Main.layoutManager.monitors[global.display.get_monitor_index_for_rect(rect)];
         let panel_width = this.actor.get_width();
         let panel_height = this.actor.get_height();
 
