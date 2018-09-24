@@ -21,4 +21,4 @@ make clean || error
 make install-zip || error
 
 echo "Install successfull!"
-echo "Enable it with gnome-tweak-tool"
+echo "Enable it with gnome-tweak-tool or gnome-tweaks"
