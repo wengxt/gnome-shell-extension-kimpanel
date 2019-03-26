@@ -1,17 +1,18 @@
 const Main = imports.ui.main;
+const GObject = imports.gi.GObject;
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const Lang = imports.lang;
 const Meta = imports.gi.Meta;
+const ExtensionUtils = imports.misc.extensionUtils;
 
-const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Me = ExtensionUtils.getCurrentExtension();
 const KimIndicator = Me.imports.indicator.KimIndicator;
 const InputPanel = Me.imports.panel.InputPanel;
 const KimMenu = Me.imports.menu.KimMenu;
 const Lib = Me.imports.lib;
-const convenience = Me.imports.convenience;
 
-let kimpanel = null;
+var kimpanel = null;
 
 const KimpanelIface = '<node> \
 <interface name="org.kde.impanel"> \
@@ -68,13 +69,12 @@ const HelperIface = '<node> \
 </interface> \
 </node>';
 
-var Kimpanel = new Lang.Class({
-    Name: "Kimpanel",
-
-    _init: function(params)
+var Kimpanel = GObject.registerClass(
+class Kimpanel extends GObject.Object {
+    _init(params)
     {
         this.conn = Gio.bus_get_sync( Gio.BusType.SESSION, null );
-        this.settings = convenience.getSettings();
+        this.settings = ExtensionUtils.getSettings();
         this._impl = Gio.DBusExportedObject.wrapJSObject(KimpanelIface, this);
         this._impl.export(Gio.DBus.session, '/org/kde/impanel');
         this._impl2 = Gio.DBusExportedObject.wrapJSObject(Kimpanel2Iface, this);
@@ -86,13 +86,13 @@ var Kimpanel = new Lang.Class({
         this.resetData();
         this.indicator = new KimIndicator({kimpanel: this});
         this.inputpanel = new InputPanel({kimpanel: this});
-        this.menu = new KimMenu({sourceActor: this.indicator.actor, kimpanel: this});
+        this.menu = new KimMenu({sourceActor: this.indicator, kimpanel: this});
         var obj = this;
 
         function _parseSignal(conn, sender, object, iface, signal, param, user_data)
         {
-            let value = param.deep_unpack();
-            let changed = false;
+            var value = param.deep_unpack();
+            var changed = false;
             switch(signal)
             {
             case 'ExecMenu':
@@ -209,9 +209,9 @@ var Kimpanel = new Lang.Class({
                                                 null,
                                                 null,
                                                 null);
-    },
+    }
 
-    resetData: function() {
+    resetData() {
         this.preedit = '';
         this.aux = '';
         this.layoutHint = 0;
@@ -228,9 +228,9 @@ var Kimpanel = new Lang.Class({
         this.showLookupTable = false;
         this.showAux = false;
         this.enabled = false;
-    },
+    }
 
-    imExit: function(conn, name) {
+    imExit(conn, name) {
         if (this.current_service == name) {
             this.current_service = '';
             if (this.watch_id != 0) {
@@ -242,22 +242,22 @@ var Kimpanel = new Lang.Class({
             this.indicator._updateProperties({});
             this.updateInputPanel();
         }
-    },
+    }
 
-    requestNameFinished: function() {
+    requestNameFinished() {
         this._impl.emit_signal('PanelCreated', null);
         this._impl2.emit_signal('PanelCreated2', null);
-    },
+    }
 
-    isLookupTableVertical: function() {
+    isLookupTableVertical() {
         return this.layoutHint == 0 ? Lib.isLookupTableVertical(this.settings) : (this.layoutHint == 1);
-    },
+    }
 
-    getTextStyle: function() {
+    getTextStyle() {
         return Lib.getTextStyle(this.settings);
-    },
+    }
 
-    destroy: function ()
+    destroy ()
     {
         if (this.watch_id != 0) {
             Gio.bus_unwatch_name(this.watch_id);
@@ -275,44 +275,44 @@ var Kimpanel = new Lang.Class({
         this.indicator.destroy();
         this.indicator = null;
         this.inputpanel = null;
-    },
+    }
 
-    addToShell: function ()
+    addToShell ()
     {
         Main.uiGroup.add_actor(this.menu.actor);
         this.menu.actor.hide();
         Main.layoutManager.addChrome(this.inputpanel.actor, {});
         Main.uiGroup.add_actor(this.inputpanel._cursor);
         Main.panel.addToStatusArea('kimpanel', this.indicator);
-    },
+    }
 
-    updateInputPanel: function()
+    updateInputPanel()
     {
-        let inputpanel = this.inputpanel;
+        var inputpanel = this.inputpanel;
 
         this.showAux ? inputpanel.setAuxText(this.aux) : inputpanel.hideAux();
         this.showPreedit ? inputpanel.setPreeditText(this.preedit, this.pos) : inputpanel.hidePreedit();
 
-        let text = '';
+        var text = '';
         this.inputpanel.setLookupTable(this.label, this.table, this.showLookupTable);
         this.inputpanel.setLookupTableCursor(this.cursor);
         this.inputpanel.updatePosition();
-    },
-    emit: function(signal)
+    }
+    emit(signal)
     {
         this._impl.emit_signal(signal, null);
-    },
-    triggerProperty: function(arg)
+    }
+    triggerProperty(arg)
     {
         this._impl.emit_signal('TriggerProperty', GLib.Variant.new('(s)',[arg]));
-    },
-    selectCandidate: function(arg)
+    }
+    selectCandidate(arg)
     {
         this._impl.emit_signal('SelectCandidate', GLib.Variant.new('(i)',[arg]));
-    },
-    setRect: function(x, y, w, h, relative)
+    }
+    setRect(x, y, w, h, relative)
     {
-        let changed = false;
+        var changed = false;
         if (this.x != x || this.y != y || this.w != w || this.h != h || this.relative != relative)
             changed = true;
         this.x = x;
@@ -322,16 +322,16 @@ var Kimpanel = new Lang.Class({
         this.relative = relative;
         if (changed)
             this.updateInputPanel();
-    },
-    SetSpotRect: function(x, y, w, h)
+    }
+    SetSpotRect(x, y, w, h)
     {
         this.setRect(x, y, w, h, false);
-    },
-    SetRelativeSpotRect: function(x, y, w, h)
+    }
+    SetRelativeSpotRect(x, y, w, h)
     {
         this.setRect(x, y, w, h, true);
-    },
-    SetLookupTable: function(labels, texts, attrs, hasPrev, hasNext, cursor, layout)
+    }
+    SetLookupTable(labels, texts, attrs, hasPrev, hasNext, cursor, layout)
     {
         this.label = labels;
         this.table = texts;
@@ -339,15 +339,15 @@ var Kimpanel = new Lang.Class({
         this.layoutHint = layout;
         this.updateInputPanel();
         this.inputpanel.setVertical(this.isLookupTableVertical());
-    },
-    LockXkbGroup: function(idx)
+    }
+    LockXkbGroup(idx)
     {
         Meta.get_backend().lock_layout_group(idx);
-    },
+    }
 });
 
 function init() {
-    convenience.initTranslations();
+    ExtensionUtils.initTranslations();
 }
 
 function enable()

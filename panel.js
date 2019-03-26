@@ -1,5 +1,6 @@
 const St = imports.gi.St;
 const Cairo = imports.cairo;
+const GObject = imports.gi.GObject;
 const Shell = imports.gi.Shell;
 const Main = imports.ui.main;
 const Params = imports.misc.params;
@@ -7,15 +8,14 @@ const Lang = imports.lang;
 const Meta = imports.gi.Meta;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-//const BoxPointer = imports.ui.boxpointer;
-const BoxPointer = Me.imports.boxpointer;
+const BoxPointer = imports.ui.boxpointer;
 
 const PanelItemProperty = { x_fill: false, y_fill: false, x_align: St.Align.START, y_align: St.Align.START };
 
-var InputPanel = new Lang.Class({
-    Name: "InputPanel",
+var InputPanel = GObject.registerClass(
+class InputPanel extends GObject.Object {
 
-    _init: function(params) {
+    _init(params) {
         params = Params.parse(params, {kimpanel: null});
         this._arrowSide = St.Side.TOP;
         // create boxpointer as UI
@@ -29,23 +29,18 @@ var InputPanel = new Lang.Class({
 
         this.kimpanel = params.kimpanel;
 
-        this.actor = this.panel.actor;
+        this.actor = this.panel;
         this.actor._delegate = this;
         this.actor.style_class = 'popup-menu-boxpointer';
         this.actor.add_style_class_name('popup-menu');
         this.actor.add_style_class_name('minwidth-zero');
 
-        this._cursor = new Shell.GenericContainer();
+        this._cursor = new St.Label({});
 
         this.layout = new St.BoxLayout({vertical: true, style:"padding: .4em;"});
         this.panel.bin.set_child(this.layout);
 
         this.upperLayout = new St.BoxLayout();
-        this.separator = new Separator();
-        this.separator.x_fill = true;
-        this.separator.y_fill = true;
-        this.separator.x_align = St.Align.MIDDLE;
-        this.separator.y_align = St.Align.MIDDLE;
 
         this.lookupTableVertical = this.kimpanel.isLookupTableVertical();
         this.lookupTableLayout = new St.BoxLayout({vertical:this.lookupTableVertical});
@@ -65,43 +60,40 @@ var InputPanel = new Lang.Class({
                                     y_align: St.Align.MIDDLE} );
         this.hide();
         this.actor.hide();
-    },
+    }
 
-    setAuxText: function(text) {
+    setAuxText(text) {
         if(!this.auxText.visible)
             this.auxText.show();
         this.auxText.set_text(text);
-        let clutter_text = this.auxText.get_clutter_text();
+        var clutter_text = this.auxText.get_clutter_text();
         clutter_text.queue_redraw();
-    },
-    setPreeditText: function(text, pos) {
+    }
+    setPreeditText(text, pos) {
         if(!this.preeditText.visible)
             this.preeditText.show();
-        let cat = text.substr(0, pos) + "|" + text.substr(pos);
+        var cat = text.substr(0, pos) + "|" + text.substr(pos);
         this.preeditText.set_text(cat);
-        let clutter_text = this.preeditText.get_clutter_text();
+        var clutter_text = this.preeditText.get_clutter_text();
         clutter_text.queue_redraw();
-    },
-    _candidateClicked: function(widget, event) {
+    }
+    _candidateClicked(widget, event) {
         this.kimpanel.selectCandidate(widget.candidate_index);
-    },
-    setLookupTable: function( label, table, visible ) {
-        let len = visible ? table.length : 0;
-        let labelLen = this.lookupTableLayout.get_children().length;
+    }
+    setLookupTable( label, table, visible ) {
+        var len = visible ? table.length : 0;
+        var labelLen = this.lookupTableLayout.get_children().length;
 
         if (labelLen > 0 && len == 0) {
-            this.layout.remove_child(this.separator.actor);
             this.layout.remove_child(this.lookupTableLayout);
         } else if (labelLen == 0 && len > 0) {
-            this.layout.add_child(this.separator.actor);
-
             this.layout.add_child(this.lookupTableLayout);
         }
 
         // if number is not enough, create new
         if(len > labelLen) {
-            for(let i = 0; i < len - labelLen; i++){
-                let item = new St.Label({style_class:'kimpanel-candidate-item kimpanel-label-item',
+            for(var i = 0; i < len - labelLen; i++){
+                var item = new St.Label({style_class:'kimpanel-candidate-item kimpanel-label-item',
                                          style: this.text_style,
                                          text:'',
                                          reactive: true
@@ -128,14 +120,14 @@ var InputPanel = new Lang.Class({
         }
         else if (len < labelLen ) {
             // else destroy unnecessary one
-            for (let i = 0; i < labelLen - len; i++){
+            for (var i = 0; i < labelLen - len; i++){
                 this.lookupTableLayout.get_children()[0].destroy();
             }
         }
 
         // update label and text
-        let lookupTable = this.lookupTableLayout.get_children();
-        for(let i=0;i<lookupTable.length;i++) {
+        var lookupTable = this.lookupTableLayout.get_children();
+        for(var i=0;i<lookupTable.length;i++) {
             if (label[i].length == 0)
                 lookupTable[i].ignore_focus = true;
             else
@@ -143,55 +135,55 @@ var InputPanel = new Lang.Class({
             lookupTable[i].candidate_index = i;
             lookupTable[i].text = label[i] + (label[i].length != 0 ? ' ': '') + table[i];
         }
-    },
-    setLookupTableCursor: function(cursor) {
-        let labelLen = this.lookupTableLayout.get_children().length;
-        for (let i = 0; i < labelLen; i++) {
+    }
+    setLookupTableCursor(cursor) {
+        var labelLen = this.lookupTableLayout.get_children().length;
+        for (var i = 0; i < labelLen; i++) {
             if (i == cursor)
                 this.lookupTableLayout.get_children()[i].add_style_pseudo_class('active');
             else
                 this.lookupTableLayout.get_children()[i].remove_style_pseudo_class('active');
         }
-    },
-    setVertical: function(vertical){
+    }
+    setVertical(vertical){
         this.lookupTableLayout.set_vertical(vertical);
-    },
-    updateFont: function(textStyle){
+    }
+    updateFont(textStyle){
         this.text_style = textStyle;
         this.auxText.set_style(this.text_style);
         this.preeditText.set_style(this.text_style);
-        let lookupTable = this.lookupTableLayout.get_children();
-        for(let i = 0; i < lookupTable.length; i++)
+        var lookupTable = this.lookupTableLayout.get_children();
+        for(var i = 0; i < lookupTable.length; i++)
             lookupTable[i].set_style(this.text_style);
-    },
-    hideAux: function() {
+    }
+    hideAux() {
         if(this.auxText.visible )
             this.auxText.hide();
-    },
-    hidePreedit: function() {
+    }
+    hidePreedit() {
         if(this.preeditText.visible)
             this.preeditText.hide();
-    },
+    }
 
-    updatePosition: function() {
-        let kimpanel = this.kimpanel;
-        let x = kimpanel.x;
-        let y = kimpanel.y;
-        let w = kimpanel.w;
-        let h = kimpanel.h;
+    updatePosition() {
+        var kimpanel = this.kimpanel;
+        var x = kimpanel.x;
+        var y = kimpanel.y;
+        var w = kimpanel.w;
+        var h = kimpanel.h;
         if (kimpanel.relative) {
             if (global.display.focus_window) {
-                let window = global.display.focus_window.get_compositor_private();
+                var window = global.display.focus_window.get_compositor_private();
                 if (window) {
                     x += window.x;
                     y += window.y;
                 }
             }
         }
-        let rect = new Meta.Rectangle({ x: x, y: y, width: w, height: h });
-        let monitor = Main.layoutManager.monitors[global.display.get_monitor_index_for_rect(rect)];
-        let panel_width = this.actor.get_width();
-        let panel_height = this.actor.get_height();
+        var rect = new Meta.Rectangle({ x: x, y: y, width: w, height: h });
+        var monitor = Main.layoutManager.monitors[global.display.get_monitor_index_for_rect(rect)];
+        var panel_width = this.actor.get_width();
+        var panel_height = this.actor.get_height();
 
         if (h == 0) {
             h = 20;
@@ -230,43 +222,13 @@ var InputPanel = new Lang.Class({
         }
         else
             this.hide();
-    },
-
-    show: function() {
-	    this.panel.show(BoxPointer.PopupAnimation.NONE);
-    },
-    hide: function() {
-	    this.panel.hide(BoxPointer.PopupAnimation.NONE);
     }
 
-});
-
-var Separator = new Lang.Class({
-    Name: "Separator",
-
-    _init: function (params) {
-        this.actor = new St.DrawingArea({ style_class: 'kimpanel-separator'});
-        this.actor.connect('repaint', Lang.bind(this, this._onRepaint));
-    },
-
-    _onRepaint: function(area) {
-        let cr = area.get_context();
-        let themeNode = area.get_theme_node();
-        let [width, height] = area.get_surface_size();
-        let margin = themeNode.get_length('-margin-horizontal');
-        let gradientHeight = themeNode.get_length('-gradient-height');
-        let startColor = themeNode.get_color('-gradient-start');
-        let endColor = themeNode.get_color('-gradient-end');
-
-        let gradientWidth = (width - margin*2 );
-        let gradientOffset = (height - gradientHeight) / 2;
-        let pattern = new Cairo.LinearGradient(margin, gradientOffset, width - margin, gradientOffset + gradientHeight);
-        pattern.addColorStopRGBA(0, startColor.red / 255, startColor.green / 255, startColor.blue / 255, startColor.alpha / 255);
-        pattern.addColorStopRGBA(0.2, endColor.red / 255, endColor.green / 255, endColor.blue / 255, endColor.alpha / 255);
-        pattern.addColorStopRGBA(0.8, endColor.red / 255, endColor.green / 255, endColor.blue / 255, endColor.alpha / 255);
-        pattern.addColorStopRGBA(1, startColor.red / 255, startColor.green / 255, startColor.blue / 255, startColor.alpha / 255);
-        cr.setSource(pattern);
-        cr.rectangle(margin, gradientOffset, gradientWidth, gradientHeight);
-        cr.fill();
+    show() {
+	    this.panel.open(BoxPointer.PopupAnimation.NONE);
     }
+    hide() {
+	    this.panel.close(BoxPointer.PopupAnimation.NONE);
+    }
+
 });

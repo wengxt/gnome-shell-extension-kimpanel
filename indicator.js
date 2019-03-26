@@ -1,4 +1,5 @@
 const St = imports.gi.St;
+const GObject = imports.gi.GObject;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Params = imports.misc.params;
@@ -11,12 +12,11 @@ const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Lib = Me.imports.lib;
 
-var KimIndicator = new Lang.Class({
-    Name: "KimIndicator",
-    Extends: PanelMenu.Button,
+var KimIndicator = GObject.registerClass(
+class Indicator_KimIndicator extends PanelMenu.Button {
 
-    _init: function(params){
-        this.parent(0.0, 'kimpanel');
+    _init(params){
+        super._init(0.0, 'kimpanel');
         params = Params.parse(params, {kimpanel: null});
         this._properties = {};
         this._propertySwitch = {};
@@ -28,7 +28,7 @@ var KimIndicator = new Lang.Class({
         this._box.add_child(this.labelIcon);
         this._box.add_child(this.mainIcon);
         this._box.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
-        this.actor.add_actor(this._box);
+        this.add_actor(this._box);
         this._setIcon('input-keyboard', '');
 
         this.kimpanel = params.kimpanel;
@@ -44,10 +44,10 @@ var KimIndicator = new Lang.Class({
 
         this._prefs = new PopupMenu.PopupMenuItem(_("Panel Preferences"));
         this._prefs.connect('activate', function () {
-            let _appSys = Shell.AppSystem.get_default();
-            let _gsmPrefs = _appSys.lookup_app('gnome-shell-extension-prefs.desktop');
-            let info = _gsmPrefs.get_app_info();
-            let timestamp = global.display.get_current_time_roundtrip();
+            var _appSys = Shell.AppSystem.get_default();
+            var _gsmPrefs = _appSys.lookup_app('gnome-shell-extension-prefs.desktop');
+            var info = _gsmPrefs.get_app_info();
+            var timestamp = global.display.get_current_time_roundtrip();
             info.launch_uris([Me.metadata.uuid], global.create_app_launch_context(timestamp, -1));
         });
 
@@ -55,14 +55,14 @@ var KimIndicator = new Lang.Class({
         this.menu.addMenuItem(this._reload);
         this.menu.addMenuItem(this._setting);
         this.menu.addMenuItem(this._prefs);
-        this.actor.hide();
-    },
+        this.hide();
+    }
 
-    _addPropertyItem: function(key) {
+    _addPropertyItem(key) {
         if ( key in this._properties )
         {
-            let property = this._properties[key];
-            let item = Lib.createMenuItem(property);
+            var property = this._properties[key];
+            var item = Lib.createMenuItem(property);
 
             item.connect('activate', Lang.bind(this, function(){
                 this.kimpanel.triggerProperty(item._key);
@@ -73,37 +73,37 @@ var KimIndicator = new Lang.Class({
             this._propertySwitch[key] = item;
             this.menu.addMenuItem( this._propertySwitch[key], this.menu.numMenuItems - 4 );
         }
-    },
+    }
 
-    _updatePropertyItem: function(key) {
-        let property = this._properties[key];
-        let item = this._propertySwitch[key]; 
+    _updatePropertyItem(key) {
+        var property = this._properties[key];
+        var item = this._propertySwitch[key]; 
         item.setIcon(property.icon);
         item.label.text = property.label;
         return;
-    },
+    }
 
-    _updateProperty: function(propstr) {
-        let property = Lib.parseProperty(propstr);
-        let key = property.key;
+    _updateProperty(propstr) {
+        var property = Lib.parseProperty(propstr);
+        var key = property.key;
         this._properties[key] = property;
         this._updateProperties();
-    },
+    }
 
-    _updateProperties: function( properties ) {
+    _updateProperties( properties ) {
         if( properties == undefined )
         {
-            let key;
+            var key;
             for ( key in this._propertySwitch )
             {
-                let property = this._properties[key];
-                let item = this._propertySwitch[key]; 
+                var property = this._properties[key];
+                var item = this._propertySwitch[key]; 
                 item.setIcon(property.icon);
                 item.label.text = property.label;
             }
             return;
         } else {
-            let p;
+            var p;
             for (p in this._propertySwitch) {
                 if (properties[p] == undefined) {
                     this._propertySwitch[p].destroy();
@@ -111,11 +111,11 @@ var KimIndicator = new Lang.Class({
                 }
             }
 
-            let count = 0;
+            var count = 0;
             for( p in properties) {
                 count ++;
-                let property = Lib.parseProperty( properties[p] );
-                let key = property.key;
+                var property = Lib.parseProperty( properties[p] );
+                var key = property.key;
                 this._properties[key] = property;
                 if( key in this._propertySwitch )
                     this._updatePropertyItem(key);
@@ -123,35 +123,35 @@ var KimIndicator = new Lang.Class({
                     this._addPropertyItem(key);
             }
             if (count > 0) {
-                this.actor.show();
+                this.show();
             } else {
-                this.actor.hide();
+                this.hide();
             }
         }
-    },
+    }
 
-    _setIcon: function(iconName, labelName) {
+    _setIcon(iconName, labelName) {
         if (iconName === '') {
             this.labelIcon.text = Lib.extractLabelString(labelName);
             this.mainIcon.visible = false
             this.labelIcon.visible = true
         } else {
-            let gicon = Lib.createIcon(iconName);
+            var gicon = Lib.createIcon(iconName);
             this.mainIcon.gicon = gicon;
             this.mainIcon.visible = true
             this.labelIcon.visible = false
         }
-    },
+    }
 
-    _active: function(){
+    _active(){
          if (this._properties['/Fcitx/im']) {
              this._setIcon(this._properties['/Fcitx/im'].icon, this._properties['/Fcitx/im'].label);
          } else {
              this._setIcon('input-keyboard', '');
          }
-    },
+    }
 
-    _deactive: function(){
+    _deactive(){
         this._setIcon('input-keyboard', '');
     }
 });

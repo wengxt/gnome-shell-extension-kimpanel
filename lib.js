@@ -2,6 +2,7 @@ const PopupMenu = imports.ui.popupMenu;
 const St = imports.gi.St;
 const Params = imports.misc.params;
 const Clutter = imports.gi.Clutter;
+const GObject = imports.gi.GObject;
 const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 const Gettext = imports.gettext;
@@ -11,12 +12,9 @@ const Pango = imports.gi.Pango;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const convenience = Me.imports.convenience;
 
-var KimMenuItem = new Lang.Class({
-    Name: 'KimMenuItem',
-    Extends: PopupMenu.PopupBaseMenuItem,
-
-    _init: function (text, iconName, params) {
-        this.parent(params);
+const KimMenuItem = class extends PopupMenu.PopupBaseMenuItem {
+    constructor(text, iconName, params) {
+        super(params);
 
         this.label = new St.Label({ text: text });
         this.actor.add_child(this.label);
@@ -25,16 +23,16 @@ var KimMenuItem = new Lang.Class({
         this.actor.add_child(this._icon);
 
         this.setIcon(iconName);
-    },
+    }
 
-    setIcon: function(name) {
+    setIcon(name) {
         this._icon.gicon = createIcon(name);
     }
-});
+};
 
 function parseProperty(str) {
-    let p = str.split(":");
-    let property = {
+    var p = str.split(":");
+    var property = {
         'key': p[0],
         'label': p[1],
         'icon': p[2],
@@ -58,24 +56,24 @@ function createIcon(name, params) {
 }
 
 function createMenuItem(property) {
-    let item = new KimMenuItem("","");
+    var item = new KimMenuItem("","");
     item._key = property.key;
     return item;
 }
 
 function getTextStyle(settings) {
-    let font_string = settings.get_string('font') || "Sans 11";
-    let desc = Pango.FontDescription.from_string(font_string);
+    var font_string = settings.get_string('font') || "Sans 11";
+    var desc = Pango.FontDescription.from_string(font_string);
 
-    let font_family = desc.get_family();
-    let font_size = (desc.get_size()/Pango.SCALE)+"pt";
-    let font_style;
-    let i;
+    var font_family = desc.get_family();
+    var font_size = (desc.get_size()/Pango.SCALE)+"pt";
+    var font_style;
+    var i;
     for( i in Pango.Style )
         if( Pango.Style[i] == desc.get_style() )
             font_style = i.toLowerCase();
 
-    let font_weight = desc.get_weight();
+    var font_weight = desc.get_weight();
 
     return "font-family:"+font_family+";font-size:"+font_size+";font-style:" 
     +font_style+";font-weight:"+font_weight;
