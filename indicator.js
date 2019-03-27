@@ -1,10 +1,7 @@
-const St = imports.gi.St;
-const GObject = imports.gi.GObject;
+const {St, GObject, Shell, Clutter} = imports.gi.St;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Params = imports.misc.params;
-const Shell = imports.gi.Shell;
-const Clutter = imports.gi.Clutter;
 const Gettext = imports.gettext.domain('gnome-shell-extensions-kimpanel');
 const _ = Gettext.gettext;
 const Lang = imports.lang;

@@ -1,9 +1,6 @@
+const {GObject, Gio, GLib, Meta} = imports.gi;
 const Main = imports.ui.main;
-const GObject = imports.gi.GObject;
-const Gio = imports.gi.Gio;
-const GLib = imports.gi.GLib;
 const Lang = imports.lang;
-const Meta = imports.gi.Meta;
 const ExtensionUtils = imports.misc.extensionUtils;
 
 const Me = ExtensionUtils.getCurrentExtension();

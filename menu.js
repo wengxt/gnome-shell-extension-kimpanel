@@ -1,7 +1,5 @@
+const {GObject, St, Clutter} = imports.gi;
 const Main = imports.ui.main;
-const GObject = imports.gi.GObject;
-const St = imports.gi.St;
-const Clutter = imports.gi.Clutter;
 const PopupMenu = imports.ui.popupMenu;
 const Params = imports.misc.params;
 

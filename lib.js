@@ -1,16 +1,6 @@
 const PopupMenu = imports.ui.popupMenu;
-const St = imports.gi.St;
+const {St, Gio, Pango} = imports.gi;
 const Params = imports.misc.params;
-const Clutter = imports.gi.Clutter;
-const GObject = imports.gi.GObject;
-const GLib = imports.gi.GLib;
-const Gio = imports.gi.Gio;
-const Gettext = imports.gettext;
-const Lang = imports.lang;
-const Pango = imports.gi.Pango;
-
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const convenience = Me.imports.convenience;
 
 const KimMenuItem = class extends PopupMenu.PopupBaseMenuItem {
     constructor(text, iconName, params) {

@@ -1,11 +1,8 @@
-const St = imports.gi.St;
+const {St, GObject, Shell, Meta} = imports.gi;
 const Cairo = imports.cairo;
-const GObject = imports.gi.GObject;
-const Shell = imports.gi.Shell;
 const Main = imports.ui.main;
 const Params = imports.misc.params;
 const Lang = imports.lang;
-const Meta = imports.gi.Meta;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const BoxPointer = imports.ui.boxpointer;
