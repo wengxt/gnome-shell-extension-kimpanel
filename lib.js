@@ -1,14 +1,15 @@
 const PopupMenu = imports.ui.popupMenu;
-const {St, Gio, Pango} = imports.gi;
+const {St, Gio, GObject, Pango} = imports.gi;
 const Params = imports.misc.params;
 
-const KimMenuItem = class extends PopupMenu.PopupBaseMenuItem {
-    constructor(text, iconName, params) {
-        super(params);
+var KimMenuItem = GObject.registerClass(
+class KimMenuItem extends PopupMenu.PopupBaseMenuItem {
+    _init(text, iconName, params) {
+        super._init(params);
 
         this.label = new St.Label({ text: text });
         this.actor.add_child(this.label);
-        this.actor.label_actor = this.label
+        this.actor.label_actor = this.label;
         this._icon = new St.Icon({ x_align: St.Align.END, style_class: 'popup-menu-icon' });
         this.actor.add_child(this._icon);
 
@@ -18,7 +19,7 @@ const KimMenuItem = class extends PopupMenu.PopupBaseMenuItem {
     setIcon(name) {
         this._icon.gicon = createIcon(name);
     }
-};
+});
 
 function parseProperty(str) {
     var p = str.split(":");
@@ -31,7 +32,7 @@ function parseProperty(str) {
     return property;
 }
 
-function createIcon(name, params) {
+function createIcon(name) {
     if (!name)
         return null;
 
