@@ -18,14 +18,14 @@ class Indicator_KimIndicator extends PanelMenu.Button {
         this._properties = {};
         this._propertySwitch = {};
 
-        this._box = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
+        let hbox = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
         this.labelIcon = new St.Label({ y_align: Clutter.ActorAlign.CENTER });
         this.mainIcon = new St.Icon({ gicon: Lib.createIcon('input-keyboard'),
                                  style_class: 'system-status-icon' });
-        this._box.add_child(this.labelIcon);
-        this._box.add_child(this.mainIcon);
-        this._box.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
-        this.add_actor(this._box);
+        hbox.add_child(this.labelIcon);
+        hbox.add_child(this.mainIcon);
+        hbox.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
+        this.add_actor(hbox);
         this._setIcon('input-keyboard', '');
 
         this.kimpanel = params.kimpanel;
@@ -39,37 +39,27 @@ class Indicator_KimIndicator extends PanelMenu.Button {
             this.kimpanel.emit('ReloadConfig');
         }));
 
-        this._prefs = new PopupMenu.PopupMenuItem(_("Panel Preferences"));
-        this._prefs.connect('activate', function () {
-            var _appSys = Shell.AppSystem.get_default();
-            var _gsmPrefs = _appSys.lookup_app('gnome-shell-extension-prefs.desktop');
-            var info = _gsmPrefs.get_app_info();
-            var timestamp = global.display.get_current_time_roundtrip();
-            info.launch_uris([Me.metadata.uuid], global.create_app_launch_context(timestamp, -1));
-        });
-
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this.menu.addMenuItem(this._reload);
         this.menu.addMenuItem(this._setting);
-        this.menu.addMenuItem(this._prefs);
         this.hide();
     }
 
     _addPropertyItem(key) {
-        if ( key in this._properties )
-        {
-            var property = this._properties[key];
-            var item = Lib.createMenuItem(property);
-
-            item.connect('activate', Lang.bind(this, function(){
-                this.kimpanel.triggerProperty(item._key);
-            }));
-            item.setIcon(property.icon);
-            item.label.text = property.label;
-
-            this._propertySwitch[key] = item;
-            this.menu.addMenuItem( this._propertySwitch[key], this.menu.numMenuItems - 4 );
+        if (!(key in this._properties)) {
+            return;
         }
+        var property = this._properties[key];
+        var item = Lib.createMenuItem(property);
+
+        item.connect('activate', Lang.bind(this, function(){
+            this.kimpanel.triggerProperty(item._key);
+        }));
+        item.setIcon(property.icon);
+        item.label.text = property.label;
+
+        this._propertySwitch[key] = item;
+        this.menu.addMenuItem( this._propertySwitch[key], this.menu.numMenuItems - 3 );
     }
 
     _updatePropertyItem(key) {
@@ -77,7 +67,6 @@ class Indicator_KimIndicator extends PanelMenu.Button {
         var item = this._propertySwitch[key]; 
         item.setIcon(property.icon);
         item.label.text = property.label;
-        return;
     }
 
     _updateProperty(propstr) {

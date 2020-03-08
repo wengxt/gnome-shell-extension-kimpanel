@@ -1,16 +1,16 @@
 const PopupMenu = imports.ui.popupMenu;
-const {St, Gio, Pango} = imports.gi;
+const {St, GObject, Gio, Pango} = imports.gi;
 const Params = imports.misc.params;
 
-const KimMenuItem = class extends PopupMenu.PopupBaseMenuItem {
-    constructor(text, iconName, params) {
-        super(params);
+var KimMenuItem = GObject.registerClass(
+class KimMenuItem extends PopupMenu.PopupBaseMenuItem {
+    _init(text, iconName, params) {
+        super._init(params);
 
         this.label = new St.Label({ text: text });
-        this.actor.add_child(this.label);
-        this.actor.label_actor = this.label
         this._icon = new St.Icon({ x_align: St.Align.END, style_class: 'popup-menu-icon' });
-        this.actor.add_child(this._icon);
+        this.add_child(this._icon);
+        this.add_child(this.label);
 
         this.setIcon(iconName);
     }
@@ -18,11 +18,11 @@ const KimMenuItem = class extends PopupMenu.PopupBaseMenuItem {
     setIcon(name) {
         this._icon.gicon = createIcon(name);
     }
-};
+});
 
 function parseProperty(str) {
-    var p = str.split(":");
-    var property = {
+    let p = str.split(":");
+    let property = {
         'key': p[0],
         'label': p[1],
         'icon': p[2],
