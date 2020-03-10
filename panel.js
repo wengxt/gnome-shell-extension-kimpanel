@@ -179,7 +179,6 @@ class InputPanel extends GObject.Object {
         }
         var rect = new Meta.Rectangle({ x: x, y: y, width: w, height: h });
         var monitor = Main.layoutManager.monitors[global.display.get_monitor_index_for_rect(rect)];
-        var panel_width = this.actor.get_width();
         var panel_height = this.actor.get_height();
 
         if (h == 0) {
@@ -201,7 +200,7 @@ class InputPanel extends GObject.Object {
         if (x < monitor.x) {
             x = monitor.x;
         }
-        if (x + panel_width >= monitor.x + monitor.width) {
+        if (x >= monitor.x + monitor.width) {
             x = monitor.x + monitor.width - 1;
         }
 
