@@ -187,10 +187,10 @@ class InputPanel extends GObject.Object {
             y = y - 20;
         }
 
-        if (y + panel_height + h > monitor.y + monitor.height) {
+        if (y + panel_height + h >= monitor.y + monitor.height) {
             this._arrowSide = St.Side.BOTTOM;
 
-            if (y + h > monitor.y + monitor.height) {
+            if (y + h >= monitor.y + monitor.height) {
                 y = monitor.y + monitor.height - 1;
                 h = 1;
             }
@@ -201,8 +201,8 @@ class InputPanel extends GObject.Object {
         if (x < monitor.x) {
             x = monitor.x;
         }
-        if (x + panel_width > monitor.x + monitor.width) {
-            x = monitor.x + monitor.width;
+        if (x + panel_width >= monitor.x + monitor.width) {
+            x = monitor.x + monitor.width - 1;
         }
 
         this._cursor.set_position(x, y);
