@@ -208,20 +208,21 @@ class InputPanel extends GObject.Object {
         this._cursor.set_size((w == 0? 1 : w), (h == 0? 1 : h));
 
         this.panel._arrowSide = this._arrowSide;
-        this.panel.setPosition(this._cursor, 0.0);
 
 
         this.visible = kimpanel.showAux || kimpanel.showPreedit || kimpanel.showLookupTable;
         if (this.visible) {
             this.show();
-            this.actor.raise_top();
         }
-        else
+        else {
             this.hide();
+        }
     }
 
     show() {
-	    this.panel.open(BoxPointer.PopupAnimation.NONE);
+        this.panel.setPosition(this._cursor, 0.0);
+        this.panel.open(BoxPointer.PopupAnimation.NONE);
+        this.panel.get_parent().set_child_above_sibling(this.panel, null);
     }
     hide() {
 	    this.panel.close(BoxPointer.PopupAnimation.NONE);
