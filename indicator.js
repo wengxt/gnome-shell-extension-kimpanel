@@ -1,4 +1,4 @@
-const {St, GObject, Shell, Clutter} = imports.gi;
+const {St, GObject, Shell, Clutter, Pango} = imports.gi;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Params = imports.misc.params;
@@ -20,6 +20,8 @@ class Indicator_KimIndicator extends PanelMenu.Button {
 
         let hbox = new St.BoxLayout({ style_class: 'panel-status-menu-box' });
         this.labelIcon = new St.Label({ y_align: Clutter.ActorAlign.CENTER });
+        this.labelIcon.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
+        this.labelIcon.clutter_text.line_wrap = false;
         this.mainIcon = new St.Icon({ gicon: Lib.createIcon('input-keyboard'),
                                  style_class: 'system-status-icon' });
         hbox.add_child(this.labelIcon);

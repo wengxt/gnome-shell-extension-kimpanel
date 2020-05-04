@@ -1,4 +1,4 @@
-const {St, GObject, Shell, Meta} = imports.gi;
+const {St, GObject, Shell, Meta, Pango} = imports.gi;
 const Cairo = imports.cairo;
 const Main = imports.ui.main;
 const Params = imports.misc.params;
@@ -8,6 +8,13 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const BoxPointer = imports.ui.boxpointer;
 
 const PanelItemProperty = { x_fill: false, y_fill: false, x_align: St.Align.START, y_align: St.Align.START };
+
+function createLabel(params) {
+    var label = new St.Label(params);
+    label.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
+    label.clutter_text.line_wrap = false;
+    return label;
+}
 
 var InputPanel = GObject.registerClass(
 class InputPanel extends GObject.Object {
@@ -45,8 +52,8 @@ class InputPanel extends GObject.Object {
         this.layout.add_child(this.upperLayout);
 
         this.text_style = this.kimpanel.getTextStyle();
-        this.auxText = new St.Label({style_class:'kimpanel-label', style: this.text_style, text:''});
-        this.preeditText = new St.Label({style_class:'kimpanel-label', style: this.text_style, text:''});
+        this.auxText = createLabel({style_class:'kimpanel-label', style: this.text_style, text:''});
+        this.preeditText = createLabel({style_class:'kimpanel-label', style: this.text_style, text:''});
 
         this.upperLayout.add(this.auxText, {x_fill: false, y_fill: true,
                                     x_align: St.Align.START,
@@ -90,7 +97,7 @@ class InputPanel extends GObject.Object {
         // if number is not enough, create new
         if(len > labelLen) {
             for(var i = 0; i < len - labelLen; i++){
-                var item = new St.Label({style_class:'kimpanel-candidate-item kimpanel-label-item',
+                var item = createLabel({style_class:'kimpanel-candidate-item kimpanel-label-item',
                                          style: this.text_style,
                                          text:'',
                                          reactive: true
@@ -225,7 +232,7 @@ class InputPanel extends GObject.Object {
         this.panel.get_parent().set_child_above_sibling(this.panel, null);
     }
     hide() {
-	    this.panel.close(BoxPointer.PopupAnimation.NONE);
+        this.panel.close(BoxPointer.PopupAnimation.NONE);
     }
 
 });
