@@ -97,7 +97,7 @@ class InputPanel extends GObject.Object {
         // if number is not enough, create new
         if(len > labelLen) {
             for(var i = 0; i < len - labelLen; i++){
-                var item = createLabel({style_class:'kimpanel-candidate-item kimpanel-label-item',
+                var item = createLabel({style_class:'kimpanel-candidate-item kimpanel-label',
                                          style: this.text_style,
                                          text:'',
                                          reactive: true
@@ -137,7 +137,7 @@ class InputPanel extends GObject.Object {
             else
                 lookupTable[i].ignore_focus = false;
             lookupTable[i].candidate_index = i;
-            lookupTable[i].text = label[i] + (label[i].length != 0 ? ' ': '') + table[i];
+            lookupTable[i].text = label[i] + table[i];
         }
     }
     setLookupTableCursor(cursor) {
