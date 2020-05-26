@@ -119,7 +119,7 @@ class Indicator_KimIndicator extends PanelMenu.Button {
     }
 
     _setIcon(iconName, labelName) {
-        if (iconName === '') {
+        if (iconName === '' || (iconName === 'input-keyboard' && labelName !== '')) {
             this.labelIcon.text = Lib.extractLabelString(labelName);
             this.mainIcon.visible = false
             this.labelIcon.visible = true
