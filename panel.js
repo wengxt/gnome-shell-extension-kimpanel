@@ -76,7 +76,8 @@ class InputPanel extends GObject.Object {
     setPreeditText(text, pos) {
         if(!this.preeditText.visible)
             this.preeditText.show();
-        var cat = text.substr(0, pos) + "|" + text.substr(pos);
+        var charArray = [...text];
+        var cat = charArray.slice(0, pos).join('') + "|" + charArray.slice(pos).join('');
         this.preeditText.set_text(cat);
         var clutter_text = this.preeditText.get_clutter_text();
         clutter_text.queue_redraw();
