@@ -22,46 +22,36 @@ var KimMenu = class extends PopupMenu.PopupMenu {
         this.connect('open-state-changed', Lang.bind(this, this._onOpenStateChanged));
         this.actor.connect('key-press-event', Lang.bind(this, this._onSourceKeyPress));
         this.grabbed = false;
-        this._properties = {};
-        this._propertySwitch = {};
+        this._propertySwitch = [];
         this.kimpanel = params.kimpanel;
     }
 
     execMenu(properties) {
-        var p = null;
-        for (p in this._propertySwitch) {
-            this._propertySwitch[p].destroy();
-            delete this._propertySwitch[p];
+        for (var i = 0 ; i < this._propertySwitch.length; i++) {
+            this._propertySwitch[i].destroy();
         }
+        this._propertySwitch = [];
 
-        var count = 0;
-        for( p in properties){
-            count ++;
-            var property = Lib.parseProperty( properties[p] );
-            var key = property.key;
-            this._properties[key] = property;
-            this._addPropertyItem(key);
+        for(var i = 0; i < properties.length; i++) {
+            var property = Lib.parseProperty(properties[i]);
+            this._addPropertyItem(property);
         }
-        if (count != 0) {
+        if (properties.length > 0) {
             this.open(true);
         }
     }
 
-    _addPropertyItem(key) {
-        if ( key in this._properties )
-        {
-            var property = this._properties[key];
-            var item = Lib.createMenuItem(property);
+    _addPropertyItem(property) {
+        var item = Lib.createMenuItem(property);
 
-            item.connect('activate', Lang.bind(this, function(){
-                this.kimpanel.triggerProperty(item._key);
-            }));
-            item.setIcon(property.icon);
-            item.label.text = property.label;
+        item.connect('activate', Lang.bind(this, function(){
+            this.kimpanel.triggerProperty(item._key);
+        }));
+        item.setIcon(property.icon);
+        item.label.text = property.label;
 
-            this._propertySwitch[key] = item;
-            this.addMenuItem( this._propertySwitch[key]);
-        }
+        this._propertySwitch.push(item);
+        this.addMenuItem(item);
     }
 
     _onSourceKeyPress(actor, event) {
