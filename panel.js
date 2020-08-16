@@ -41,7 +41,7 @@ class InputPanel extends GObject.Object {
 
         this._cursor = new St.Label({});
 
-        this.layout = new St.BoxLayout({vertical: true, style:"padding: .4em;"});
+        this.layout = new St.BoxLayout({style_class:'popup-menu-content', vertical: true, style:"padding: .4em;"});
         this.panel.bin.set_child(this.layout);
 
         this.upperLayout = new St.BoxLayout();
