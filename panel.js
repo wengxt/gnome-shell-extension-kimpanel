@@ -67,20 +67,17 @@ class InputPanel extends GObject.Object {
     }
 
     setAuxText(text) {
-        if(!this.auxText.visible)
-            this.auxText.show();
         this.auxText.set_text(text);
-        var clutter_text = this.auxText.get_clutter_text();
-        clutter_text.queue_redraw();
+        if(!this.auxText.visible) {
+            this.auxText.show();
+        }
     }
     setPreeditText(text, pos) {
-        if(!this.preeditText.visible)
-            this.preeditText.show();
         var charArray = [...text];
         var cat = charArray.slice(0, pos).join('') + "|" + charArray.slice(pos).join('');
         this.preeditText.set_text(cat);
-        var clutter_text = this.preeditText.get_clutter_text();
-        clutter_text.queue_redraw();
+        if(!this.preeditText.visible)
+            this.preeditText.show();
     }
     _candidateClicked(widget, event) {
         this.kimpanel.selectCandidate(widget.candidate_index);
