@@ -46,6 +46,13 @@ const Kimpanel2Iface = '<node> \
     <arg type="i" name="w" direction="in" /> \
     <arg type="i" name="h" direction="in" /> \
 </method> \
+<method name="SetRelativeSpotRectV2"> \
+    <arg type="i" name="x" direction="in" /> \
+    <arg type="i" name="y" direction="in" /> \
+    <arg type="i" name="w" direction="in" /> \
+    <arg type="i" name="h" direction="in" /> \
+    <arg type="d" name="scale" direction="in" /> \
+</method> \
 <method name="SetLookupTable"> \
     <arg direction="in" type="as" name="label"/> \
     <arg direction="in" type="as" name="text"/> \
@@ -217,6 +224,7 @@ class Kimpanel extends GObject.Object {
         this.w = 0;
         this.h = 0;
         this.relative = false;
+        this.scale = 1;
         this.table = [];
         this.label = [];
         this.pos = 0;
@@ -307,26 +315,31 @@ class Kimpanel extends GObject.Object {
     {
         this._impl.emit_signal('SelectCandidate', GLib.Variant.new('(i)',[arg]));
     }
-    setRect(x, y, w, h, relative)
+    setRect(x, y, w, h, relative, scale)
     {
-        var changed = false;
-        if (this.x != x || this.y != y || this.w != w || this.h != h || this.relative != relative)
-            changed = true;
+        if (this.x == x && this.y == y && this.w == w && this.h == h && this.relative == relative &&
+            this.scale == scale) {
+            return;
+        }
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
         this.relative = relative;
-        if (changed)
-            this.updateInputPanel();
+        this.scale = scale;
+        this.updateInputPanel();
     }
     SetSpotRect(x, y, w, h)
     {
-        this.setRect(x, y, w, h, false);
+        this.setRect(x, y, w, h, false, 1);
     }
     SetRelativeSpotRect(x, y, w, h)
     {
-        this.setRect(x, y, w, h, true);
+        this.setRect(x, y, w, h, true, 1);
+    }
+    SetRelativeSpotRectV2(x, y, w, h, scale)
+    {
+        this.setRect(x, y, w, h, true, scale);
     }
     SetLookupTable(labels, texts, attrs, hasPrev, hasNext, cursor, layout)
     {

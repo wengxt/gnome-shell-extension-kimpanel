@@ -178,10 +178,13 @@ class InputPanel extends GObject.Object {
         var h = kimpanel.h;
         if (kimpanel.relative) {
             if (global.display.focus_window) {
+                var shellScale = St.ThemeContext.get_for_stage(global.stage).scale_factor;
                 var window = global.display.focus_window.get_compositor_private();
                 if (window) {
-                    x += window.x;
-                    y += window.y;
+                    x = window.x + x * (shellScale / kimpanel.scale);
+                    y = window.y + y * (shellScale / kimpanel.scale);
+                    w = w * (shellScale / kimpanel.scale);
+                    h = h * (shellScale / kimpanel.scale);
                 }
             }
         }
