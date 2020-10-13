@@ -7,7 +7,7 @@ const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const BoxPointer = imports.ui.boxpointer;
 
-const PanelItemProperty = { x_fill: false, y_fill: false, x_align: St.Align.START, y_align: St.Align.START };
+const PanelItemProperty = { x_align: St.Align.START, y_align: St.Align.START };
 
 function createLabel(params) {
     var label = new St.Label(params);
@@ -26,8 +26,6 @@ class InputPanel extends GObject.Object {
         this.panel = new BoxPointer.BoxPointer(
             this._arrowSide,
             {
-                x_fill: true,
-                y_fill: true,
                 x_align: St.Align.START
             });
 
@@ -55,13 +53,8 @@ class InputPanel extends GObject.Object {
         this.auxText = createLabel({style_class:'kimpanel-label', style: this.text_style, text:''});
         this.preeditText = createLabel({style_class:'kimpanel-label', style: this.text_style, text:''});
 
-        this.upperLayout.add(this.auxText, {x_fill: false, y_fill: true,
-                                    x_align: St.Align.START,
-                                    y_align: St.Align.MIDDLE} );
-
-        this.upperLayout.add(this.preeditText, {x_fill: false, y_fill: true,
-                                    x_align: St.Align.START,
-                                    y_align: St.Align.MIDDLE} );
+        this.upperLayout.add_child(this.auxText);
+        this.upperLayout.add_child(this.preeditText);
         this.hide();
         this.actor.hide();
     }
@@ -117,7 +110,7 @@ class InputPanel extends GObject.Object {
                                  if (!widget.ignore_focus)
                                     widget.remove_style_pseudo_class('hover');
                              });
-                this.lookupTableLayout.add(item, PanelItemProperty);
+                this.lookupTableLayout.add_child(item);
             }
         }
         else if (len < labelLen ) {
