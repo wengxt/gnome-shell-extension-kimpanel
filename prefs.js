@@ -1,3 +1,4 @@
+imports.gi.versions['Gtk'] = '4.0';
 const Gtk = imports.gi.Gtk;
 
 const Gettext = imports.gettext.domain('gnome-shell-extensions-kimpanel');
@@ -28,54 +29,51 @@ function createBoolSetting(setting) {
     var hbox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL });
 
     var setting_label = new Gtk.Label({label: settings_bool[setting].label,
-                                       xalign: 0 });
+                                       xalign: 0, halign: Gtk.Align.FILL, hexpand: true });
 
     var setting_switch = new Gtk.Switch({active: settings.get_boolean(setting)});
     setting_switch.connect('notify::active', function(button) {
         settings.set_boolean(setting, button.active);
     });
 
-    hbox.pack_start(setting_label, true, true, 0);
-    hbox.add(setting_switch);
+    hbox.append(setting_label);
+    hbox.append(setting_switch);
 
     return hbox;
 }
 
 function createFontSelection() {
     var hbox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL });
-    
-    var setting_label = new Gtk.Label( { label: _("Font"), xalign: 0});
 
+    var setting_label = new Gtk.Label( { label: _("Font"), xalign: 0, halign: Gtk.Align.FILL, hexpand: true});
 
     var font = settings.get_string('font') || "Sans 12";
 
-    var button = new Gtk.FontButton( { font_name:font } );
+    var button = new Gtk.FontButton( { font:font } );
 
-    button.connect("font-set", function(button){ 
-        settings.set_string('font',button.get_font_name()); 
+    button.connect("font-set", function(button){
+        settings.set_string('font',button.font);
     });
 
-    hbox.pack_start(setting_label, true, true, 0);
-    hbox.add(button);
+    hbox.append(setting_label);
+    hbox.append(button);
 
     return hbox;
 }
 
 function buildPrefsWidget() {
-    var frame = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL,
-                              border_width: 10 });
-    var vbox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL,
-                             margin: 20, margin_top:10 });
+    var frame = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
+    var vbox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, margin_top: 10, margin_start: 20, margin_end: 20 });
 
     var setting = null;
     for (setting in settings_bool) {
         var hbox = createBoolSetting(setting);
-        vbox.add(hbox);
+        vbox.append(hbox);
     }
     var hbox = createFontSelection();
-    vbox.add(hbox);
-    
-    frame.add(vbox);
-    frame.show_all();
+    vbox.append(hbox);
+
+    frame.append(vbox);
+    frame.show();
     return frame;
 }

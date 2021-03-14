@@ -26,7 +26,6 @@ class Indicator_KimIndicator extends PanelMenu.Button {
                                  style_class: 'system-status-icon' });
         hbox.add_child(this.labelIcon);
         hbox.add_child(this.mainIcon);
-        hbox.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
         this.add_actor(hbox);
         this._setIcon('input-keyboard', '');
 
