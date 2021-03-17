@@ -23,12 +23,6 @@ msgstr ""
 msgid "Font"
 msgstr "字体"
 
-#: ../build/_build/kimpanel@kde.org/indicator.js:26
-#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:26
-#: ../indicator.js:26
-msgid "IM Settings"
-msgstr "输入法设置"
-
 #: ../build/_build/kimpanel@kde.org/indicator.js:40
 #: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:40
 #: ../indicator.js:40
@@ -40,6 +34,12 @@ msgstr "面板选项"
 #: ../indicator.js:30
 msgid "Reload Configuration"
 msgstr "重新加载配置"
+
+#: ../build/_build/kimpanel@kde.org/indicator.js:26
+#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:26
+#: ../indicator.js:26
+msgid "Settings"
+msgstr "设置"
 
 #: ../build/_build/kimpanel@kde.org/prefs.js:19
 #: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/prefs.js:19

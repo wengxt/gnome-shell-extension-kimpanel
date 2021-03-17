@@ -28,6 +28,11 @@ function parseProperty(str) {
         'icon': p[2],
         'text': p[3]
     }
+    if (p.length > 4 && p[4].length > 0) {
+        property.hint = p[4].split(',');
+    } else {
+        property.hint = [];
+    }
     return property;
 }
 
