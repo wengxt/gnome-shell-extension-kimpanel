@@ -28,11 +28,11 @@ class Indicator_KimIndicator extends PanelMenu.Button {
         hbox.add_child(this.mainIcon);
         hbox.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
         this.add_actor(hbox);
-        this._setIcon('input-keyboard', '');
+        this._deactive();
 
         this.kimpanel = params.kimpanel;
 
-        this._setting = new PopupMenu.PopupMenuItem(_("IM Settings"));
+        this._setting = new PopupMenu.PopupMenuItem(_("Settings"));
         this._setting.connect('activate', Lang.bind(this, function(){
             this.kimpanel.emit('Configure');
         }));
@@ -73,6 +73,9 @@ class Indicator_KimIndicator extends PanelMenu.Button {
 
     _updateProperty(propstr) {
         var property = Lib.parseProperty(propstr);
+        if (property == null) {
+            return;
+        }
         var key = property.key;
         this._properties[key] = property;
         this._updateProperties();
@@ -101,8 +104,11 @@ class Indicator_KimIndicator extends PanelMenu.Button {
 
             var count = 0;
             for( p in properties) {
-                count ++;
                 var property = Lib.parseProperty( properties[p] );
+                if (property == null) {
+                    continue;
+                }
+                count ++;
                 var key = property.key;
                 this._properties[key] = property;
                 if( key in this._propertySwitch )
@@ -118,8 +124,23 @@ class Indicator_KimIndicator extends PanelMenu.Button {
         }
     }
 
-    _setIcon(iconName, labelName) {
-        if (iconName === '' || (iconName === 'input-keyboard' && labelName !== '')) {
+    _setIcon(property) {
+        for (var i = 0; i < property.hint.length; i++) {
+            if (property.hint[i].startsWith("label=")) {
+                var label = property.hint[i].substr(6);
+                if (label.length > 0) {
+                    this.labelIcon.text = Lib.extractLabelString(label);
+                    this.mainIcon.visible = false
+                    this.labelIcon.visible = true
+                    return;
+                }
+            }
+        }
+
+        var iconName = property.icon;
+        var labelName = property.label;
+
+        if (iconName === '' || ((iconName === 'input-keyboard' || iconName === 'input-keyboard-symbolic') && labelName !== '')) {
             this.labelIcon.text = Lib.extractLabelString(labelName);
             this.mainIcon.visible = false
             this.labelIcon.visible = true
@@ -133,13 +154,21 @@ class Indicator_KimIndicator extends PanelMenu.Button {
 
     _active(){
          if (this._properties['/Fcitx/im']) {
-             this._setIcon(this._properties['/Fcitx/im'].icon, this._properties['/Fcitx/im'].label);
+             this._setIcon(this._properties['/Fcitx/im']);
          } else {
-             this._setIcon('input-keyboard', '');
+             self._deactive()
          }
     }
 
     _deactive(){
-        this._setIcon('input-keyboard', '');
+         var property = {
+             'icon': 'input-keyboard',
+             'label': '',
+             'text': '',
+             'key': '',
+             'hint': [],
+         };
+
+        this._setIcon(property);
     }
 });

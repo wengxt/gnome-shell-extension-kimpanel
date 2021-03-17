@@ -20,7 +20,7 @@ msgstr ""
 #: ../build/_build/kimpanel@kde.org/indicator.js:26
 #: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:26
 #: ../indicator.js:26
-msgid "IM Settings"
+msgid "Settings"
 msgstr ""
 
 #: ../build/_build/kimpanel@kde.org/indicator.js:30

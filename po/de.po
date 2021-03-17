@@ -24,12 +24,6 @@ msgstr ""
 msgid "Font"
 msgstr "Schriftart"
 
-#: ../build/_build/kimpanel@kde.org/indicator.js:26
-#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:26
-#: ../indicator.js:26
-msgid "IM Settings"
-msgstr "IM-Einstellungen"
-
 #: ../build/_build/kimpanel@kde.org/indicator.js:40
 #: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:40
 #: ../indicator.js:40
@@ -41,6 +35,12 @@ msgstr "Panel-Einstellungen"
 #: ../indicator.js:30
 msgid "Reload Configuration"
 msgstr "Konfiguration neu laden"
+
+#: ../build/_build/kimpanel@kde.org/indicator.js:26
+#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:26
+#: ../indicator.js:26
+msgid "Settings"
+msgstr "Einstellungen"
 
 #: ../build/_build/kimpanel@kde.org/prefs.js:19
 #: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/prefs.js:19
