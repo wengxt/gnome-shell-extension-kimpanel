@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: fcitx-dev@googlegroups.com\n"
-"POT-Creation-Date: 2012-06-21 12:15+0800\n"
+"POT-Creation-Date: 2021-03-17 04:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,32 +17,18 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../build/_build/kimpanel@kde.org/indicator.js:26
-#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:26
-#: ../indicator.js:26
+#: indicator.js:35
 msgid "Settings"
 msgstr ""
 
-#: ../build/_build/kimpanel@kde.org/indicator.js:30
-#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:30
-#: ../indicator.js:30
+#: indicator.js:39
 msgid "Reload Configuration"
 msgstr ""
 
-#: ../build/_build/kimpanel@kde.org/indicator.js:40
-#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/indicator.js:40
-#: ../indicator.js:40
-msgid "Panel Preferences"
-msgstr ""
-
-#: ../build/_build/kimpanel@kde.org/prefs.js:19
-#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/prefs.js:19
-#: ../prefs.js:19
+#: prefs.js:18
 msgid "Vertical List"
 msgstr ""
 
-#: ../build/_build/kimpanel@kde.org/prefs.js:48
-#: ../build/_build/usr/local/share/gnome-shell/extensions/kimpanel@kde.org/prefs.js:48
-#: ../prefs.js:48
+#: prefs.js:47
 msgid "Font"
 msgstr ""
