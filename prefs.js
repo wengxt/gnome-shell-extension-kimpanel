@@ -16,7 +16,9 @@ const SETTINGS_SCHEMA = 'org.gnome.shell.extensions.kimpanel';
 function init() {
     ExtensionUtils.initTranslations();
     settings = ExtensionUtils.getSettings();
-    settings_bool = { vertical:{ label:_("Vertical List")}, };
+    settings_bool = {
+        vertical : {label : _("Vertical List")},
+    };
 }
 
 function setBehaviour(behaviour) {
@@ -26,15 +28,20 @@ function setBehaviour(behaviour) {
 
 function createBoolSetting(setting) {
 
-    var hbox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL });
+    var hbox = new Gtk.Box({orientation : Gtk.Orientation.HORIZONTAL});
 
-    var setting_label = new Gtk.Label({label: settings_bool[setting].label,
-                                       xalign: 0, halign: Gtk.Align.FILL, hexpand: true });
-
-    var setting_switch = new Gtk.Switch({active: settings.get_boolean(setting)});
-    setting_switch.connect('notify::active', function(button) {
-        settings.set_boolean(setting, button.active);
+    var setting_label = new Gtk.Label({
+        label : settings_bool[setting].label,
+        xalign : 0,
+        halign : Gtk.Align.FILL,
+        hexpand : true
     });
+
+    var setting_switch =
+        new Gtk.Switch({active : settings.get_boolean(setting)});
+    setting_switch.connect(
+        'notify::active',
+        function(button) { settings.set_boolean(setting, button.active); });
 
     hbox.append(setting_label);
     hbox.append(setting_switch);
@@ -43,17 +50,22 @@ function createBoolSetting(setting) {
 }
 
 function createFontSelection() {
-    var hbox = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL });
+    var hbox = new Gtk.Box({orientation : Gtk.Orientation.HORIZONTAL});
 
-    var setting_label = new Gtk.Label( { label: _("Font"), xalign: 0, halign: Gtk.Align.FILL, hexpand: true});
+    var setting_label = new Gtk.Label({
+        label : _("Font"),
+        xalign : 0,
+        halign : Gtk.Align.FILL,
+        hexpand : true
+    });
 
     var font = settings.get_string('font') || "Sans 12";
 
-    var button = new Gtk.FontButton( { font:font } );
+    var button = new Gtk.FontButton({font : font});
 
-    button.connect("font-set", function(button){
-        settings.set_string('font',button.font);
-    });
+    button.connect(
+        "font-set",
+        function(button) { settings.set_string('font', button.font); });
 
     hbox.append(setting_label);
     hbox.append(button);
@@ -62,8 +74,13 @@ function createFontSelection() {
 }
 
 function buildPrefsWidget() {
-    var frame = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
-    var vbox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, margin_top: 10, margin_start: 20, margin_end: 20 });
+    var frame = new Gtk.Box({orientation : Gtk.Orientation.VERTICAL});
+    var vbox = new Gtk.Box({
+        orientation : Gtk.Orientation.VERTICAL,
+        margin_top : 10,
+        margin_start : 20,
+        margin_end : 20
+    });
 
     var setting = null;
     for (setting in settings_bool) {

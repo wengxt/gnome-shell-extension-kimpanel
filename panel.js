@@ -1,12 +1,8 @@
-const {St, GObject, Shell, Meta, Pango} = imports.gi;
-const Cairo = imports.cairo;
+const {St, GObject, Meta, Pango} = imports.gi;
 const Main = imports.ui.main;
 const Params = imports.misc.params;
 
-const Me = imports.misc.extensionUtils.getCurrentExtension();
 const BoxPointer = imports.ui.boxpointer;
-
-const PanelItemProperty = { x_align: St.Align.START, y_align: St.Align.START };
 
 function createLabel(params) {
     var label = new St.Label(params);
@@ -15,18 +11,13 @@ function createLabel(params) {
     return label;
 }
 
-var InputPanel = GObject.registerClass(
-class InputPanel extends GObject.Object {
-
+var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
     _init(params) {
-        params = Params.parse(params, {kimpanel: null});
+        params = Params.parse(params, {kimpanel : null});
         this._arrowSide = St.Side.TOP;
         // create boxpointer as UI
-        this.panel = new BoxPointer.BoxPointer(
-            this._arrowSide,
-            {
-                x_align: St.Align.START
-            });
+        this.panel = new BoxPointer.BoxPointer(this._arrowSide,
+                                               {x_align : St.Align.START});
 
         this.kimpanel = params.kimpanel;
 
@@ -38,19 +29,32 @@ class InputPanel extends GObject.Object {
 
         this._cursor = new St.Label({});
 
-        this.layout = new St.BoxLayout({style_class:'popup-menu-content', vertical: true, style:"padding: .4em;"});
+        this.layout = new St.BoxLayout({
+            style_class : 'popup-menu-content',
+            vertical : true,
+            style : "padding: .4em;"
+        });
         this.panel.bin.set_child(this.layout);
 
         this.upperLayout = new St.BoxLayout();
 
         this.lookupTableVertical = this.kimpanel.isLookupTableVertical();
-        this.lookupTableLayout = new St.BoxLayout({vertical:this.lookupTableVertical});
+        this.lookupTableLayout =
+            new St.BoxLayout({vertical : this.lookupTableVertical});
 
         this.layout.add_child(this.upperLayout);
 
         this.text_style = this.kimpanel.getTextStyle();
-        this.auxText = createLabel({style_class:'kimpanel-label', style: this.text_style, text:''});
-        this.preeditText = createLabel({style_class:'kimpanel-label', style: this.text_style, text:''});
+        this.auxText = createLabel({
+            style_class : 'kimpanel-label',
+            style : this.text_style,
+            text : ''
+        });
+        this.preeditText = createLabel({
+            style_class : 'kimpanel-label',
+            style : this.text_style,
+            text : ''
+        });
 
         this.upperLayout.add_child(this.auxText);
         this.upperLayout.add_child(this.preeditText);
@@ -60,21 +64,22 @@ class InputPanel extends GObject.Object {
 
     setAuxText(text) {
         this.auxText.set_text(text);
-        if(!this.auxText.visible) {
+        if (!this.auxText.visible) {
             this.auxText.show();
         }
     }
     setPreeditText(text, pos) {
-        var charArray = [...text];
-        var cat = charArray.slice(0, pos).join('') + "|" + charArray.slice(pos).join('');
+        var charArray = [...text ];
+        var cat = charArray.slice(0, pos).join('') + "|" +
+                  charArray.slice(pos).join('');
         this.preeditText.set_text(cat);
-        if(!this.preeditText.visible)
+        if (!this.preeditText.visible)
             this.preeditText.show();
     }
     _candidateClicked(widget, event) {
         this.kimpanel.selectCandidate(widget.candidate_index);
     }
-    setLookupTable( label, table, visible ) {
+    setLookupTable(label, table, visible) {
         var len = visible ? table.length : 0;
         var labelLen = this.lookupTableLayout.get_children().length;
 
@@ -85,43 +90,40 @@ class InputPanel extends GObject.Object {
         }
 
         // if number is not enough, create new
-        if(len > labelLen) {
-            for(var i = 0; i < len - labelLen; i++){
-                var item = createLabel({style_class:'kimpanel-candidate-item kimpanel-label',
-                                         style: this.text_style,
-                                         text:'',
-                                         reactive: true
-                                        });
+        if (len > labelLen) {
+            for (var i = 0; i < len - labelLen; i++) {
+                var item = createLabel({
+                    style_class : 'kimpanel-candidate-item kimpanel-label',
+                    style : this.text_style,
+                    text : '',
+                    reactive : true
+                });
                 item.candidate_index = 0;
                 item.ignore_focus = true;
-                item.connect('button-release-event',
-                             (widget, event) => {
-                                 if (!widget.ignore_focus)
-                                    this._candidateClicked(widget, event);
-                             });
-                item.connect('enter-event',
-                             (widget, event) => {
-                                 if (!widget.ignore_focus)
-                                    widget.add_style_pseudo_class('hover');
-                             });
-                item.connect('leave-event',
-                             (widget, event) => {
-                                 if (!widget.ignore_focus)
-                                    widget.remove_style_pseudo_class('hover');
-                             });
+                item.connect('button-release-event', (widget, event) => {
+                    if (!widget.ignore_focus)
+                        this._candidateClicked(widget, event);
+                });
+                item.connect('enter-event', (widget, event) => {
+                    if (!widget.ignore_focus)
+                        widget.add_style_pseudo_class('hover');
+                });
+                item.connect('leave-event', (widget, event) => {
+                    if (!widget.ignore_focus)
+                        widget.remove_style_pseudo_class('hover');
+                });
                 this.lookupTableLayout.add_child(item);
             }
-        }
-        else if (len < labelLen ) {
+        } else if (len < labelLen) {
             // else destroy unnecessary one
-            for (var i = 0; i < labelLen - len; i++){
+            for (var i = 0; i < labelLen - len; i++) {
                 this.lookupTableLayout.get_children()[0].destroy();
             }
         }
 
         // update label and text
         var lookupTable = this.lookupTableLayout.get_children();
-        for(var i=0;i<lookupTable.length;i++) {
+        for (var i = 0; i < lookupTable.length; i++) {
             if (label[i].length == 0)
                 lookupTable[i].ignore_focus = true;
             else
@@ -134,28 +136,28 @@ class InputPanel extends GObject.Object {
         var labelLen = this.lookupTableLayout.get_children().length;
         for (var i = 0; i < labelLen; i++) {
             if (i == cursor)
-                this.lookupTableLayout.get_children()[i].add_style_pseudo_class('active');
+                this.lookupTableLayout.get_children()[i].add_style_pseudo_class(
+                    'active');
             else
-                this.lookupTableLayout.get_children()[i].remove_style_pseudo_class('active');
+                this.lookupTableLayout.get_children()[i]
+                    .remove_style_pseudo_class('active');
         }
     }
-    setVertical(vertical){
-        this.lookupTableLayout.set_vertical(vertical);
-    }
-    updateFont(textStyle){
+    setVertical(vertical) { this.lookupTableLayout.set_vertical(vertical); }
+    updateFont(textStyle) {
         this.text_style = textStyle;
         this.auxText.set_style(this.text_style);
         this.preeditText.set_style(this.text_style);
         var lookupTable = this.lookupTableLayout.get_children();
-        for(var i = 0; i < lookupTable.length; i++)
+        for (var i = 0; i < lookupTable.length; i++)
             lookupTable[i].set_style(this.text_style);
     }
     hideAux() {
-        if(this.auxText.visible )
+        if (this.auxText.visible)
             this.auxText.hide();
     }
     hidePreedit() {
-        if(this.preeditText.visible)
+        if (this.preeditText.visible)
             this.preeditText.hide();
     }
 
@@ -167,8 +169,10 @@ class InputPanel extends GObject.Object {
         var h = kimpanel.h;
         if (kimpanel.relative) {
             if (global.display.focus_window) {
-                var shellScale = St.ThemeContext.get_for_stage(global.stage).scale_factor;
-                var window = global.display.focus_window.get_compositor_private();
+                var shellScale =
+                    St.ThemeContext.get_for_stage(global.stage).scale_factor;
+                var window =
+                    global.display.focus_window.get_compositor_private();
                 if (window) {
                     x = window.x + x * (shellScale / kimpanel.scale);
                     y = window.y + y * (shellScale / kimpanel.scale);
@@ -177,8 +181,10 @@ class InputPanel extends GObject.Object {
                 }
             }
         }
-        var rect = new Meta.Rectangle({ x: x, y: y, width: w, height: h });
-        var monitor = Main.layoutManager.monitors[global.display.get_monitor_index_for_rect(rect)];
+        var rect = new Meta.Rectangle({x : x, y : y, width : w, height : h});
+        var monitor =
+            Main.layoutManager
+                .monitors[global.display.get_monitor_index_for_rect(rect)];
         var panel_height = this.actor.get_height();
 
         if (h == 0) {
@@ -205,16 +211,15 @@ class InputPanel extends GObject.Object {
         }
 
         this._cursor.set_position(x, y);
-        this._cursor.set_size((w == 0? 1 : w), (h == 0? 1 : h));
+        this._cursor.set_size((w == 0 ? 1 : w), (h == 0 ? 1 : h));
 
         this.panel._arrowSide = this._arrowSide;
 
-
-        this.visible = kimpanel.showAux || kimpanel.showPreedit || kimpanel.showLookupTable;
+        this.visible = kimpanel.showAux || kimpanel.showPreedit ||
+                       kimpanel.showLookupTable;
         if (this.visible) {
             this.show();
-        }
-        else {
+        } else {
             this.hide();
         }
     }
@@ -224,8 +229,5 @@ class InputPanel extends GObject.Object {
         this.panel.open(BoxPointer.PopupAnimation.NONE);
         this.panel.get_parent().set_child_above_sibling(this.panel, null);
     }
-    hide() {
-        this.panel.close(BoxPointer.PopupAnimation.NONE);
-    }
-
+    hide() { this.panel.close(BoxPointer.PopupAnimation.NONE); }
 });

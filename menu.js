@@ -10,28 +10,29 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Lib = Me.imports.lib;
 
 var KimMenu = class extends PopupMenu.PopupMenu {
-    constructor(params){
+    constructor(params) {
         params = Params.parse(params, {
-            sourceActor: null,
-            arrowAlignMent: 0.0,
-            arrowSide: St.Side.TOP,
-            kimpanel: null
+            sourceActor : null,
+            arrowAlignMent : 0.0,
+            arrowSide : St.Side.TOP,
+            kimpanel : null
         });
         super(params.sourceActor, params.arrowAlignMent, params.arrowSide);
         this.connect('open-state-changed', this._onOpenStateChanged.bind(this));
-        this.actor.connect('key-press-event', this._onSourceKeyPress.bind(this));
+        this.actor.connect('key-press-event',
+                           this._onSourceKeyPress.bind(this));
         this.grabbed = false;
         this._propertySwitch = [];
         this.kimpanel = params.kimpanel;
     }
 
     execMenu(properties) {
-        for (var i = 0 ; i < this._propertySwitch.length; i++) {
+        for (var i = 0; i < this._propertySwitch.length; i++) {
             this._propertySwitch[i].destroy();
         }
         this._propertySwitch = [];
 
-        for(var i = 0; i < properties.length; i++) {
+        for (var i = 0; i < properties.length; i++) {
             var property = Lib.parseProperty(properties[i]);
             this._addPropertyItem(property);
         }
@@ -43,7 +44,8 @@ var KimMenu = class extends PopupMenu.PopupMenu {
     _addPropertyItem(property) {
         var item = Lib.createMenuItem(property);
 
-        item.connect('activate', () => this.kimpanel.triggerProperty(item._key));
+        item.connect('activate',
+                     () => this.kimpanel.triggerProperty(item._key));
         item.setIcon(property.icon);
         item.label.text = property.label;
 
@@ -62,7 +64,8 @@ var KimMenu = class extends PopupMenu.PopupMenu {
         } else if (symbol == Clutter.KEY_Down) {
             if (!this.isOpen)
                 this.toggle();
-            this.actor.navigate_focus(this.actor, Gtk.DirectionType.DOWN, false);
+            this.actor.navigate_focus(this.actor, Gtk.DirectionType.DOWN,
+                                      false);
             return true;
         } else
             return false;
@@ -72,8 +75,7 @@ var KimMenu = class extends PopupMenu.PopupMenu {
         if (open) {
             if (!this.grabbed)
                 this._grab();
-        }
-        else {
+        } else {
             if (this.grabbed)
                 this._ungrab();
         }
@@ -81,9 +83,9 @@ var KimMenu = class extends PopupMenu.PopupMenu {
         // menu is higher then the screen; it's useful if part of the menu is
         // scrollable so the minimum height is smaller than the natural height
         var monitor = Main.layoutManager.primaryMonitor;
-        this.actor.style = ('max-height: ' +
-                                 Math.round(monitor.height - Main.panel.actor.height) +
-                                 'px;');
+        this.actor.style =
+            ('max-height: ' +
+             Math.round(monitor.height - Main.panel.actor.height) + 'px;');
     }
 
     _onHoverCapture(actor, event) {
@@ -107,7 +109,8 @@ var KimMenu = class extends PopupMenu.PopupMenu {
                 this.close();
                 return true;
             }
-        } else if (eventType == Clutter.EventType.BUTTON_PRESS && !activeMenuContains) {
+        } else if (eventType == Clutter.EventType.BUTTON_PRESS &&
+                   !activeMenuContains) {
             this.close();
             return true;
         }
@@ -130,11 +133,15 @@ var KimMenu = class extends PopupMenu.PopupMenu {
     _grab() {
         Main.pushModal(this.actor);
 
-        this._eventCaptureId = global.stage.connect('captured-event', this._onEventCapture.bind(this));
+        this._eventCaptureId = global.stage.connect(
+            'captured-event', this._onEventCapture.bind(this));
         // captured-event doesn't see enter/leave events
-        this._enterEventId = global.stage.connect('enter-event', this._onHoverCapture.bind(this));
-        this._leaveEventId = global.stage.connect('leave-event', this._onHoverCapture.bind(this));
-        this._keyFocusNotifyId = global.stage.connect('notify::key-focus', this._onKeyFocusChanged.bind(this));
+        this._enterEventId = global.stage.connect(
+            'enter-event', this._onHoverCapture.bind(this));
+        this._leaveEventId = global.stage.connect(
+            'leave-event', this._onHoverCapture.bind(this));
+        this._keyFocusNotifyId = global.stage.connect(
+            'notify::key-focus', this._onKeyFocusChanged.bind(this));
 
         this.grabbed = true;
     }

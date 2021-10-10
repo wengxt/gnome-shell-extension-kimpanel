@@ -72,58 +72,57 @@ const HelperIface = '<node> \
 </interface> \
 </node>';
 
-var Kimpanel = GObject.registerClass(
-class Kimpanel extends GObject.Object {
-    _init(params)
-    {
-        this.conn = Gio.bus_get_sync( Gio.BusType.SESSION, null );
+var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
+    _init(params) {
+        this.conn = Gio.bus_get_sync(Gio.BusType.SESSION, null);
         this.settings = ExtensionUtils.getSettings();
         this._impl = Gio.DBusExportedObject.wrapJSObject(KimpanelIface, this);
         this._impl.export(Gio.DBus.session, '/org/kde/impanel');
         this._impl2 = Gio.DBusExportedObject.wrapJSObject(Kimpanel2Iface, this);
         this._impl2.export(Gio.DBus.session, '/org/kde/impanel');
-        this._helperImpl = Gio.DBusExportedObject.wrapJSObject(HelperIface, this);
+        this._helperImpl =
+            Gio.DBusExportedObject.wrapJSObject(HelperIface, this);
         this._helperImpl.export(Gio.DBus.session, '/org/fcitx/GnomeHelper');
         this.current_service = '';
         this.watch_id = 0;
         this.resetData();
-        this.indicator = new KimIndicator({kimpanel: this});
-        this.inputpanel = new InputPanel({kimpanel: this});
-        this.menu = new KimMenu({sourceActor: this.indicator, kimpanel: this});
+        this.indicator = new KimIndicator({kimpanel : this});
+        this.inputpanel = new InputPanel({kimpanel : this});
+        this.menu =
+            new KimMenu({sourceActor : this.indicator, kimpanel : this});
         var obj = this;
 
-        function _parseSignal(conn, sender, object, iface, signal, param, user_data)
-        {
+        function _parseSignal(conn, sender, object, iface, signal, param,
+                              user_data) {
             var value = param.deep_unpack();
             var changed = false;
-            switch(signal)
-            {
+            switch (signal) {
             case 'ExecMenu':
                 obj.menu.execMenu(value[0]);
-                break
+                break;
             case 'RegisterProperties':
                 if (obj.current_service != sender) {
                     obj.current_service = sender;
                     if (obj.watch_id != 0) {
                         Gio.bus_unwatch_name(obj.watch_id);
                     }
-                    obj.watch_id = Gio.bus_watch_name(Gio.BusType.SESSION,
-                                                       obj.current_service,
-                                                       Gio.BusNameWatcherFlags.NONE,
-                                                       null,
-                                                       obj.imExit.bind(obj));
+                    obj.watch_id = Gio.bus_watch_name(
+                        Gio.BusType.SESSION, obj.current_service,
+                        Gio.BusNameWatcherFlags.NONE, null,
+                        obj.imExit.bind(obj));
                 }
                 obj.indicator._updateProperties(value[0]);
                 break;
             case 'UpdateProperty':
                 obj.indicator._updateProperty(value[0]);
-                if(obj.enabled)
+                if (obj.enabled)
                     obj.indicator._active();
                 else
                     obj.indicator._deactive();
                 break;
             case 'UpdateSpotLocation':
-                if (obj.x != value[0] || obj.y != value[1] || obj.w != 0 || obj.h != 0)
+                if (obj.x != value[0] || obj.y != value[1] || obj.w != 0 ||
+                    obj.h != 0)
                     changed = true;
                 obj.x = value[0];
                 obj.y = value[1];
@@ -172,7 +171,7 @@ class Kimpanel extends GObject.Object {
                 break;
             case 'Enable':
                 obj.enabled = value[0];
-                if(obj.enabled)
+                if (obj.enabled)
                     obj.indicator._active();
                 else
                     obj.indicator._deactive();
@@ -182,34 +181,24 @@ class Kimpanel extends GObject.Object {
                 obj.updateInputPanel();
         }
 
-        this.verticalSignal = this.settings.connect('changed::vertical',
+        this.verticalSignal = this.settings.connect(
+            'changed::vertical',
             () => this.inputpanel.setVertical(this.isLookupTableVertical()));
 
-        this.fontSignal = this.settings.connect('changed::font',
+        this.fontSignal = this.settings.connect(
+            'changed::font',
             () => this.inputpanel.updateFont(this.getTextStyle()));
 
         this.addToShell();
         this.dbusSignal = this.conn.signal_subscribe(
-            null,
-            "org.kde.kimpanel.inputmethod",
-            null,
-            null,
-            null,
-            Gio.DBusSignalFlags.NONE,
-            _parseSignal
-        );
-        this.owner_id = Gio.bus_own_name(Gio.BusType.SESSION,
-                                         "org.kde.impanel",
-                                         Gio.BusNameOwnerFlags.NONE,
-                                         null,
-                                         this.requestNameFinished.bind(this),
-                                         null);
-        this.helper_owner_id = Gio.bus_own_name(Gio.BusType.SESSION,
-                                                "org.fcitx.GnomeHelper",
-                                                Gio.BusNameOwnerFlags.NONE,
-                                                null,
-                                                null,
-                                                null);
+            null, "org.kde.kimpanel.inputmethod", null, null, null,
+            Gio.DBusSignalFlags.NONE, _parseSignal);
+        this.owner_id = Gio.bus_own_name(
+            Gio.BusType.SESSION, "org.kde.impanel", Gio.BusNameOwnerFlags.NONE,
+            null, this.requestNameFinished.bind(this), null);
+        this.helper_owner_id =
+            Gio.bus_own_name(Gio.BusType.SESSION, "org.fcitx.GnomeHelper",
+                             Gio.BusNameOwnerFlags.NONE, null, null, null);
     }
 
     resetData() {
@@ -252,15 +241,13 @@ class Kimpanel extends GObject.Object {
     }
 
     isLookupTableVertical() {
-        return this.layoutHint == 0 ? Lib.isLookupTableVertical(this.settings) : (this.layoutHint == 1);
+        return this.layoutHint == 0 ? Lib.isLookupTableVertical(this.settings)
+                                    : (this.layoutHint == 1);
     }
 
-    getTextStyle() {
-        return Lib.getTextStyle(this.settings);
-    }
+    getTextStyle() { return Lib.getTextStyle(this.settings); }
 
-    destroy ()
-    {
+    destroy() {
         if (this.watch_id != 0) {
             Gio.bus_unwatch_name(this.watch_id);
             this.watch_id = 0;
@@ -279,8 +266,7 @@ class Kimpanel extends GObject.Object {
         this.inputpanel = null;
     }
 
-    addToShell ()
-    {
+    addToShell() {
         Main.uiGroup.add_actor(this.menu.actor);
         this.menu.actor.hide();
         Main.layoutManager.addChrome(this.inputpanel.actor, {});
@@ -288,34 +274,31 @@ class Kimpanel extends GObject.Object {
         Main.panel.addToStatusArea('kimpanel', this.indicator);
     }
 
-    updateInputPanel()
-    {
+    updateInputPanel() {
         var inputpanel = this.inputpanel;
 
         this.showAux ? inputpanel.setAuxText(this.aux) : inputpanel.hideAux();
-        this.showPreedit ? inputpanel.setPreeditText(this.preedit, this.pos) : inputpanel.hidePreedit();
+        this.showPreedit ? inputpanel.setPreeditText(this.preedit, this.pos)
+                         : inputpanel.hidePreedit();
 
         var text = '';
-        this.inputpanel.setLookupTable(this.label, this.table, this.showLookupTable);
+        this.inputpanel.setLookupTable(this.label, this.table,
+                                       this.showLookupTable);
         this.inputpanel.setLookupTableCursor(this.cursor);
         this.inputpanel.updatePosition();
     }
-    emit(signal)
-    {
-        this._impl.emit_signal(signal, null);
+    emit(signal) { this._impl.emit_signal(signal, null); }
+    triggerProperty(arg) {
+        this._impl.emit_signal('TriggerProperty',
+                               GLib.Variant.new('(s)', [ arg ]));
     }
-    triggerProperty(arg)
-    {
-        this._impl.emit_signal('TriggerProperty', GLib.Variant.new('(s)',[arg]));
+    selectCandidate(arg) {
+        this._impl.emit_signal('SelectCandidate',
+                               GLib.Variant.new('(i)', [ arg ]));
     }
-    selectCandidate(arg)
-    {
-        this._impl.emit_signal('SelectCandidate', GLib.Variant.new('(i)',[arg]));
-    }
-    setRect(x, y, w, h, relative, scale)
-    {
-        if (this.x == x && this.y == y && this.w == w && this.h == h && this.relative == relative &&
-            this.scale == scale) {
+    setRect(x, y, w, h, relative, scale) {
+        if (this.x == x && this.y == y && this.w == w && this.h == h &&
+            this.relative == relative && this.scale == scale) {
             return;
         }
         this.x = x;
@@ -326,20 +309,12 @@ class Kimpanel extends GObject.Object {
         this.scale = scale;
         this.updateInputPanel();
     }
-    SetSpotRect(x, y, w, h)
-    {
-        this.setRect(x, y, w, h, false, 1);
-    }
-    SetRelativeSpotRect(x, y, w, h)
-    {
-        this.setRect(x, y, w, h, true, 1);
-    }
-    SetRelativeSpotRectV2(x, y, w, h, scale)
-    {
+    SetSpotRect(x, y, w, h) { this.setRect(x, y, w, h, false, 1); }
+    SetRelativeSpotRect(x, y, w, h) { this.setRect(x, y, w, h, true, 1); }
+    SetRelativeSpotRectV2(x, y, w, h, scale) {
         this.setRect(x, y, w, h, true, scale);
     }
-    SetLookupTable(labels, texts, attrs, hasPrev, hasNext, cursor, layout)
-    {
+    SetLookupTable(labels, texts, attrs, hasPrev, hasNext, cursor, layout) {
         this.label = labels;
         this.table = texts;
         this.cursor = cursor;
@@ -347,25 +322,18 @@ class Kimpanel extends GObject.Object {
         this.updateInputPanel();
         this.inputpanel.setVertical(this.isLookupTableVertical());
     }
-    LockXkbGroup(idx)
-    {
-        Meta.get_backend().lock_layout_group(idx);
-    }
+    LockXkbGroup(idx) { Meta.get_backend().lock_layout_group(idx); }
 });
 
-function init() {
-    ExtensionUtils.initTranslations();
-}
+function init() { ExtensionUtils.initTranslations(); }
 
-function enable()
-{
+function enable() {
     if (!kimpanel) {
         kimpanel = new Kimpanel();
     }
 }
 
-function disable()
-{
+function disable() {
     kimpanel.destroy();
     kimpanel = null;
 }
