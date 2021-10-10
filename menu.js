@@ -43,9 +43,7 @@ var KimMenu = class extends PopupMenu.PopupMenu {
     _addPropertyItem(property) {
         var item = Lib.createMenuItem(property);
 
-        item.connect('activate', function(){
-            this.kimpanel.triggerProperty(item._key);
-        }.bind(this));
+        item.connect('activate', () => this.kimpanel.triggerProperty(item._key));
         item.setIcon(property.icon);
         item.label.text = property.label;
 

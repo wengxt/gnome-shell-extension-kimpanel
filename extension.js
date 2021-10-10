@@ -182,13 +182,11 @@ class Kimpanel extends GObject.Object {
                 obj.updateInputPanel();
         }
 
-        this.verticalSignal = this.settings.connect('changed::vertical', function(){
-            this.inputpanel.setVertical(this.isLookupTableVertical());
-        }.bind(this));
+        this.verticalSignal = this.settings.connect('changed::vertical',
+            () => this.inputpanel.setVertical(this.isLookupTableVertical()));
 
-        this.fontSignal = this.settings.connect('changed::font', function(){
-            this.inputpanel.updateFont(this.getTextStyle());
-        }.bind(this));
+        this.fontSignal = this.settings.connect('changed::font',
+            () => this.inputpanel.updateFont(this.getTextStyle()));
 
         this.addToShell();
         this.dbusSignal = this.conn.signal_subscribe(

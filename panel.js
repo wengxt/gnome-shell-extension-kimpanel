@@ -95,17 +95,17 @@ class InputPanel extends GObject.Object {
                 item.candidate_index = 0;
                 item.ignore_focus = true;
                 item.connect('button-release-event',
-                             function (widget, event) {
+                             (widget, event) => {
                                  if (!widget.ignore_focus)
                                     this._candidateClicked(widget, event);
-                             }.bind(this));
+                             });
                 item.connect('enter-event',
-                             function(widget, event) {
+                             (widget, event) => {
                                  if (!widget.ignore_focus)
                                     widget.add_style_pseudo_class('hover');
                              });
                 item.connect('leave-event',
-                             function(widget, event) {
+                             (widget, event) => {
                                  if (!widget.ignore_focus)
                                     widget.remove_style_pseudo_class('hover');
                              });

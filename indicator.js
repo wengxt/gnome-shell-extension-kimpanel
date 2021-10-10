@@ -31,13 +31,9 @@ class Indicator_KimIndicator extends PanelMenu.Button {
         this.kimpanel = params.kimpanel;
 
         this._setting = new PopupMenu.PopupMenuItem(_("Settings"));
-        this._setting.connect('activate', function(){
-            this.kimpanel.emit('Configure');
-        }.bind(this));
+        this._setting.connect('activate', () => this.kimpanel.emit('Configure'));
         this._reload = new PopupMenu.PopupMenuItem(_("Reload Configuration"));
-        this._reload.connect('activate', function(){
-            this.kimpanel.emit('ReloadConfig');
-        }.bind(this));
+        this._reload.connect('activate', () => this.kimpanel.emit('ReloadConfig'));
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this.menu.addMenuItem(this._reload);
@@ -52,9 +48,7 @@ class Indicator_KimIndicator extends PanelMenu.Button {
         var property = this._properties[key];
         var item = Lib.createMenuItem(property);
 
-        item.connect('activate', function(){
-            this.kimpanel.triggerProperty(item._key);
-        }.bind(this));
+        item.connect('activate', () => this.kimpanel.triggerProperty(item._key));
         item.setIcon(property.icon);
         item.label.text = property.label;
 
