@@ -2,7 +2,6 @@ const {St, GObject, Shell, Meta, Pango} = imports.gi;
 const Cairo = imports.cairo;
 const Main = imports.ui.main;
 const Params = imports.misc.params;
-const Lang = imports.lang;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const BoxPointer = imports.ui.boxpointer;
@@ -96,10 +95,10 @@ class InputPanel extends GObject.Object {
                 item.candidate_index = 0;
                 item.ignore_focus = true;
                 item.connect('button-release-event',
-                             Lang.bind(this, function (widget, event) {
+                             function (widget, event) {
                                  if (!widget.ignore_focus)
                                     this._candidateClicked(widget, event);
-                             }));
+                             }.bind(this));
                 item.connect('enter-event',
                              function(widget, event) {
                                  if (!widget.ignore_focus)

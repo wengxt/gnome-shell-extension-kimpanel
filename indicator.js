@@ -4,7 +4,6 @@ const PopupMenu = imports.ui.popupMenu;
 const Params = imports.misc.params;
 const Gettext = imports.gettext.domain('gnome-shell-extensions-kimpanel');
 const _ = Gettext.gettext;
-const Lang = imports.lang;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Lib = Me.imports.lib;
@@ -32,13 +31,13 @@ class Indicator_KimIndicator extends PanelMenu.Button {
         this.kimpanel = params.kimpanel;
 
         this._setting = new PopupMenu.PopupMenuItem(_("Settings"));
-        this._setting.connect('activate', Lang.bind(this, function(){
+        this._setting.connect('activate', function(){
             this.kimpanel.emit('Configure');
-        }));
+        }.bind(this));
         this._reload = new PopupMenu.PopupMenuItem(_("Reload Configuration"));
-        this._reload.connect('activate', Lang.bind(this, function(){
+        this._reload.connect('activate', function(){
             this.kimpanel.emit('ReloadConfig');
-        }));
+        }.bind(this));
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this.menu.addMenuItem(this._reload);
@@ -53,9 +52,9 @@ class Indicator_KimIndicator extends PanelMenu.Button {
         var property = this._properties[key];
         var item = Lib.createMenuItem(property);
 
-        item.connect('activate', Lang.bind(this, function(){
+        item.connect('activate', function(){
             this.kimpanel.triggerProperty(item._key);
-        }));
+        }.bind(this));
         item.setIcon(property.icon);
         item.label.text = property.label;
 

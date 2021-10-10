@@ -1,6 +1,5 @@
 const {GObject, Gio, GLib, Meta} = imports.gi;
 const Main = imports.ui.main;
-const Lang = imports.lang;
 const ExtensionUtils = imports.misc.extensionUtils;
 
 const Me = ExtensionUtils.getCurrentExtension();
@@ -112,7 +111,7 @@ class Kimpanel extends GObject.Object {
                                                        obj.current_service,
                                                        Gio.BusNameWatcherFlags.NONE,
                                                        null,
-                                                       Lang.bind(obj, obj.imExit));
+                                                       obj.imExit.bind(obj));
                 }
                 obj.indicator._updateProperties(value[0]);
                 break;
@@ -183,13 +182,13 @@ class Kimpanel extends GObject.Object {
                 obj.updateInputPanel();
         }
 
-        this.verticalSignal = this.settings.connect('changed::vertical', Lang.bind(this, function(){
+        this.verticalSignal = this.settings.connect('changed::vertical', function(){
             this.inputpanel.setVertical(this.isLookupTableVertical());
-        }));
+        }.bind(this));
 
-        this.fontSignal = this.settings.connect('changed::font', Lang.bind(this, function(){
+        this.fontSignal = this.settings.connect('changed::font', function(){
             this.inputpanel.updateFont(this.getTextStyle());
-        }));
+        }.bind(this));
 
         this.addToShell();
         this.dbusSignal = this.conn.signal_subscribe(
@@ -205,7 +204,7 @@ class Kimpanel extends GObject.Object {
                                          "org.kde.impanel",
                                          Gio.BusNameOwnerFlags.NONE,
                                          null,
-                                         Lang.bind(this, this.requestNameFinished),
+                                         this.requestNameFinished.bind(this),
                                          null);
         this.helper_owner_id = Gio.bus_own_name(Gio.BusType.SESSION,
                                                 "org.fcitx.GnomeHelper",

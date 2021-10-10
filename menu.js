@@ -6,7 +6,6 @@ const Params = imports.misc.params;
 const Gettext = imports.gettext.domain('gnome-shell-extensions-kimpanel');
 const _ = Gettext.gettext;
 
-const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Lib = Me.imports.lib;
 
@@ -19,8 +18,8 @@ var KimMenu = class extends PopupMenu.PopupMenu {
             kimpanel: null
         });
         super(params.sourceActor, params.arrowAlignMent, params.arrowSide);
-        this.connect('open-state-changed', Lang.bind(this, this._onOpenStateChanged));
-        this.actor.connect('key-press-event', Lang.bind(this, this._onSourceKeyPress));
+        this.connect('open-state-changed', this._onOpenStateChanged.bind(this));
+        this.actor.connect('key-press-event', this._onSourceKeyPress.bind(this));
         this.grabbed = false;
         this._propertySwitch = [];
         this.kimpanel = params.kimpanel;
@@ -44,9 +43,9 @@ var KimMenu = class extends PopupMenu.PopupMenu {
     _addPropertyItem(property) {
         var item = Lib.createMenuItem(property);
 
-        item.connect('activate', Lang.bind(this, function(){
+        item.connect('activate', function(){
             this.kimpanel.triggerProperty(item._key);
-        }));
+        }.bind(this));
         item.setIcon(property.icon);
         item.label.text = property.label;
 
@@ -133,11 +132,11 @@ var KimMenu = class extends PopupMenu.PopupMenu {
     _grab() {
         Main.pushModal(this.actor);
 
-        this._eventCaptureId = global.stage.connect('captured-event', Lang.bind(this, this._onEventCapture));
+        this._eventCaptureId = global.stage.connect('captured-event', this._onEventCapture.bind(this));
         // captured-event doesn't see enter/leave events
-        this._enterEventId = global.stage.connect('enter-event', Lang.bind(this, this._onHoverCapture));
-        this._leaveEventId = global.stage.connect('leave-event', Lang.bind(this, this._onHoverCapture));
-        this._keyFocusNotifyId = global.stage.connect('notify::key-focus', Lang.bind(this, this._onKeyFocusChanged));
+        this._enterEventId = global.stage.connect('enter-event', this._onHoverCapture.bind(this));
+        this._leaveEventId = global.stage.connect('leave-event', this._onHoverCapture.bind(this));
+        this._keyFocusNotifyId = global.stage.connect('notify::key-focus', this._onKeyFocusChanged.bind(this));
 
         this.grabbed = true;
     }
