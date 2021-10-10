@@ -5,7 +5,7 @@ const Params = imports.misc.params;
 const BoxPointer = imports.ui.boxpointer;
 
 function createLabel(params) {
-    var label = new St.Label(params);
+    let label = new St.Label(params);
     label.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
     label.clutter_text.line_wrap = false;
     return label;
@@ -69,8 +69,8 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
         }
     }
     setPreeditText(text, pos) {
-        var charArray = [...text ];
-        var cat = charArray.slice(0, pos).join('') + "|" +
+        let charArray = [...text ];
+        let cat = charArray.slice(0, pos).join('') + "|" +
                   charArray.slice(pos).join('');
         this.preeditText.set_text(cat);
         if (!this.preeditText.visible)
@@ -122,8 +122,8 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
         }
 
         // update label and text
-        var lookupTable = this.lookupTableLayout.get_children();
-        for (var i = 0; i < lookupTable.length; i++) {
+        let lookupTable = this.lookupTableLayout.get_children();
+        for (let i = 0; i < lookupTable.length; i++) {
             if (label[i].length == 0)
                 lookupTable[i].ignore_focus = true;
             else
@@ -133,7 +133,7 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
         }
     }
     setLookupTableCursor(cursor) {
-        var labelLen = this.lookupTableLayout.get_children().length;
+        let labelLen = this.lookupTableLayout.get_children().length;
         for (var i = 0; i < labelLen; i++) {
             if (i == cursor)
                 this.lookupTableLayout.get_children()[i].add_style_pseudo_class(
@@ -148,8 +148,8 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
         this.text_style = textStyle;
         this.auxText.set_style(this.text_style);
         this.preeditText.set_style(this.text_style);
-        var lookupTable = this.lookupTableLayout.get_children();
-        for (var i = 0; i < lookupTable.length; i++)
+        let lookupTable = this.lookupTableLayout.get_children();
+        for (let i = 0; i < lookupTable.length; i++)
             lookupTable[i].set_style(this.text_style);
     }
     hideAux() {
@@ -162,16 +162,16 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
     }
 
     updatePosition() {
-        var kimpanel = this.kimpanel;
-        var x = kimpanel.x;
-        var y = kimpanel.y;
-        var w = kimpanel.w;
-        var h = kimpanel.h;
+        let kimpanel = this.kimpanel;
+        let x = kimpanel.x;
+        let y = kimpanel.y;
+        let w = kimpanel.w;
+        let h = kimpanel.h;
         if (kimpanel.relative) {
             if (global.display.focus_window) {
-                var shellScale =
+                let shellScale =
                     St.ThemeContext.get_for_stage(global.stage).scale_factor;
-                var window =
+                let window =
                     global.display.focus_window.get_compositor_private();
                 if (window) {
                     x = window.x + x * (shellScale / kimpanel.scale);
@@ -181,11 +181,11 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
                 }
             }
         }
-        var rect = new Meta.Rectangle({x : x, y : y, width : w, height : h});
-        var monitor =
+        let rect = new Meta.Rectangle({x : x, y : y, width : w, height : h});
+        let monitor =
             Main.layoutManager
                 .monitors[global.display.get_monitor_index_for_rect(rect)];
-        var panel_height = this.actor.get_height();
+        let panel_height = this.actor.get_height();
 
         if (h == 0) {
             h = 20;

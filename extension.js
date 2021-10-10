@@ -90,95 +90,6 @@ var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
         this.inputpanel = new InputPanel({kimpanel : this});
         this.menu =
             new KimMenu({sourceActor : this.indicator, kimpanel : this});
-        var obj = this;
-
-        function _parseSignal(conn, sender, object, iface, signal, param) {
-            var value = param.deep_unpack();
-            var changed = false;
-            switch (signal) {
-            case 'ExecMenu':
-                obj.menu.execMenu(value[0]);
-                break;
-            case 'RegisterProperties':
-                if (obj.current_service != sender) {
-                    obj.current_service = sender;
-                    if (obj.watch_id != 0) {
-                        Gio.bus_unwatch_name(obj.watch_id);
-                    }
-                    obj.watch_id = Gio.bus_watch_name(
-                        Gio.BusType.SESSION, obj.current_service,
-                        Gio.BusNameWatcherFlags.NONE, null,
-                        obj.imExit.bind(obj));
-                }
-                obj.indicator._updateProperties(value[0]);
-                break;
-            case 'UpdateProperty':
-                obj.indicator._updateProperty(value[0]);
-                if (obj.enabled)
-                    obj.indicator._active();
-                else
-                    obj.indicator._deactive();
-                break;
-            case 'UpdateSpotLocation':
-                if (obj.x != value[0] || obj.y != value[1] || obj.w != 0 ||
-                    obj.h != 0)
-                    changed = true;
-                obj.x = value[0];
-                obj.y = value[1];
-                obj.w = 0;
-                obj.h = 0;
-                break;
-            case 'UpdatePreeditText':
-                if (obj.preedit != value[0])
-                    changed = true;
-                obj.preedit = value[0];
-                break;
-            case 'UpdateAux':
-                if (obj.aux != value[0])
-                    changed = true;
-                obj.aux = value[0];
-                break;
-            case 'UpdateLookupTable':
-                changed = true;
-                obj.label = value[0];
-                obj.table = value[1];
-                break;
-            case 'UpdateLookupTableCursor':
-                if (obj.pos != value[0])
-                    changed = true;
-                obj.cursor = value[0];
-                break;
-            case 'UpdatePreeditCaret':
-                if (obj.pos != value[0])
-                    changed = true;
-                obj.pos = value[0];
-                break;
-            case 'ShowPreedit':
-                if (obj.showPreedit != value[0])
-                    changed = true;
-                obj.showPreedit = value[0];
-                break;
-            case 'ShowLookupTable':
-                if (obj.showLookupTable != value[0])
-                    changed = true;
-                obj.showLookupTable = value[0];
-                break;
-            case 'ShowAux':
-                if (obj.showAux != value[0])
-                    changed = true;
-                obj.showAux = value[0];
-                break;
-            case 'Enable':
-                obj.enabled = value[0];
-                if (obj.enabled)
-                    obj.indicator._active();
-                else
-                    obj.indicator._deactive();
-                break;
-            }
-            if (changed)
-                obj.updateInputPanel();
-        }
 
         this.verticalSignal = this.settings.connect(
             'changed::vertical',
@@ -191,13 +102,101 @@ var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
         this.addToShell();
         this.dbusSignal = this.conn.signal_subscribe(
             null, "org.kde.kimpanel.inputmethod", null, null, null,
-            Gio.DBusSignalFlags.NONE, _parseSignal);
+            Gio.DBusSignalFlags.NONE, this._parseSignal.bind(this));
         this.owner_id = Gio.bus_own_name(
             Gio.BusType.SESSION, "org.kde.impanel", Gio.BusNameOwnerFlags.NONE,
             null, this.requestNameFinished.bind(this), null);
         this.helper_owner_id =
             Gio.bus_own_name(Gio.BusType.SESSION, "org.fcitx.GnomeHelper",
                              Gio.BusNameOwnerFlags.NONE, null, null, null);
+    }
+
+    _parseSignal(conn, sender, object, iface, signal, param) {
+        let value = param.deep_unpack();
+        let changed = false;
+        switch (signal) {
+        case 'ExecMenu':
+            this.menu.execMenu(value[0]);
+            break;
+        case 'RegisterProperties':
+            if (this.current_service != sender) {
+                this.current_service = sender;
+                if (this.watch_id != 0) {
+                    Gio.bus_unwatch_name(this.watch_id);
+                }
+                this.watch_id = Gio.bus_watch_name(
+                    Gio.BusType.SESSION, this.current_service,
+                    Gio.BusNameWatcherFlags.NONE, null,
+                    this.imExit.bind(this));
+            }
+            this.indicator._updateProperties(value[0]);
+            break;
+        case 'UpdateProperty':
+            this.indicator._updateProperty(value[0]);
+            if (this.enabled)
+                this.indicator._active();
+            else
+                this.indicator._deactive();
+            break;
+        case 'UpdateSpotLocation':
+            if (this.x != value[0] || this.y != value[1] || this.w != 0 ||
+                this.h != 0)
+                changed = true;
+            this.x = value[0];
+            this.y = value[1];
+            this.w = 0;
+            this.h = 0;
+            break;
+        case 'UpdatePreeditText':
+            if (this.preedit != value[0])
+                changed = true;
+            this.preedit = value[0];
+            break;
+        case 'UpdateAux':
+            if (this.aux != value[0])
+                changed = true;
+            this.aux = value[0];
+            break;
+        case 'UpdateLookupTable':
+            changed = true;
+            this.label = value[0];
+            this.table = value[1];
+            break;
+        case 'UpdateLookupTableCursor':
+            if (this.pos != value[0])
+                changed = true;
+            this.cursor = value[0];
+            break;
+        case 'UpdatePreeditCaret':
+            if (this.pos != value[0])
+                changed = true;
+            this.pos = value[0];
+            break;
+        case 'ShowPreedit':
+            if (this.showPreedit != value[0])
+                changed = true;
+            this.showPreedit = value[0];
+            break;
+        case 'ShowLookupTable':
+            if (this.showLookupTable != value[0])
+                changed = true;
+            this.showLookupTable = value[0];
+            break;
+        case 'ShowAux':
+            if (this.showAux != value[0])
+                changed = true;
+            this.showAux = value[0];
+            break;
+        case 'Enable':
+            this.enabled = value[0];
+            if (this.enabled)
+                this.indicator._active();
+            else
+                this.indicator._deactive();
+            break;
+        }
+        if (changed)
+            this.updateInputPanel();
     }
 
     resetData() {
@@ -274,7 +273,7 @@ var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
     }
 
     updateInputPanel() {
-        var inputpanel = this.inputpanel;
+        let inputpanel = this.inputpanel;
 
         this.showAux ? inputpanel.setAuxText(this.aux) : inputpanel.hideAux();
         this.showPreedit ? inputpanel.setPreeditText(this.preedit, this.pos)

@@ -30,7 +30,7 @@ var KimMenu = class extends PopupMenu.PopupMenu {
         this._propertySwitch = [];
 
         for (let i = 0; i < properties.length; i++) {
-            var property = Lib.parseProperty(properties[i]);
+            let property = Lib.parseProperty(properties[i]);
             this._addPropertyItem(property);
         }
         if (properties.length > 0) {
@@ -39,7 +39,7 @@ var KimMenu = class extends PopupMenu.PopupMenu {
     }
 
     _addPropertyItem(property) {
-        var item = Lib.createMenuItem(property);
+        let item = Lib.createMenuItem(property);
 
         item.connect('activate',
                      () => this.kimpanel.triggerProperty(item._key));
@@ -51,7 +51,7 @@ var KimMenu = class extends PopupMenu.PopupMenu {
     }
 
     _onSourceKeyPress(actor, event) {
-        var symbol = event.get_key_symbol();
+        let symbol = event.get_key_symbol();
         if (symbol == Clutter.KEY_space || symbol == Clutter.KEY_Return) {
             this.toggle();
             return true;
@@ -79,7 +79,7 @@ var KimMenu = class extends PopupMenu.PopupMenu {
         // Setting the max-height won't do any good if the minimum height of the
         // menu is higher then the screen; it's useful if part of the menu is
         // scrollable so the minimum height is smaller than the natural height
-        var monitor = Main.layoutManager.primaryMonitor;
+        let monitor = Main.layoutManager.primaryMonitor;
         this.actor.style =
             ('max-height: ' +
              Math.round(monitor.height - Main.panel.actor.height) + 'px;');
@@ -96,9 +96,9 @@ var KimMenu = class extends PopupMenu.PopupMenu {
         if (!this.grabbed)
             return false;
 
-        var activeMenuContains = this.actor.contains(event.get_source());
+        let activeMenuContains = this.actor.contains(event.get_source());
 
-        var eventType = event.type();
+        let eventType = event.type();
         if (eventType == Clutter.EventType.BUTTON_RELEASE) {
             if (activeMenuContains) {
                 return false;
@@ -118,7 +118,7 @@ var KimMenu = class extends PopupMenu.PopupMenu {
         if (!this.grabbed)
             return;
 
-        var focus = global.stage.key_focus;
+        let focus = global.stage.key_focus;
         if (focus) {
             if (this.actor.contains(focus))
                 return;

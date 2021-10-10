@@ -44,24 +44,23 @@ function createIcon(name) {
 }
 
 function createMenuItem(property) {
-    var item = new KimMenuItem("", "");
+    let item = new KimMenuItem("", "");
     item._key = property.key;
     return item;
 }
 
 function getTextStyle(settings) {
-    var font_string = settings.get_string('font') || "Sans 11";
-    var desc = Pango.FontDescription.from_string(font_string);
+    let font_string = settings.get_string('font') || "Sans 11";
+    let desc = Pango.FontDescription.from_string(font_string);
 
-    var font_family = desc.get_family();
-    var font_size = (desc.get_size() / Pango.SCALE) + "pt";
-    var font_style;
-    var i;
-    for (i in Pango.Style)
+    let font_family = desc.get_family();
+    let font_size = (desc.get_size() / Pango.SCALE) + "pt";
+    let font_style;
+    for (let i in Pango.Style)
         if (Pango.Style[i] == desc.get_style())
             font_style = i.toLowerCase();
 
-    var font_weight = desc.get_weight();
+    let font_weight = desc.get_weight();
 
     return "font-family:" + font_family + ";font-size:" + font_size +
            ";font-style:" + font_style + ";font-weight:" + font_weight;

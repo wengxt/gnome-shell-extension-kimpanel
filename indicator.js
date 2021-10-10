@@ -51,8 +51,8 @@ var KimIndicator = GObject.registerClass(
             if (!(key in this._properties)) {
                 return;
             }
-            var property = this._properties[key];
-            var item = Lib.createMenuItem(property);
+            let property = this._properties[key];
+            let item = Lib.createMenuItem(property);
 
             item.connect('activate',
                          () => this.kimpanel.triggerProperty(item._key));
@@ -65,49 +65,47 @@ var KimIndicator = GObject.registerClass(
         }
 
         _updatePropertyItem(key) {
-            var property = this._properties[key];
-            var item = this._propertySwitch[key];
+            let property = this._properties[key];
+            let item = this._propertySwitch[key];
             item.setIcon(property.icon);
             item.label.text = property.label;
         }
 
         _updateProperty(propstr) {
-            var property = Lib.parseProperty(propstr);
+            let property = Lib.parseProperty(propstr);
             if (property == null) {
                 return;
             }
-            var key = property.key;
+            let key = property.key;
             this._properties[key] = property;
             this._updateProperties();
         }
 
         _updateProperties(properties) {
             if (properties == undefined) {
-                var key;
-                for (key in this._propertySwitch) {
-                    var property = this._properties[key];
-                    var item = this._propertySwitch[key];
+                for (let key in this._propertySwitch) {
+                    let property = this._properties[key];
+                    let item = this._propertySwitch[key];
                     item.setIcon(property.icon);
                     item.label.text = property.label;
                 }
                 return;
             } else {
-                var p;
-                for (p in this._propertySwitch) {
+                for (let p in this._propertySwitch) {
                     if (properties[p] == undefined) {
                         this._propertySwitch[p].destroy();
                         delete this._propertySwitch[p];
                     }
                 }
 
-                var count = 0;
-                for (p in properties) {
-                    var property = Lib.parseProperty(properties[p]);
+                let count = 0;
+                for (let p in properties) {
+                    let property = Lib.parseProperty(properties[p]);
                     if (property == null) {
                         continue;
                     }
                     count++;
-                    var key = property.key;
+                    let key = property.key;
                     this._properties[key] = property;
                     if (key in this._propertySwitch)
                         this._updatePropertyItem(key);
@@ -123,9 +121,9 @@ var KimIndicator = GObject.registerClass(
         }
 
         _setIcon(property) {
-            for (var i = 0; i < property.hint.length; i++) {
+            for (let i = 0; i < property.hint.length; i++) {
                 if (property.hint[i].startsWith("label=")) {
-                    var label = property.hint[i].substr(6);
+                    let label = property.hint[i].substr(6);
                     if (label.length > 0) {
                         this.labelIcon.text = Lib.extractLabelString(label);
                         this.mainIcon.visible = false;
@@ -135,15 +133,15 @@ var KimIndicator = GObject.registerClass(
                 }
             }
 
-            var iconName = property.icon;
-            var labelName = property.label;
+            let iconName = property.icon;
+            let labelName = property.label;
 
             if (iconName === '') {
                 this.labelIcon.text = Lib.extractLabelString(labelName);
                 this.mainIcon.visible = false;
                 this.labelIcon.visible = true;
             } else {
-                var gicon = Lib.createIcon(iconName);
+                let gicon = Lib.createIcon(iconName);
                 this.mainIcon.gicon = gicon;
                 this.mainIcon.visible = true;
                 this.labelIcon.visible = false;
@@ -159,7 +157,7 @@ var KimIndicator = GObject.registerClass(
         }
 
         _deactive() {
-            var property = {
+            let property = {
                 'icon' : 'input-keyboard',
                 'label' : '',
                 'text' : '',
