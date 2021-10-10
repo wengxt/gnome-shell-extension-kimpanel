@@ -5,3 +5,5 @@ gettext
 cmake
 
 If you'd like to install it as user, run ./install.sh under the root of source.
+
+Translation: https://www.transifex.com/fcitx/fcitx/gnome-shell-extensions-kimpanel/
