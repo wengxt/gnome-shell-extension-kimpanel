@@ -73,7 +73,7 @@ const HelperIface = '<node> \
 </node>';
 
 var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
-    _init(params) {
+    _init() {
         this.conn = Gio.bus_get_sync(Gio.BusType.SESSION, null);
         this.settings = ExtensionUtils.getSettings();
         this._impl = Gio.DBusExportedObject.wrapJSObject(KimpanelIface, this);
@@ -92,8 +92,7 @@ var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
             new KimMenu({sourceActor : this.indicator, kimpanel : this});
         var obj = this;
 
-        function _parseSignal(conn, sender, object, iface, signal, param,
-                              user_data) {
+        function _parseSignal(conn, sender, object, iface, signal, param) {
             var value = param.deep_unpack();
             var changed = false;
             switch (signal) {
@@ -281,7 +280,6 @@ var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
         this.showPreedit ? inputpanel.setPreeditText(this.preedit, this.pos)
                          : inputpanel.hidePreedit();
 
-        var text = '';
         this.inputpanel.setLookupTable(this.label, this.table,
                                        this.showLookupTable);
         this.inputpanel.setLookupTableCursor(this.cursor);

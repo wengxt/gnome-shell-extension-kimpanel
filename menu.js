@@ -3,9 +3,6 @@ const Main = imports.ui.main;
 const PopupMenu = imports.ui.popupMenu;
 const Params = imports.misc.params;
 
-const Gettext = imports.gettext.domain('gnome-shell-extensions-kimpanel');
-const _ = Gettext.gettext;
-
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Lib = Me.imports.lib;
 
@@ -27,12 +24,12 @@ var KimMenu = class extends PopupMenu.PopupMenu {
     }
 
     execMenu(properties) {
-        for (var i = 0; i < this._propertySwitch.length; i++) {
+        for (let i = 0; i < this._propertySwitch.length; i++) {
             this._propertySwitch[i].destroy();
         }
         this._propertySwitch = [];
 
-        for (var i = 0; i < properties.length; i++) {
+        for (let i = 0; i < properties.length; i++) {
             var property = Lib.parseProperty(properties[i]);
             this._addPropertyItem(property);
         }
@@ -64,7 +61,7 @@ var KimMenu = class extends PopupMenu.PopupMenu {
         } else if (symbol == Clutter.KEY_Down) {
             if (!this.isOpen)
                 this.toggle();
-            this.actor.navigate_focus(this.actor, Gtk.DirectionType.DOWN,
+            this.actor.navigate_focus(this.actor, St.DirectionType.TAB_FORWARD,
                                       false);
             return true;
         } else
@@ -88,7 +85,7 @@ var KimMenu = class extends PopupMenu.PopupMenu {
              Math.round(monitor.height - Main.panel.actor.height) + 'px;');
     }
 
-    _onHoverCapture(actor, event) {
+    _onHoverCapture() {
         if (!this.grabbed)
             return false;
 

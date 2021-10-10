@@ -1,6 +1,5 @@
 const PopupMenu = imports.ui.popupMenu;
 const {St, GObject, Gio, Pango} = imports.gi;
-const Params = imports.misc.params;
 
 var KimMenuItem = GObject.registerClass(
     class KimMenuItem extends PopupMenu.PopupBaseMenuItem {
@@ -30,7 +29,7 @@ function parseProperty(str) {
     return property;
 }
 
-function createIcon(name, params) {
+function createIcon(name) {
     if (!name)
         return null;
 

@@ -76,12 +76,12 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
         if (!this.preeditText.visible)
             this.preeditText.show();
     }
-    _candidateClicked(widget, event) {
+    _candidateClicked(widget) {
         this.kimpanel.selectCandidate(widget.candidate_index);
     }
     setLookupTable(label, table, visible) {
-        var len = visible ? table.length : 0;
-        var labelLen = this.lookupTableLayout.get_children().length;
+        let len = visible ? table.length : 0;
+        let labelLen = this.lookupTableLayout.get_children().length;
 
         if (labelLen > 0 && len == 0) {
             this.layout.remove_child(this.lookupTableLayout);
@@ -91,8 +91,8 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
 
         // if number is not enough, create new
         if (len > labelLen) {
-            for (var i = 0; i < len - labelLen; i++) {
-                var item = createLabel({
+            for (let i = 0; i < len - labelLen; i++) {
+                let item = createLabel({
                     style_class : 'kimpanel-candidate-item kimpanel-label',
                     style : this.text_style,
                     text : '',
@@ -100,15 +100,15 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
                 });
                 item.candidate_index = 0;
                 item.ignore_focus = true;
-                item.connect('button-release-event', (widget, event) => {
+                item.connect('button-release-event', (widget) => {
                     if (!widget.ignore_focus)
-                        this._candidateClicked(widget, event);
+                        this._candidateClicked(widget);
                 });
-                item.connect('enter-event', (widget, event) => {
+                item.connect('enter-event', (widget) => {
                     if (!widget.ignore_focus)
                         widget.add_style_pseudo_class('hover');
                 });
-                item.connect('leave-event', (widget, event) => {
+                item.connect('leave-event', (widget) => {
                     if (!widget.ignore_focus)
                         widget.remove_style_pseudo_class('hover');
                 });
@@ -116,7 +116,7 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
             }
         } else if (len < labelLen) {
             // else destroy unnecessary one
-            for (var i = 0; i < labelLen - len; i++) {
+            for (let i = 0; i < labelLen - len; i++) {
                 this.lookupTableLayout.get_children()[0].destroy();
             }
         }

@@ -1,4 +1,4 @@
-const {St, GObject, Shell, Clutter, Pango} = imports.gi;
+const {St, GObject, Clutter, Pango} = imports.gi;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Params = imports.misc.params;
