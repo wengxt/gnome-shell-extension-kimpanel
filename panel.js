@@ -26,14 +26,15 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
         this.actor.style_class = 'popup-menu-boxpointer';
         this.actor.add_style_class_name('popup-menu');
         this.actor.add_style_class_name('minwidth-zero');
+        this.actor.add_style_class_name('kimpanel-popup-boxpointer');
 
         this._cursor = new St.Label({});
 
         this.layout = new St.BoxLayout({
             style_class : 'popup-menu-content',
             vertical : true,
-            style : "padding: .4em;"
         });
+        this.layout.add_style_class_name('kimpanel-popup-content');
         this.panel.bin.set_child(this.layout);
 
         this.upperLayout = new St.BoxLayout();
