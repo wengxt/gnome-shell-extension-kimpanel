@@ -10,17 +10,29 @@ var KimMenu = class extends PopupMenu.PopupMenu {
     constructor(params) {
         params = Params.parse(params, {
             sourceActor : null,
-            arrowAlignMent : 0.0,
+            arrowAlignment : 0.0,
             arrowSide : St.Side.TOP,
             kimpanel : null
         });
-        super(params.sourceActor, params.arrowAlignMent, params.arrowSide);
-        this.connect('open-state-changed', this._onOpenStateChanged.bind(this));
-        this.actor.connect('key-press-event',
-                           this._onSourceKeyPress.bind(this));
+        super(params.sourceActor, params.arrowAlignment, params.arrowSide);
+        this._openStateChangedId = this.connect(
+            'open-state-changed', this._onOpenStateChanged.bind(this));
+        this._kimKeyPressId = this.actor.connect(
+            'key-press-event', this._onSourceKeyPress.bind(this));
         this.grabbed = false;
         this._propertySwitch = [];
         this.kimpanel = params.kimpanel;
+    }
+
+    destroy() {
+        this.disconnect(this._openStateChangedId);
+        this.actor.disconnect(this._kimKeyPressId);
+        if (this.grabbed) {
+            this._ungrab();
+        }
+        this.execMenu([]);
+        this.kimpanel = null;
+        super.destroy();
     }
 
     execMenu(properties) {
@@ -41,8 +53,12 @@ var KimMenu = class extends PopupMenu.PopupMenu {
     _addPropertyItem(property) {
         let item = Lib.createMenuItem(property);
 
-        item.connect('activate',
-                     () => this.kimpanel.triggerProperty(item._key));
+        item._menuItemActivateId = item.connect(
+            'activate', () => this.kimpanel.triggerProperty(item._key));
+        item._menuItemDestroyId = item.connect('destroy', () => {
+            item.disconnect(item._menuItemActivateId);
+            item.disconnect(item._menuItemDestroyId);
+        });
         item.setIcon(property.icon);
         item.label.text = property.label;
 

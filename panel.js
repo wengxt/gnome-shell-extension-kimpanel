@@ -14,19 +14,15 @@ function createLabel(params) {
 var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
     _init(params) {
         params = Params.parse(params, {kimpanel : null});
+        this.kimpanel = params.kimpanel;
         this._arrowSide = St.Side.TOP;
         // create boxpointer as UI
         this.panel = new BoxPointer.BoxPointer(this._arrowSide,
                                                {x_align : St.Align.START});
-
-        this.kimpanel = params.kimpanel;
-
-        this.actor = this.panel;
-        this.actor._delegate = this;
-        this.actor.style_class = 'popup-menu-boxpointer';
-        this.actor.add_style_class_name('popup-menu');
-        this.actor.add_style_class_name('minwidth-zero');
-        this.actor.add_style_class_name('kimpanel-popup-boxpointer');
+        this.panel.style_class = 'popup-menu-boxpointer';
+        this.panel.add_style_class_name('popup-menu');
+        this.panel.add_style_class_name('minwidth-zero');
+        this.panel.add_style_class_name('kimpanel-popup-boxpointer');
 
         this._cursor = new St.Label({});
 
@@ -38,10 +34,8 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
         this.panel.bin.set_child(this.layout);
 
         this.upperLayout = new St.BoxLayout();
-
-        this.lookupTableVertical = this.kimpanel.isLookupTableVertical();
-        this.lookupTableLayout =
-            new St.BoxLayout({vertical : this.lookupTableVertical});
+        this.lookupTableLayout = new St.BoxLayout(
+            {vertical : this.kimpanel.isLookupTableVertical()});
 
         this.layout.add_child(this.upperLayout);
 
@@ -60,7 +54,23 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
         this.upperLayout.add_child(this.auxText);
         this.upperLayout.add_child(this.preeditText);
         this.hide();
-        this.actor.hide();
+        this.panel.hide();
+    }
+
+    destroy() {
+        if (!this.kimpanel) {
+            return;
+        }
+        this.kimpanel = null;
+        this.layout = null;
+        this.upperLayout = null;
+        this.lookupTableLayout = null;
+        this.auxText = null;
+        this.preeditText = null;
+        this.panel.destroy();
+        this.panel = null;
+        this._cursor.destroy();
+        this._cursor = null;
     }
 
     setAuxText(text) {
@@ -101,17 +111,24 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
                 });
                 item.candidate_index = 0;
                 item.ignore_focus = true;
-                item.connect('button-release-event', (widget) => {
-                    if (!widget.ignore_focus)
-                        this._candidateClicked(widget);
-                });
-                item.connect('enter-event', (widget) => {
+                item._buttonReleaseId =
+                    item.connect('button-release-event', (widget) => {
+                        if (!widget.ignore_focus)
+                            this._candidateClicked(widget);
+                    });
+                item._enterEventId = item.connect('enter-event', (widget) => {
                     if (!widget.ignore_focus)
                         widget.add_style_pseudo_class('hover');
                 });
-                item.connect('leave-event', (widget) => {
+                item._leaveEventId = item.connect('leave-event', (widget) => {
                     if (!widget.ignore_focus)
                         widget.remove_style_pseudo_class('hover');
+                });
+                item._labelDestroyId = item.connect('destroy', () => {
+                    item.disconnect(item._buttonReleaseId);
+                    item.disconnect(item._enterEventId);
+                    item.disconnect(item._leaveEventId);
+                    item.disconnect(item._labelDestroyId);
                 });
                 this.lookupTableLayout.add_child(item);
             }
@@ -186,7 +203,7 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
         let monitor =
             Main.layoutManager
                 .monitors[global.display.get_monitor_index_for_rect(rect)];
-        let panel_height = this.actor.get_height();
+        let panel_height = this.panel.get_height();
 
         if (h == 0) {
             h = 20;

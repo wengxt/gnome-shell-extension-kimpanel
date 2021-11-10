@@ -33,18 +33,25 @@ var KimIndicator = GObject.registerClass(
 
             this.kimpanel = params.kimpanel;
 
-            this._setting = new PopupMenu.PopupMenuItem(_("Settings"));
-            this._setting.connect('activate',
-                                  () => this.kimpanel.emit('Configure'));
-            this._reload =
+            let settingMenu = new PopupMenu.PopupMenuItem(_("Settings"));
+            settingMenu.connect('activate',
+                                () => this.kimpanel.emit('Configure'));
+            let reloadMenu =
                 new PopupMenu.PopupMenuItem(_("Reload Configuration"));
-            this._reload.connect('activate',
-                                 () => this.kimpanel.emit('ReloadConfig'));
+            reloadMenu.connect('activate',
+                               () => this.kimpanel.emit('ReloadConfig'));
 
             this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-            this.menu.addMenuItem(this._reload);
-            this.menu.addMenuItem(this._setting);
+            this.menu.addMenuItem(reloadMenu);
+            this.menu.addMenuItem(settingMenu);
             this.hide();
+        }
+
+        destroy() {
+            this.kimpanel = null;
+            this.labelIcon.destroy();
+            this.mainIcon.destroy();
+            super.destroy();
         }
 
         _addPropertyItem(key) {
@@ -54,8 +61,12 @@ var KimIndicator = GObject.registerClass(
             let property = this._properties[key];
             let item = Lib.createMenuItem(property);
 
-            item.connect('activate',
-                         () => this.kimpanel.triggerProperty(item._key));
+            item._menuItemActivateId = item.connect(
+                'activate', () => this.kimpanel.triggerProperty(item._key));
+            item._menuItemDestroyId = item.connect('destroy', () => {
+                item.disconnect(item._menuItemActivateId);
+                item.disconnect(item._menuItemDestroyId);
+            });
             item.setIcon(property.icon);
             item.label.text = property.label;
 

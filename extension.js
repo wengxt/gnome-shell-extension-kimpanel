@@ -74,6 +74,8 @@ const HelperIface = '<node> \
 
 var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
     _init() {
+        this._isDestroyed = false;
+        this.resetData();
         this.conn = Gio.bus_get_sync(Gio.BusType.SESSION, null);
         this.settings = ExtensionUtils.getSettings();
         this._impl = Gio.DBusExportedObject.wrapJSObject(KimpanelIface, this);
@@ -85,7 +87,6 @@ var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
         this._helperImpl.export(Gio.DBus.session, '/org/fcitx/GnomeHelper');
         this.current_service = '';
         this.watch_id = 0;
-        this.resetData();
         this.indicator = new KimIndicator({kimpanel : this});
         this.inputpanel = new InputPanel({kimpanel : this});
         this.menu =
@@ -105,13 +106,16 @@ var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
             Gio.DBusSignalFlags.NONE, this._parseSignal.bind(this));
         this.owner_id = Gio.bus_own_name(
             Gio.BusType.SESSION, "org.kde.impanel", Gio.BusNameOwnerFlags.NONE,
-            null, this.requestNameFinished.bind(this), null);
+            null, () => this.requestNameFinished(), null);
         this.helper_owner_id =
             Gio.bus_own_name(Gio.BusType.SESSION, "org.fcitx.GnomeHelper",
                              Gio.BusNameOwnerFlags.NONE, null, null, null);
     }
 
     _parseSignal(conn, sender, object, iface, signal, param) {
+        if (this._isDestroyed) {
+            return;
+        }
         let value = param.deep_unpack();
         let changed = false;
         switch (signal) {
@@ -126,8 +130,7 @@ var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
                 }
                 this.watch_id = Gio.bus_watch_name(
                     Gio.BusType.SESSION, this.current_service,
-                    Gio.BusNameWatcherFlags.NONE, null,
-                    this.imExit.bind(this));
+                    Gio.BusNameWatcherFlags.NONE, null, this.imExit.bind(this));
             }
             this.indicator._updateProperties(value[0]);
             break;
@@ -234,6 +237,9 @@ var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
     }
 
     requestNameFinished() {
+        if (this._isDestroyed) {
+            return;
+        }
         this._impl.emit_signal('PanelCreated', null);
         this._impl2.emit_signal('PanelCreated2', null);
     }
@@ -246,6 +252,9 @@ var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
     getTextStyle() { return Lib.getTextStyle(this.settings); }
 
     destroy() {
+        this._isDestroyed = true;
+        this.resetData();
+        this.updateInputPanel();
         if (this.watch_id != 0) {
             Gio.bus_unwatch_name(this.watch_id);
             this.watch_id = 0;
@@ -253,21 +262,30 @@ var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
         }
         this.settings.disconnect(this.verticalSignal);
         this.settings.disconnect(this.fontSignal);
+        this.settings = null;
         this.conn.signal_unsubscribe(this.dbusSignal);
+        this.conn = null;
         Gio.bus_unown_name(this.owner_id);
         Gio.bus_unown_name(this.helper_owner_id);
         this._impl.unexport();
+        this._impl = null;
         this._impl2.unexport();
+        this._impl2 = null;
         this._helperImpl.unexport();
+        this._helperImpl = null;
+        // Menu need to be destroyed before indicator.
+        this.menu.destroy();
+        this.menu = null;
         this.indicator.destroy();
         this.indicator = null;
+        this.inputpanel.destroy();
         this.inputpanel = null;
     }
 
     addToShell() {
         Main.uiGroup.add_actor(this.menu.actor);
         this.menu.actor.hide();
-        Main.layoutManager.addChrome(this.inputpanel.actor, {});
+        Main.layoutManager.addChrome(this.inputpanel.panel, {});
         Main.uiGroup.add_actor(this.inputpanel._cursor);
         Main.panel.addToStatusArea('kimpanel', this.indicator);
     }
