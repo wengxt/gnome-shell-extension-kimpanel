@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: fcitx-dev@googlegroups.com\n"
-"POT-Creation-Date: 2021-08-27 20:24+0000\n"
+"POT-Creation-Date: 2022-05-23 20:25+0000\n"
 "PO-Revision-Date: 2021-03-17 03:56+0000\n"
 "Last-Translator: Adolfo Jayme-Barrientos, 2021\n"
 "Language-Team: Spanish (https://www.transifex.com/fcitx/teams/12005/es/)\n"
@@ -19,20 +19,21 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
+"1 : 2;\n"
 
-#: indicator.js:34
+#: indicator.js:36
 msgid "Settings"
 msgstr "Configuración"
 
-#: indicator.js:38
+#: indicator.js:40
 msgid "Reload Configuration"
 msgstr "Recargar configuración"
 
-#: prefs.js:19
+#: prefs.js:18
 msgid "Vertical List"
 msgstr "Lista vertical"
 
-#: prefs.js:48
+#: prefs.js:49
 msgid "Font"
 msgstr "Tipo de letra"
