@@ -104,11 +104,12 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
         if (len > labelLen) {
             for (let i = 0; i < len - labelLen; i++) {
                 let item = createLabel({
-                    style_class : 'kimpanel-candidate-item kimpanel-label',
+                    style_class : 'candidate-box kimpanel-label',
                     style : this.text_style,
                     text : '',
                     reactive : true
                 });
+                item.add_style_class_name('kimpanel-candidate-item');
                 item.candidate_index = 0;
                 item.ignore_focus = true;
                 item._buttonReleaseId =
@@ -155,10 +156,10 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
         for (var i = 0; i < labelLen; i++) {
             if (i == cursor)
                 this.lookupTableLayout.get_children()[i].add_style_pseudo_class(
-                    'active');
+                    'selected');
             else
                 this.lookupTableLayout.get_children()[i]
-                    .remove_style_pseudo_class('active');
+                    .remove_style_pseudo_class('selected');
         }
     }
     setVertical(vertical) { this.lookupTableLayout.set_vertical(vertical); }

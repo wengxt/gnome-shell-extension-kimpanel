@@ -4,7 +4,7 @@
 
 .popup-menu-content.kimpanel-popup-content {
   /* you may customize pointer box here */
-  padding: 6px;
+  /* padding: 6px; */
 }
 
 .kimpanel-label {
@@ -18,18 +18,18 @@
 }
 
 .kimpanel-candidate-item:hover {
-  border-radius: 14px;
-  background-color: rgba(200,200,200,0.33);
+  /* border-radius: 14px; */
+  /* background-color: rgba(200,200,200,0.33); */
 }
 
-.kimpanel-candidate-item:active {
-  border-radius: 14px;
-  background-color: rgba(200,200,200,0.33);
+.kimpanel-candidate-item:selected {
+  /* border-radius: 14px; */
+  /* background-color: rgba(200,200,200,0.33); */
 }
 
-.kimpanel-candidate-item:active:hover {
-  border-radius: 14px;
-  background-color: rgba(200,200,200,0.15);
+.kimpanel-candidate-item:selected:hover {
+  /* border-radius: 14px; */
+  /* background-color: rgba(200,200,200,0.15); */
 }
 
 .minwidth-zero {
