@@ -11,7 +11,7 @@ const Lib = Me.imports.lib;
 var KimIndicator = GObject.registerClass(
     class Indicator_KimIndicator extends PanelMenu.Button {
         _init(params) {
-            super._init(0.0, 'kimpanel');
+            super._init(0.5, 'kimpanel');
             params = Params.parse(params, {kimpanel : null});
             this._properties = {};
             this._propertySwitch = {};
