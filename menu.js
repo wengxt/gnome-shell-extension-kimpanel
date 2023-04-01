@@ -10,7 +10,7 @@ var KimMenu = class extends PopupMenu.PopupMenu {
     constructor(params) {
         params = Params.parse(params, {
             sourceActor : null,
-            arrowAlignment : 0.0,
+            arrowAlignment : 0.5,
             arrowSide : St.Side.TOP,
             kimpanel : null
         });
