@@ -104,11 +104,12 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
         if (len > labelLen) {
             for (let i = 0; i < len - labelLen; i++) {
                 let item = createLabel({
-                    style_class : 'kimpanel-candidate-item kimpanel-label',
+                    style_class : 'popup-menu-item kimpanel-label',
                     style : this.text_style,
                     text : '',
                     reactive : true
                 });
+                item.add_style_class_name('kimpanel-candidate-item');
                 item.candidate_index = 0;
                 item.ignore_focus = true;
                 item._buttonReleaseId =

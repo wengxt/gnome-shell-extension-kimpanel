@@ -4,32 +4,33 @@
 
 .popup-menu-content.kimpanel-popup-content {
   /* you may customize pointer box here */
-  padding: 0.4em;
+  /* padding: 6px; */
 }
 
 .kimpanel-label {
   font-family:sans;
   font-weight:normal;
-  padding: 0.3em;
+  padding: 0.4em;
 }
 
 .kimpanel-candidate-item {
   cursor: pointer;
+  transition-duration: 0ms;
 }
 
 .kimpanel-candidate-item:hover {
-  border-radius: 4px;
-  background-color: rgba(200,200,200,0.33);
+  /* border-radius: 14px; */
+  /* background-color: rgba(200,200,200,0.33); */
 }
 
 .kimpanel-candidate-item:active {
-  border-radius: 4px;
-  background-color: rgba(200,200,200,0.33);
+  /* border-radius: 14px; */
+  /* background-color: rgba(200,200,200,0.33); */
 }
 
 .kimpanel-candidate-item:active:hover {
-  border-radius: 4px;
-  background-color: rgba(200,200,200,0.15);
+  /* border-radius: 14px; */
+  /* background-color: rgba(200,200,200,0.15); */
 }
 
 .minwidth-zero {
