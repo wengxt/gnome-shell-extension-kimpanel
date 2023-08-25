@@ -1,86 +1,50 @@
-imports.gi.versions['Gtk'] = '4.0';
-const Gtk = imports.gi.Gtk;
+import Adw from 'gi://Adw';
+import Gio from 'gi://Gio';
+import GObject from 'gi://GObject';
+import Gtk from 'gi://Gtk';
 
-const Gettext = imports.gettext.domain('gnome-shell-extensions-kimpanel');
-const _ = Gettext.gettext;
-
-const ExtensionUtils = imports.misc.extensionUtils;
-
-var settings;
-var settings_bool;
+import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 const SETTINGS_SCHEMA = 'org.gnome.shell.extensions.kimpanel';
 
-function init() {
-    ExtensionUtils.initTranslations();
-    settings = ExtensionUtils.getSettings();
-    settings_bool = {
-        vertical : {label : _("Vertical List")},
-    };
-}
-
-function createBoolSetting(setting) {
-
-    let hbox = new Gtk.Box({orientation : Gtk.Orientation.HORIZONTAL});
-
-    let setting_label = new Gtk.Label({
-        label : settings_bool[setting].label,
-        xalign : 0,
-        halign : Gtk.Align.FILL,
-        hexpand : true
-    });
-
-    let setting_switch =
-        new Gtk.Switch({active : settings.get_boolean(setting)});
-    setting_switch.connect(
-        'notify::active',
-        function(button) { settings.set_boolean(setting, button.active); });
-
-    hbox.append(setting_label);
-    hbox.append(setting_switch);
-
-    return hbox;
-}
-
-function createFontSelection() {
-    let hbox = new Gtk.Box({orientation : Gtk.Orientation.HORIZONTAL});
-
-    let setting_label = new Gtk.Label({
-        label : _("Font"),
-        xalign : 0,
-        halign : Gtk.Align.FILL,
-        hexpand : true
-    });
-
-    let font = settings.get_string('font') || "Sans 12";
-
-    let button = new Gtk.FontButton({font : font});
-
-    button.connect(
-        "font-set",
-        function(button) { settings.set_string('font', button.font); });
-
-    hbox.append(setting_label);
-    hbox.append(button);
-
-    return hbox;
-}
-
-function buildPrefsWidget() {
-    let frame = new Gtk.Box({orientation : Gtk.Orientation.VERTICAL});
-    let vbox = new Gtk.Box({
-        orientation : Gtk.Orientation.VERTICAL,
-        margin_top : 10,
-        margin_start : 20,
-        margin_end : 20
-    });
-
-    for (let setting in settings_bool) {
-        vbox.append(createBoolSetting(setting));
+class KimpanelPrefsWidget extends Adw.PreferencesPage {
+    static {
+        GObject.registerClass(this);
     }
-    vbox.append(createFontSelection());
 
-    frame.append(vbox);
-    frame.show();
-    return frame;
+    constructor(settings) {
+        super();
+        this._settings = settings;
+
+        const miscGroup = new Adw.PreferencesGroup();
+        this.add(miscGroup);
+
+        let toggle = new Gtk.Switch({
+            action_name: 'kimpanel.vertical-list',
+            valign: Gtk.Align.CENTER,
+        });
+        let row = new Adw.ActionRow({
+            title: _('Vertical List'),
+            activatable_widget: toggle,
+        });
+        this._settings.bind('vertical', toggle, 'active', Gio.SettingsBindFlags.DEFAULT);
+        row.add_suffix(toggle);
+        miscGroup.add(row);
+
+        let button = new Gtk.FontButton();
+        row = new Adw.ActionRow({
+            title: _('Font'),
+            activatable_widget: button,
+        });
+        this._settings.bind('font', button, 'font', Gio.SettingsBindFlags.DEFAULT);
+        row.add_suffix(button);
+        miscGroup.add(row);
+    }
+}
+
+
+export default class KimpanelExtensionPreferences extends ExtensionPreferences {
+    getPreferencesWidget() {
+        return new KimpanelPrefsWidget(this.getSettings());
+    }
 }

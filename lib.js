@@ -1,24 +1,29 @@
-const PopupMenu = imports.ui.popupMenu;
-const {St, GObject, Gio, Pango} = imports.gi;
+import St from 'gi://St';
+import GObject from 'gi://GObject';
+import Gio from 'gi://Gio';
+import Pango from 'gi://Pango';
+import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
-var KimMenuItem = GObject.registerClass(
-    class KimMenuItem extends PopupMenu.PopupBaseMenuItem {
-        _init(text, iconName, params) {
-            super._init(params);
+export class KimMenuItem extends PopupMenu.PopupBaseMenuItem {
+    static {
+        GObject.registerClass(this);
+    }
+    _init(text, iconName, params) {
+        super._init(params);
 
-            this.label = new St.Label({text : text});
-            this._icon = new St.Icon(
-                {x_align : St.Align.END, style_class : 'popup-menu-icon'});
-            this.add_child(this._icon);
-            this.add_child(this.label);
+        this.label = new St.Label({text : text});
+        this._icon = new St.Icon(
+            {x_align : St.Align.END, style_class : 'popup-menu-icon'});
+        this.add_child(this._icon);
+        this.add_child(this.label);
 
-            this.setIcon(iconName);
-        }
+        this.setIcon(iconName);
+    }
 
-        setIcon(name) { this._icon.gicon = createIcon(name); }
-    });
+    setIcon(name) { this._icon.gicon = createIcon(name); }
+}
 
-function parseProperty(str) {
+export function parseProperty(str) {
     let p = str.split(":");
     let property = {'key' : p[0], 'label' : p[1], 'icon' : p[2], 'text' : p[3]};
     if (p.length > 4 && p[4].length > 0) {
@@ -29,7 +34,7 @@ function parseProperty(str) {
     return property;
 }
 
-function createIcon(name) {
+export function createIcon(name) {
     if (!name)
         return null;
 
@@ -43,13 +48,13 @@ function createIcon(name) {
     return Gio.ThemedIcon.new_with_default_fallbacks(name + '-symbolic-hack');
 }
 
-function createMenuItem(property) {
+export function createMenuItem(property) {
     let item = new KimMenuItem("", "");
     item._key = property.key;
     return item;
 }
 
-function getTextStyle(settings) {
+export function getTextStyle(settings) {
     let font_string = settings.get_string('font') || "Sans 11";
     let desc = Pango.FontDescription.from_string(font_string);
 
@@ -66,11 +71,11 @@ function getTextStyle(settings) {
            ";font-style:" + font_style + ";font-weight:" + font_weight;
 }
 
-function isLookupTableVertical(settings) {
+export function isLookupTableVertical(settings) {
     return settings.get_boolean('vertical') || false;
 }
 
-function extractLabelString(l) {
+export function extractLabelString(l) {
     if (l.length >= 2 && l.charCodeAt(0) < 127 && l.charCodeAt(1) < 127) {
         return l.substring(0, 2);
     } else {

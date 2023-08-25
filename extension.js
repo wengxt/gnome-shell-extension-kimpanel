@@ -1,12 +1,14 @@
-const {GObject, Gio, GLib, Meta} = imports.gi;
-const Main = imports.ui.main;
-const ExtensionUtils = imports.misc.extensionUtils;
+import GObject from 'gi://GObject';
+import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
+import Meta from 'gi://Meta';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
-const Me = ExtensionUtils.getCurrentExtension();
-const KimIndicator = Me.imports.indicator.KimIndicator;
-const InputPanel = Me.imports.panel.InputPanel;
-const KimMenu = Me.imports.menu.KimMenu;
-const Lib = Me.imports.lib;
+import {InputPanel} from './panel.js';
+import {KimIndicator} from './indicator.js';
+import {KimMenu} from './menu.js';
+import * as Lib from './lib.js';
 
 var kimpanel = null;
 
@@ -72,12 +74,16 @@ const HelperIface = '<node> \
 </interface> \
 </node>';
 
-var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
-    _init() {
+class Kimpanel extends GObject.Object {
+    static {
+        GObject.registerClass(this);
+    }
+
+    _init(settings) {
         this._isDestroyed = false;
         this.resetData();
         this.conn = Gio.bus_get_sync(Gio.BusType.SESSION, null);
-        this.settings = ExtensionUtils.getSettings();
+        this.settings = settings;
         this._impl = Gio.DBusExportedObject.wrapJSObject(KimpanelIface, this);
         this._impl.export(Gio.DBus.session, '/org/kde/impanel');
         this._impl2 = Gio.DBusExportedObject.wrapJSObject(Kimpanel2Iface, this);
@@ -338,18 +344,23 @@ var Kimpanel = GObject.registerClass(class Kimpanel extends GObject.Object {
         this.inputpanel.setVertical(this.isLookupTableVertical());
     }
     LockXkbGroup(idx) { Meta.get_backend().lock_layout_group(idx); }
-});
-
-function init() { ExtensionUtils.initTranslations(); }
-
-function enable() {
-    if (!kimpanel) {
-        kimpanel = new Kimpanel();
-    }
 }
 
-function disable() {
-    kimpanel.destroy();
-    kimpanel = null;
+export default class KimpanelExtension extends Extension {
+    constructor(...args) {
+        super(...args);
+        this._settings = this.getSettings();
+    }
+
+    enable() {
+        if (!kimpanel) {
+            kimpanel = new Kimpanel(this._settings);
+        }
+    }
+
+    disable() {
+        kimpanel.destroy();
+        kimpanel = null;
+    }
 }
 // vim: set ts=4 sw=4 sts=4 expandtab

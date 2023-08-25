@@ -1,8 +1,10 @@
-const {St, GObject, Meta, Pango} = imports.gi;
-const Main = imports.ui.main;
-const Params = imports.misc.params;
-
-const BoxPointer = imports.ui.boxpointer;
+import St from 'gi://St';
+import GObject from 'gi://GObject';
+import Meta from 'gi://Meta';
+import Pango from 'gi://Pango';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as Params from 'resource:///org/gnome/shell/misc/params.js';
+import * as BoxPointer from 'resource:///org/gnome/shell/ui/boxpointer.js';
 
 function createLabel(params) {
     let label = new St.Label(params);
@@ -11,7 +13,11 @@ function createLabel(params) {
     return label;
 }
 
-var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
+export class InputPanel extends GObject.Object {
+    static {
+        GObject.registerClass(this);
+    }
+
     _init(params) {
         params = Params.parse(params, {kimpanel : null});
         this.kimpanel = params.kimpanel;
@@ -249,4 +255,4 @@ var InputPanel = GObject.registerClass(class InputPanel extends GObject.Object {
         this.panel.get_parent().set_child_above_sibling(this.panel, null);
     }
     hide() { this.panel.close(BoxPointer.PopupAnimation.NONE); }
-});
+}

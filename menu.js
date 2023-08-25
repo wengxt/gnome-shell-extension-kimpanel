@@ -1,12 +1,12 @@
-const {St, Clutter} = imports.gi;
-const Main = imports.ui.main;
-const PopupMenu = imports.ui.popupMenu;
-const Params = imports.misc.params;
+import St from 'gi://St';
+import Clutter from 'gi://Clutter';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
+import * as Params from 'resource:///org/gnome/shell/misc/params.js';
 
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Lib = Me.imports.lib;
+import * as Lib from './lib.js'
 
-var KimMenu = class extends PopupMenu.PopupMenu {
+export class KimMenu extends PopupMenu.PopupMenu {
     constructor(params) {
         params = Params.parse(params, {
             sourceActor : null,
