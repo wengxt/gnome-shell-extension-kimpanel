@@ -11,10 +11,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: fcitx-dev@googlegroups.com\n"
-"POT-Creation-Date: 2021-03-17 04:42+0000\n"
+"POT-Creation-Date: 2023-08-26 20:24+0000\n"
 "PO-Revision-Date: 2021-03-17 03:56+0000\n"
 "Last-Translator: csslayer <wengxt@gmail.com>, 2021\n"
-"Language-Team: Chinese (China) (https://www.transifex.com/fcitx/teams/12005/"
+"Language-Team: Chinese (China) (https://app.transifex.com/fcitx/teams/12005/"
 "zh_CN/)\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
@@ -22,18 +22,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: indicator.js:35
+#: indicator.js:41
 msgid "Settings"
 msgstr "设置"
 
-#: indicator.js:39
+#: indicator.js:45
 msgid "Reload Configuration"
 msgstr "重新加载配置"
-
-#: prefs.js:18
-msgid "Vertical List"
-msgstr "竖排列表"
-
-#: prefs.js:47
-msgid "Font"
-msgstr "字体"
