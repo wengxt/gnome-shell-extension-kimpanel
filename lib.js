@@ -62,7 +62,7 @@ function getTextStyle(settings) {
 
     let font_weight = desc.get_weight();
 
-    return "font-family:" + font_family + ";font-size:" + font_size +
+    return "font-family:'" + font_family + "';font-size:" + font_size +
            ";font-style:" + font_style + ";font-weight:" + font_weight;
 }
 
