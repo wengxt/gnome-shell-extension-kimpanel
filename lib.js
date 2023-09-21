@@ -1,3 +1,4 @@
+import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 import GObject from 'gi://GObject';
 import Gio from 'gi://Gio';
@@ -13,7 +14,7 @@ export class KimMenuItem extends PopupMenu.PopupBaseMenuItem {
 
         this.label = new St.Label({text : text});
         this._icon = new St.Icon(
-            {x_align : St.Align.END, style_class : 'popup-menu-icon'});
+            {x_align : Clutter.ActorAlign.END, style_class : 'popup-menu-icon'});
         this.add_child(this._icon);
         this.add_child(this.label);
 

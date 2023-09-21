@@ -1,3 +1,4 @@
+import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 import GObject from 'gi://GObject';
 import Meta from 'gi://Meta';
@@ -24,7 +25,7 @@ export class InputPanel extends GObject.Object {
         this._arrowSide = St.Side.TOP;
         // create boxpointer as UI
         this.panel = new BoxPointer.BoxPointer(this._arrowSide,
-                                               {x_align : St.Align.START});
+                                               {x_align : Clutter.ActorAlign.START});
         this.panel.style_class = 'popup-menu-boxpointer';
         this.panel.add_style_class_name('popup-menu');
         this.panel.add_style_class_name('minwidth-zero');
