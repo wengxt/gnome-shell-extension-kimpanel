@@ -1,7 +1,7 @@
 import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 import GObject from 'gi://GObject';
-import Meta from 'gi://Meta';
+import Mtk from 'gi://Mtk';
 import Pango from 'gi://Pango';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Params from 'resource:///org/gnome/shell/misc/params.js';
@@ -207,7 +207,7 @@ export class InputPanel extends GObject.Object {
                 }
             }
         }
-        let rect = new Meta.Rectangle({x : x, y : y, width : w, height : h});
+        let rect = new Mtk.Rectangle({x : x, y : y, width : w, height : h});
         let monitor =
             Main.layoutManager
                 .monitors[global.display.get_monitor_index_for_rect(rect)];
