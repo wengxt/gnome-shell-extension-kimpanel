@@ -33,7 +33,7 @@ export class KimIndicator extends PanelMenu.Button {
         });
         hbox.add_child(this.labelIcon);
         hbox.add_child(this.mainIcon);
-        this.add_actor(hbox);
+        this.add_child(hbox);
         this._deactive();
 
         this.kimpanel = params.kimpanel;
