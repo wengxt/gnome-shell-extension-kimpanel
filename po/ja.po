@@ -21,10 +21,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: indicator.js:41
-msgid "Settings"
-msgstr "設定"
-
 #: indicator.js:45
 msgid "Reload Configuration"
 msgstr "設定をリロード"
+
+#: indicator.js:41
+msgid "Settings"
+msgstr "設定"

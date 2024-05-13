@@ -22,10 +22,10 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
 "1 : 2;\n"
 
-#: indicator.js:41
-msgid "Settings"
-msgstr "Configuración"
-
 #: indicator.js:45
 msgid "Reload Configuration"
 msgstr "Recargar configuración"
+
+#: indicator.js:41
+msgid "Settings"
+msgstr "Configuración"

@@ -21,10 +21,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: indicator.js:41
-msgid "Settings"
-msgstr "설정"
-
 #: indicator.js:45
 msgid "Reload Configuration"
 msgstr "구성 다시읽기"
+
+#: indicator.js:41
+msgid "Settings"
+msgstr "설정"

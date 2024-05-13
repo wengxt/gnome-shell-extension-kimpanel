@@ -66,7 +66,13 @@ export function getTextStyle(settings) {
         if (Pango.Style[i] == desc.get_style())
             font_style = i.toLowerCase();
 
-    let font_weight = desc.get_weight();
+    let font_weight = Pango.Weight.NORMAL;
+    try {
+        font_weight = desc.get_weight();
+    } catch (error) {
+        // pango_font_description_get_weight may return value does not match any enum.
+        // ignore weight value if it happens.
+    }
 
     return "font-family:'" + font_family + "';font-size:" + font_size +
            ";font-style:" + font_style + ";font-weight:" + font_weight;
