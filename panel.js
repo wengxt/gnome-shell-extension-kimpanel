@@ -193,24 +193,39 @@ export class InputPanel extends GObject.Object {
         let y = kimpanel.y;
         let w = kimpanel.w;
         let h = kimpanel.h;
-        if (kimpanel.relative) {
-            if (global.display.focus_window) {
-                let shellScale =
-                    St.ThemeContext.get_for_stage(global.stage).scale_factor;
-                let window =
-                    global.display.focus_window.get_compositor_private();
-                if (window) {
-                    x = window.x + x * (shellScale / kimpanel.scale);
-                    y = window.y + y * (shellScale / kimpanel.scale);
-                    w = w * (shellScale / kimpanel.scale);
-                    h = h * (shellScale / kimpanel.scale);
-                }
+        let rect;
+        const focusWindow = global.display.focus_window;
+        if (kimpanel.relative && focusWindow) {
+            let shellScale =
+                St.ThemeContext.get_for_stage(global.stage).scale_factor;
+            rect = new Mtk.Rectangle({
+                x : x * (shellScale / kimpanel.scale),
+                y : y * (shellScale / kimpanel.scale),
+                width : w * (shellScale / kimpanel.scale),
+                height : h * (shellScale / kimpanel.scale)}
+            );
+            rect = focusWindow.protocol_to_stage_rect(rect);
+            let window =
+                global.display.focus_window.get_compositor_private();
+            if (window) {
+                rect.x += window.x;
+                rect.y += window.y;
+            }
+        } else {
+            rect = new Mtk.Rectangle({x : x, y : y, width : w, height : h});
+            if (focusWindow) {
+                rect = focusWindow.protocol_to_stage_rect(rect);
             }
         }
-        let rect = new Mtk.Rectangle({x : x, y : y, width : w, height : h});
         let monitor =
             Main.layoutManager
                 .monitors[global.display.get_monitor_index_for_rect(rect)];
+
+        x = rect.x;
+        y = rect.y;
+        w = rect.w;
+        h = rect.h;
+
         let panel_height = this.panel.get_height();
 
         if (h == 0) {
