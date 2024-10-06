@@ -144,7 +144,7 @@ export class KimMenu extends PopupMenu.PopupMenu {
     }
 
     _grab() {
-        Main.pushModal(this.actor);
+        this._grabHandle = Main.pushModal(this.actor);
 
         this._eventCaptureId = global.stage.connect(
             'captured-event', this._onEventCapture.bind(this));
@@ -169,6 +169,6 @@ export class KimMenu extends PopupMenu.PopupMenu {
         global.stage.disconnect(this._keyFocusNotifyId);
         this._keyFocusNotifyId = 0;
         this.grabbed = false;
-        Main.popModal(this.actor);
+        Main.popModal(this._grabHandle);
     }
 };
