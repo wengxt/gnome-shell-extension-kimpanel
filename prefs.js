@@ -32,6 +32,7 @@ class KimpanelPrefsWidget extends Adw.PreferencesPage {
         miscGroup.add(row);
 
         let button = new Gtk.FontButton();
+        button.set_valign(Gtk.Align.CENTER);
         row = new Adw.ActionRow({
             title: _('Font'),
             activatable_widget: button,
