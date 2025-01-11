@@ -217,9 +217,13 @@ export class InputPanel extends GObject.Object {
                 rect = focusWindow.protocol_to_stage_rect(rect);
             }
         }
-        let monitor =
-            Main.layoutManager
-                .monitors[global.display.get_monitor_index_for_rect(rect)];
+        // Based on the implementation, it should always return an index
+        // Unless there is no monitor at all.
+        let monitorIndex = global.display.get_monitor_index_for_rect(rect);
+        let monitor = null;
+        if (monitorIndex >= 0 && monitorIndex < Main.layoutManager.monitors.length) {
+            monitor = Main.layoutManager.monitors[monitorIndex];
+        }
 
         x = rect.x;
         y = rect.y;
@@ -233,22 +237,25 @@ export class InputPanel extends GObject.Object {
             y = y - 20;
         }
 
-        if (y + panel_height + h >= monitor.y + monitor.height) {
-            this._arrowSide = St.Side.BOTTOM;
+        // Cap the position within monitor.
+        if (monitor) {
+            if (y + panel_height + h >= monitor.y + monitor.height) {
+                this._arrowSide = St.Side.BOTTOM;
 
-            if (y + h >= monitor.y + monitor.height) {
-                y = monitor.y + monitor.height - 1;
-                h = 1;
+                if (y + h >= monitor.y + monitor.height) {
+                    y = monitor.y + monitor.height - 1;
+                    h = 1;
+                }
+            } else {
+                this._arrowSide = St.Side.TOP;
             }
-        } else {
-            this._arrowSide = St.Side.TOP;
-        }
 
-        if (x < monitor.x) {
-            x = monitor.x;
-        }
-        if (x >= monitor.x + monitor.width) {
-            x = monitor.x + monitor.width - 1;
+            if (x < monitor.x) {
+                x = monitor.x;
+            }
+            if (x >= monitor.x + monitor.width) {
+                x = monitor.x + monitor.width - 1;
+            }
         }
 
         this._cursor.set_position(x, y);
