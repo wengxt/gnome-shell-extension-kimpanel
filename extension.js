@@ -343,7 +343,7 @@ class Kimpanel extends GObject.Object {
         this.updateInputPanel();
         this.inputpanel.setVertical(this.isLookupTableVertical());
     }
-    LockXkbGroup(idx) { Meta.get_backend().lock_layout_group(idx); }
+    LockXkbGroup(idx) { global.backend.lock_layout_group(idx); }
 }
 
 export default class KimpanelExtension extends Extension {

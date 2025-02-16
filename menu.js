@@ -98,7 +98,7 @@ export class KimMenu extends PopupMenu.PopupMenu {
         let monitor = Main.layoutManager.primaryMonitor;
         this.actor.style =
             ('max-height: ' +
-             Math.round(monitor.height - Main.panel.actor.height) + 'px;');
+             Math.round(monitor.height - Main.panel.height) + 'px;');
     }
 
     _onHoverCapture() {
