@@ -11,5 +11,10 @@
         <summary>Font of input and candidate text panel</summary>
         <description>Set font of kimpanel input and candidate text.</description>
     </key>
+    <key type="b" name="panel-hide">
+      <default>false</default>
+      <summary>hide of candidate text panel</summary>
+      <description>Set hide of candidate text panel.</description>
+  </key>
   </schema>
 </schemalist>

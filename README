@@ -1,3 +1,10 @@
+在原项目上添加了隐藏候选栏配置。提供了一个脚本（hide_kimpanel.sh）来切换此选项。可通过系统快捷键绑定到脚本来快速切换。
+
+
+Added hidden candidate column configuration on the original project. 
+A script (hide_kimpanel. sh) is provided to switch this option.
+It can be quickly switched by binding to the script through system shortcut keys.
+
 KDE's kimpanel implementation for GNOME Shell
 
 Install requirements

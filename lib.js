@@ -82,6 +82,10 @@ export function isLookupTableVertical(settings) {
     return settings.get_boolean('vertical') || false;
 }
 
+export function getPanelHide(settings) {
+    return settings.get_boolean('panel-hide') || false;
+}
+
 export function extractLabelString(l) {
     if (l.length >= 2 && l.charCodeAt(0) < 127 && l.charCodeAt(1) < 127) {
         return l.substring(0, 2);

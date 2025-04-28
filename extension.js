@@ -106,6 +106,9 @@ class Kimpanel extends GObject.Object {
             'changed::font',
             () => this.inputpanel.updateFont(this.getTextStyle()));
 
+        this.hideSignal = this.settings.connect(
+            'changed::panel-hide',
+            () => this.inputpanel.setPanelHide(this.getPanelHide()));
         this.addToShell();
         this.dbusSignal = this.conn.signal_subscribe(
             null, "org.kde.kimpanel.inputmethod", null, null, null,
@@ -256,6 +259,7 @@ class Kimpanel extends GObject.Object {
     }
 
     getTextStyle() { return Lib.getTextStyle(this.settings); }
+    getPanelHide() { return Lib.getPanelHide(this.settings); }
 
     destroy() {
         this._isDestroyed = true;

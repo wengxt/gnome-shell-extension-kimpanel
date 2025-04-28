@@ -170,6 +170,7 @@ export class InputPanel extends GObject.Object {
         }
     }
     setVertical(vertical) { this.lookupTableLayout.set_vertical(vertical); }
+    setPanelHide(panelHide) { this.panelHide = panelHide; }
     updateFont(textStyle) {
         this.text_style = textStyle;
         this.auxText.set_style(this.text_style);
@@ -263,8 +264,8 @@ export class InputPanel extends GObject.Object {
 
         this.panel._arrowSide = this._arrowSide;
 
-        this.visible = kimpanel.showAux || kimpanel.showPreedit ||
-                       kimpanel.showLookupTable;
+        this.visible = (kimpanel.showAux || kimpanel.showPreedit ||
+                       kimpanel.showLookupTable) && !this.panelHide;
         if (this.visible) {
             this.show();
         } else {

@@ -31,6 +31,18 @@ class KimpanelPrefsWidget extends Adw.PreferencesPage {
         row.add_suffix(toggle);
         miscGroup.add(row);
 
+        let toggle1 = new Gtk.Switch({
+            action_name: 'hide-panel',
+            valign: Gtk.Align.CENTER,
+        });
+        row = new Adw.ActionRow({
+            title: _('hide  candidate text panel'),
+            activatable_widget: toggle1,
+        });
+        this._settings.bind('panel-hide', toggle1, 'active', Gio.SettingsBindFlags.DEFAULT);
+        row.add_suffix(toggle1);
+        miscGroup.add(row);
+
         let button = new Gtk.FontButton();
         button.set_valign(Gtk.Align.CENTER);
         row = new Adw.ActionRow({
