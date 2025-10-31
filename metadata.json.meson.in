@@ -1,0 +1,10 @@
+{
+    "shell-version": ["48", "49"],
+    "gettext-domain": "@GETTEXT_DOMAIN@",
+    "settings-schema": "@SETTINGS_SCHEMA@",
+    "uuid": "@UUID@",
+    "name": "Input Method Panel",
+    "description": "Input Method Panel using KDE's kimpanel protocol for GNOME Shell",
+    "url": "https://github.com/wengxt/gnome-shell-extension-kimpanel",
+    "version": "@VERSION@"
+}

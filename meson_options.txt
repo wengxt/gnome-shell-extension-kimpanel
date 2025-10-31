@@ -1,0 +1,6 @@
+option(
+    'glib_compile_schemas',
+    type: 'boolean',
+    value: false,
+    description: 'Update gschemas.compiled file in <prefix>/<datadir>/glib-2.0/schemas during postinstall',
+)
