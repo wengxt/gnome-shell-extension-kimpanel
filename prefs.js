@@ -5,8 +5,6 @@ import Gtk from 'gi://Gtk';
 
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-const SETTINGS_SCHEMA = 'org.gnome.shell.extensions.kimpanel';
-
 class KimpanelPrefsWidget extends Adw.PreferencesPage {
     static {
         GObject.registerClass(this);
