@@ -340,8 +340,8 @@ class Kimpanel extends GObject.Object {
         this.table = texts;
         this.cursor = cursor;
         this.layoutHint = layout;
-        this.updateInputPanel();
         this.inputpanel.setVertical(this.isLookupTableVertical());
+        this.updateInputPanel();
     }
     LockXkbGroup(idx) { global.backend.lock_layout_group(idx); }
 }
