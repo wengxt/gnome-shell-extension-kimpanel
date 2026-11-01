@@ -23,7 +23,7 @@ msgstr ""
 
 #: indicator.js:41
 msgid "Settings"
-msgstr ""
+msgstr "Cài đặt"
 
 #: indicator.js:45
 msgid "Reload Configuration"
