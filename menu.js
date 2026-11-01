@@ -112,7 +112,7 @@ export class KimMenu extends PopupMenu.PopupMenu {
         if (!this.grabbed)
             return false;
 
-        let activeMenuContains = this.actor.contains(event.get_source());
+        let activeMenuContains = this.actor.contains(global.stage.get_event_actor(event));
 
         let eventType = event.type();
         if (eventType == Clutter.EventType.BUTTON_RELEASE) {
@@ -146,7 +146,7 @@ export class KimMenu extends PopupMenu.PopupMenu {
     _grab() {
         this._grabHandle = Main.pushModal(this.actor);
 
-        this._eventCaptureId = global.stage.connect(
+        this._eventCaptureId = this.actor.connect(
             'captured-event', this._onEventCapture.bind(this));
         // captured-event doesn't see enter/leave events
         this._enterEventId = global.stage.connect(
@@ -160,7 +160,7 @@ export class KimMenu extends PopupMenu.PopupMenu {
     }
 
     _ungrab() {
-        global.stage.disconnect(this._eventCaptureId);
+        this.actor.disconnect(this._eventCaptureId);
         this._eventCaptureId = 0;
         global.stage.disconnect(this._enterEventId);
         this._enterEventId = 0;
