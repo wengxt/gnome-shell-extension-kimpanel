@@ -7,3 +7,18 @@ cmake
 If you'd like to install it as user, run ./install.sh under the root of source.
 
 Translation: https://www.transifex.com/fcitx/fcitx/gnome-shell-extensions-kimpanel/
+
+Wayland and focus-follows-mouse
+-----------------------------
+
+With GNOME's strict `mouse` focus mode, moving the pointer over a candidate
+panel can clear the application's keyboard focus. This can interrupt preedit,
+make the candidate panel flash, and leave raw input or spaces in the application.
+
+If you use focus-follows-mouse on Wayland, use `sloppy` mode to retain the last
+focused window while the pointer is over the candidate panel or desktop:
+
+    gsettings set org.gnome.desktop.wm.preferences focus-mode 'sloppy'
+
+Windows will still receive focus when the pointer enters them. This changes
+the desktop focus preference; the extension does not change it automatically.
